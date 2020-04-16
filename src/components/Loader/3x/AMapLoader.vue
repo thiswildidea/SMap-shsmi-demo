@@ -21,8 +21,8 @@ export default {
   },
   methods: {
     initMap() {
-      AMapLoader.load(['smi/Amap'], { version: '3.32', css: true }).then(([Amap]) => {
-        this.map = new Amap('container', { viewMode: '3D' }, function(map) {
+      AMapLoader.load(['smi/AMap'], { version: '3.32', css: true }).then(([AMap]) => {
+        this.map = new AMap('container', { viewMode: '3D' }, function(map) {
           console.log(this.map)
         })
       })

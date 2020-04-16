@@ -22,7 +22,7 @@ export default {
   methods: {
     initMap() {
       AMapLoader.load(['smi/AMap']).then(([AMap]) => {
-        this.map = new AMap('container', { viewMode: '3D' }, function(map) {
+        this.map = new AMap('container', {}, function(map) {
           console.log(this.map)
         })
       })
