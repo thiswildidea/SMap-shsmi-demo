@@ -4,7 +4,7 @@
   </div>
 </template>
 <script>
-import AMapLoader from '../utils/AMapLoader/esm/AMapLoader'
+import AMapLoader from 'amap-shsmi-loader'
 export default {
   name: 'AMapLoader',
   components: { },

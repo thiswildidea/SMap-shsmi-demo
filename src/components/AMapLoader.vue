@@ -4,7 +4,8 @@
   </div>
 </template>
 <script>
-import AMapLoader from '../utils/AMapLoader/esm/AMapLoader'
+// import  AMapLoader from '../utils/AMapLoader/esm/AMapLoader'
+import AMapLoader from 'amap-shsmi-loader'
 export default {
   name: 'AMapLoader',
   components: { },
@@ -21,7 +22,7 @@ export default {
   },
   methods: {
     initMap() {
-      AMapLoader.load(['smi/AMap'], { version: '3.32', css: true }).then(([AMap]) => {
+      AMapLoader.load(['smi/AMap']).then(([AMap]) => {
         this.map = new AMap('container', { viewMode: '3D' }, function(map) {
           console.log(this.map)
         })
