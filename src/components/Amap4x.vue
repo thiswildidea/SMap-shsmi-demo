@@ -34,8 +34,8 @@ export default {
         viewMode: '3D',
         center: [0, 0],
         zoom: 5,
-        zooms: [2, 10],
-        pitch: 75
+        zooms: [1, 9],
+        pitch: 60
       })
     },
     panBy() {
