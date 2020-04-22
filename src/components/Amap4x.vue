@@ -9,8 +9,8 @@
   </div>
 </template>
 <script>
-// import AMap from 'amap-shsmi'
-import AMap from '../utils/4x/esm/AMap'
+import AMap from 'amap-shsmi'
+// import AMap from '../utils/4x/esm/AMap'
 export default {
   name: 'AMap',
   components: { },
