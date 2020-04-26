@@ -1,6 +1,6 @@
 <template>
   <div class="mapExtent">
-    <div id="container" style="height:100%" class="calcite-map calcite-map-absolute calcite-widgets-dark" />
+    <div id="container" style="height:100%" />
     <div class="info">
       <h4>获取地图级别与中心点坐标</h4>
       <p>当前级别：<span class="map-zoom">{{ zoom }}</span></p>
@@ -23,9 +23,7 @@ export default {
       center: [0, 0]
     }
   },
-  computed: {
-
-  },
+  computed: {},
   mounted() {
     this.initMap()
   },

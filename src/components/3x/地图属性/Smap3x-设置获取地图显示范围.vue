@@ -1,6 +1,6 @@
 <template>
   <div class="mapExtent">
-    <div id="container" style="height:100%" class="calcite-map calcite-map-absolute calcite-widgets-dark" />
+    <div id="container" style="height:100%" />
     <div class="info">
       <h4>设置/获取地图显示范围</h4>
       <p>NorthEast坐标：<span class="map-northeast">{{ northeast }}</span></p>
@@ -23,9 +23,7 @@ export default {
       southwest: [0, 0]
     }
   },
-  computed: {
-
-  },
+  computed: {},
   mounted() {
     this.initMap()
   },

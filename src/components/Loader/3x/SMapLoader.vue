@@ -1,6 +1,6 @@
 <template>
   <div class="mapExtent">
-    <div id="container" style="height:100%" class="calcite-map calcite-map-absolute calcite-widgets-dark" />
+    <div id="container" style="height:100%" />
   </div>
 </template>
 <script>
