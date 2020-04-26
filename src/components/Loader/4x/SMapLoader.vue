@@ -22,8 +22,14 @@ export default {
   methods: {
     initMap() {
       SMapLoader.load(['smi/SMap']).then(([SMap]) => {
-        this.map = new SMap('container', { viewMode: '3D' }, function(map) {
-          console.log(this.map)
+        this.map = new SMap('container', {
+          viewMode: '3D',
+          center: [0, 0],
+          zoom: 8,
+          zooms: [1, 9],
+          pitch: 75
+        }, function(map) {
+          console.log(map)
         })
       })
     }

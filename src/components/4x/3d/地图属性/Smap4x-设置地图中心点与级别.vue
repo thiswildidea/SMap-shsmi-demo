@@ -24,9 +24,7 @@ export default {
       center: [100, 100, 100]
     }
   },
-  computed: {
-
-  },
+  computed: {},
   mounted() {
     this.initMap()
   },

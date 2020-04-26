@@ -23,9 +23,7 @@ export default {
       southwest: [0, 0]
     }
   },
-  computed: {
-
-  },
+  computed: {},
   mounted() {
     this.initMap()
   },

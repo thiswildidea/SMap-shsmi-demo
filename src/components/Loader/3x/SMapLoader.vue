@@ -22,8 +22,17 @@ export default {
   methods: {
     initMap() {
       SMapLoader.load(['smi/SMap'], { version: '3.32', css: true }).then(([SMap]) => {
-        this.map = new SMap('container', { viewMode: '3D' }, function(map) {
-          console.log(this.map)
+        this.map = new SMap('container', {
+          center: [0, 0],
+          zoom: 5,
+          zooms: [1, 9],
+          keyboardEnable: true, // 是否可以键盘导航
+          doubleClickZoom: true, // 是否双击缩放
+          dragEnable: true, // 是否地图拖拽
+          zoomEnable: true, // 是否可以缩放
+          mapNavigation: true // 是否可以地图导航
+        }, function(map) {
+          console.log(map)
         })
       })
     }
