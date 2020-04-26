@@ -2,26 +2,24 @@
   <div class="mapExtent">
     <div id="container" style="height:100%" class="calcite-map calcite-map-absolute calcite-widgets-dark" />
     <div class="info">
-      <h4>设置地图中心点/级别</h4>
-      <p>级别：<span class="map-zoom">{{ zoom }}</span></p>
-      <p>中心点：<span class="map-center">{{ center }}</span></p>
-      <el-button type="primary" @click="setzoom">设置地图级别</el-button>
-      <el-button type="primary" @click="setcenter">设置地图中心点</el-button>
-      <el-button type="primary" @click="setZoomAndcenter">设置地图级别和中心点</el-button>
+      <h4>地图的平移</h4>
+      <el-button type="primary" @click="panBy">平移像素值  {{ panoffset }}</el-button>
+      <el-button type="primary" @click="panTo">地图中心点平移至 {{ centerpoint }}</el-button>
     </div>
   </div>
 </template>
 <script>
-import AMap from 'amap3x-shsmi'
+import SMap from 'smap-shsmi'
+// import SMap from '../utils/4x/esm/SMap'
 export default {
-  name: 'AMap3x',
+  name: 'SMap',
   components: { },
   data() {
     return {
       mapconfig: [],
       map: null,
-      zoom: 5,
-      center: [0, 0]
+      panoffset: [50, 100],
+      centerpoint: [0, 0, 100]
     }
   },
   computed: {
@@ -32,40 +30,34 @@ export default {
   },
   methods: {
     initMap() {
-      this.map = new AMap.Map('container', {
+      this.map = new SMap.Map('container', {
+        viewMode: '3D',
         center: [0, 0],
         zoom: 5,
-        zooms: [2, 10],
-        mapNavigation: true,
-        dragEnable: true,
-        doubleClickZoom: true,
-        keyboardEnable: true,
-        zoomEnable: true
+        zooms: [1, 9],
+        pitch: 60
       })
     },
-    setzoom() {
-      this.map.setZoom(this.zoom)
+    panBy() {
+      this.map.panBy(parseFloat(this.panoffset[0]), parseFloat(this.panoffset[1]))
     },
-    setcenter() {
-      this.map.setCenter(this.center[0], this.center[1])
-    },
-    setZoomAndcenter() {
-      this.map.setZoomAndCenter(this.zoom, this.center)
+    panTo() {
+      this.map.panTo([parseFloat(this.centerpoint[0]), parseFloat(this.centerpoint[1]), parseFloat(this.centerpoint[2])])
     }
   }
 }
 </script>
 <style lang="scss" scoped>
   .mapExtent {
-    .info{
+      .info{
        position: relative;
-       float: right;
+       float: left;
        background: #d4dde2;
        color: rgb(14, 13, 13);
-      .map-zoom{
+      .map-northeast{
         color: #0288d1;
       }
-      .map-center{
+      .map-southwest{
         color: #0288d1;
       }
     }

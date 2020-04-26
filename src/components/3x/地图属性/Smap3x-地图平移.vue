@@ -2,25 +2,23 @@
   <div class="mapExtent">
     <div id="container" style="height:100%" class="calcite-map calcite-map-absolute calcite-widgets-dark" />
     <div class="info">
-      <h4>设置/获取地图显示范围</h4>
-      <p>NorthEast坐标：<span class="map-northeast">{{ northeast }}</span></p>
-      <p>SouthWest坐标：<span class="map-southwest">{{ southwest }}</span></p>
-      <el-button type="primary" @click="getBounds">获取地图显示范围</el-button>
-      <el-button type="primary" @click="setBounds">设置地图显示范围</el-button>
+      <h4>地图的平移</h4>
+      <el-button type="primary" @click="panBy">平移像素值  {{ panoffset }}</el-button>
+      <el-button type="primary" @click="panTo">地图中心点平移至 {{ centerpoint }}</el-button>
     </div>
   </div>
 </template>
 <script>
-import AMap from 'amap-shsmi'
+import SMap from 'smap3x-shsmi'
 export default {
-  name: 'AMap',
+  name: 'SMap3x',
   components: { },
   data() {
     return {
       mapconfig: [],
-      northeast: [0, 0],
       map: null,
-      southwest: [0, 0]
+      panoffset: [50, 100],
+      centerpoint: [0, 0]
     }
   },
   computed: {
@@ -31,32 +29,26 @@ export default {
   },
   methods: {
     initMap() {
-      this.map = new AMap.Map('container', {
-        viewMode: '3D',
+      this.map = new SMap.Map('container', {
         center: [0, 0],
         zoom: 5,
-        zooms: [2, 10],
-        pitch: 75
+        zooms: [2, 10]
       })
     },
-    getBounds() {
-      const bounds = this.map.getBounds()
-      this.northeast = bounds.northeast
-      this.southwest = bounds.southwest
+    panBy() {
+      this.map.panBy(parseFloat(this.panoffset[0]), parseFloat(this.panoffset[1]))
     },
-    setBounds() {
-      const mybounds = new AMap.Bounds([parseFloat(this.southwest[0]), parseFloat(this.southwest[1])],
-        [parseFloat(this.northeast[0]), parseFloat(this.northeast[1])])
-      this.map.setBounds(mybounds)
+    panTo() {
+      this.map.panTo([parseFloat(this.centerpoint[0]), parseFloat(this.centerpoint[1])])
     }
   }
 }
 </script>
 <style lang="scss" scoped>
   .mapExtent {
-      .info{
+    .info{
        position: relative;
-       float: left;
+       float: right;
        background: #d4dde2;
        color: rgb(14, 13, 13);
       .map-northeast{
@@ -87,4 +79,3 @@ export default {
     }
   }
 </style>
-

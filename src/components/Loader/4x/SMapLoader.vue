@@ -4,9 +4,9 @@
   </div>
 </template>
 <script>
-import AMapLoader from 'amap-shsmi-loader'
+import SMapLoader from 'smap-shsmi-loader'
 export default {
-  name: 'AMapLoader',
+  name: 'SMapLoader',
   components: { },
   data() {
     return {
@@ -21,8 +21,8 @@ export default {
   },
   methods: {
     initMap() {
-      AMapLoader.load(['smi/AMap']).then(([AMap]) => {
-        this.map = new AMap('container', {}, function(map) {
+      SMapLoader.load(['smi/SMap']).then(([SMap]) => {
+        this.map = new SMap('container', { viewMode: '3D' }, function(map) {
           console.log(this.map)
         })
       })

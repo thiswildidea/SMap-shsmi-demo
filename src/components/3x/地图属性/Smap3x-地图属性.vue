@@ -4,13 +4,13 @@
   </div>
 </template>
 <script>
-import AMapLoader from 'amap-shsmi-loader'
+import SMap from 'smap3x-shsmi'
 export default {
-  name: 'AMapLoader',
+  name: 'SMap3x',
   components: { },
   data() {
     return {
-      map: null
+      mapconfig: []
     }
   },
   computed: {
@@ -21,29 +21,23 @@ export default {
   },
   methods: {
     initMap() {
-      AMapLoader.load(['smi/AMap'], { version: '3.32', css: true }).then(([AMap]) => {
-        this.map = new AMap('container', { viewMode: '3D' }, function(map) {
-          console.log(this.map)
-        })
+      const map = new SMap.Map('container', {
+        center: [0, 0],
+        zoom: 5,
+        zooms: [2, 10],
+        mapNavigation: true,
+        dragEnable: false,
+        doubleClickZoom: false,
+        keyboardEnable: false,
+        zoomEnable: false
       })
+      console.log(map)
     }
   }
 }
 </script>
 <style lang="scss" scoped>
   .mapExtent {
-      .info{
-       position: relative;
-       float: left;
-       background: #d4dde2;
-       color: rgb(14, 13, 13);
-      .map-northeast{
-        color: #0288d1;
-      }
-      .map-southwest{
-        color: #0288d1;
-      }
-    }
     margin: 10px;
     .app-container {
       margin: 0 0 10px 0 !important;

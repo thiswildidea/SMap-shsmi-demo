@@ -11,9 +11,9 @@
   </div>
 </template>
 <script>
-import AMap from 'amap3x-shsmi'
+import SMap from 'smap3x-shsmi'
 export default {
-  name: 'AMap3x',
+  name: 'SMap3x',
   components: { },
   data() {
     return {
@@ -31,7 +31,7 @@ export default {
   },
   methods: {
     initMap() {
-      this.map = new AMap.Map('container', {
+      this.map = new SMap.Map('container', {
         center: [0, 0],
         zoom: 5,
         zooms: [2, 10]
@@ -43,7 +43,7 @@ export default {
       this.southwest = bounds.southwest
     },
     setBounds() {
-      const mybounds = new AMap.Bounds([parseFloat(this.southwest[0]), parseFloat(this.southwest[1])],
+      const mybounds = new SMap.Bounds([parseFloat(this.southwest[0]), parseFloat(this.southwest[1])],
         [parseFloat(this.northeast[0]), parseFloat(this.northeast[1])])
       this.map.setBounds(mybounds)
     }

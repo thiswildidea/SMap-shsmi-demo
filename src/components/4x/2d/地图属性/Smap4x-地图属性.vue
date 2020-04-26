@@ -4,9 +4,9 @@
   </div>
 </template>
 <script>
-import AMap from 'amap-shsmi'
+import SMap from 'smap-shsmi'
 export default {
-  name: 'AMap',
+  name: 'SMap',
   components: { },
   data() {
     return {
@@ -21,7 +21,7 @@ export default {
   },
   methods: {
     initMap() {
-      const map = new AMap.Map('container', {
+      const map = new SMap.Map('container', {
         center: [0, 0],
         zoom: 5,
         zooms: [2, 10],

@@ -1,24 +1,16 @@
 <template>
   <div class="mapExtent">
     <div id="container" style="height:100%" class="calcite-map calcite-map-absolute calcite-widgets-dark" />
-    <div class="info">
-      <h4>地图的平移</h4>
-      <el-button type="primary" @click="panBy">平移像素值  {{ panoffset }}</el-button>
-      <el-button type="primary" @click="panTo">地图中心点平移至 {{ centerpoint }}</el-button>
-    </div>
   </div>
 </template>
 <script>
-import AMap from 'amap3x-shsmi'
+import SMapLoader from 'smap-shsmi-loader'
 export default {
-  name: 'AMap3x',
+  name: 'SMapLoader',
   components: { },
   data() {
     return {
-      mapconfig: [],
-      map: null,
-      panoffset: [50, 100],
-      centerpoint: [0, 0]
+      map: null
     }
   },
   computed: {
@@ -29,26 +21,20 @@ export default {
   },
   methods: {
     initMap() {
-      this.map = new AMap.Map('container', {
-        center: [0, 0],
-        zoom: 5,
-        zooms: [2, 10]
+      SMapLoader.load(['smi/SMap']).then(([SMap]) => {
+        this.map = new SMap('container', {}, function(map) {
+          console.log(this.map)
+        })
       })
-    },
-    panBy() {
-      this.map.panBy(parseFloat(this.panoffset[0]), parseFloat(this.panoffset[1]))
-    },
-    panTo() {
-      this.map.panTo([parseFloat(this.centerpoint[0]), parseFloat(this.centerpoint[1])])
     }
   }
 }
 </script>
 <style lang="scss" scoped>
   .mapExtent {
-    .info{
+      .info{
        position: relative;
-       float: right;
+       float: left;
        background: #d4dde2;
        color: rgb(14, 13, 13);
       .map-northeast{
@@ -79,3 +65,4 @@ export default {
     }
   }
 </style>
+

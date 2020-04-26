@@ -2,9 +2,9 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import 'nprogress/nprogress.css'
 import map from '@/components/map'
-import Amap4x from '@/components/Amap4x'
-import Amap3x from '@/components/Amap3x'
-import AMapLoader from '@/components/AMapLoader'
+import Smap4x from '@/components/Smap4x'
+import Smap3x from '@/components/Smap3x'
+import SMapLoader from '@/components/SMapLoader'
 Vue.use(Router)
 export default new Router({
   routes: [{
@@ -12,17 +12,17 @@ export default new Router({
     name: 'map',
     component: map
   }, {
-    path: '/Amap4x',
-    name: 'Amap4x',
-    component: Amap4x
+    path: '/Smap4x',
+    name: 'Smap4x',
+    component: Smap4x
   }, {
-    path: '/Amap3x',
-    name: 'Amap3x',
-    component: Amap3x
+    path: '/Smap3x',
+    name: 'Smap3x',
+    component: Smap3x
   }, {
-    path: '/AMapLoader',
-    name: 'AMapLoader',
-    component: AMapLoader
+    path: '/SMapLoader',
+    name: 'SMapLoader',
+    component: SMapLoader
   }]
 })
 

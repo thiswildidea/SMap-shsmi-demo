@@ -1,17 +1,26 @@
 <template>
   <div class="mapExtent">
     <div id="container" style="height:100%" class="calcite-map calcite-map-absolute calcite-widgets-dark" />
+    <div class="info">
+      <h4>获取地图级别与中心点坐标</h4>
+      <p>当前级别：<span class="map-zoom">{{ zoom }}</span></p>
+      <p>当前中心点：<span class="map-center">{{ center }}</span></p>
+      <el-button type="primary" @click="getzoom">获取级别</el-button>
+      <el-button type="primary" @click="getcenter">获取中心点</el-button>
+    </div>
   </div>
 </template>
 <script>
-// import  AMapLoader from '../utils/AMapLoader/esm/AMapLoader'
-import AMapLoader from 'amap-shsmi-loader'
+import SMap from 'smap-shsmi'
 export default {
-  name: 'AMapLoader',
+  name: 'SMap',
   components: { },
   data() {
     return {
-      map: null
+      mapconfig: [],
+      map: null,
+      zoom: 5,
+      center: [0, 0]
     }
   },
   computed: {
@@ -22,26 +31,34 @@ export default {
   },
   methods: {
     initMap() {
-      AMapLoader.load(['smi/AMap']).then(([AMap]) => {
-        this.map = new AMap('container', { viewMode: '3D' }, function(map) {
-          console.log(this.map)
-        })
+      this.map = new SMap.Map('container', {
+        viewMode: '3D',
+        center: [0, 0],
+        zoom: 5,
+        pitch: 75,
+        zooms: [2, 10]
       })
+    },
+    getzoom() {
+      this.zoom = this.map.getZoom()
+    },
+    getcenter() {
+      this.center = this.map.getCenter().toString()
     }
   }
 }
 </script>
 <style lang="scss" scoped>
   .mapExtent {
-      .info{
+    .info{
        position: relative;
        float: left;
        background: #d4dde2;
        color: rgb(14, 13, 13);
-      .map-northeast{
+      .map-zoom{
         color: #0288d1;
       }
-      .map-southwest{
+      .map-center{
         color: #0288d1;
       }
     }
@@ -66,4 +83,3 @@ export default {
     }
   }
 </style>
-

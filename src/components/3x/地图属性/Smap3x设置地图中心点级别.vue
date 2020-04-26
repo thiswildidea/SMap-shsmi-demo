@@ -12,16 +12,16 @@
   </div>
 </template>
 <script>
-import AMap from 'amap-shsmi'
+import SMap from 'smap3x-shsmi'
 export default {
-  name: 'AMap',
+  name: 'SMap3x',
   components: { },
   data() {
     return {
       mapconfig: [],
       map: null,
-      zoom: 10,
-      center: [100, 100, 100]
+      zoom: 5,
+      center: [0, 0]
     }
   },
   computed: {
@@ -32,19 +32,22 @@ export default {
   },
   methods: {
     initMap() {
-      this.map = new AMap.Map('container', {
-        viewMode: '3D',
+      this.map = new SMap.Map('container', {
         center: [0, 0],
         zoom: 5,
-        pitch: 75,
-        zooms: [2, 10]
+        zooms: [2, 10],
+        mapNavigation: true,
+        dragEnable: true,
+        doubleClickZoom: true,
+        keyboardEnable: true,
+        zoomEnable: true
       })
     },
     setzoom() {
       this.map.setZoom(this.zoom)
     },
     setcenter() {
-      this.map.setCenter(this.center[0], this.center[1], this.center[2])
+      this.map.setCenter(this.center[0], this.center[1])
     },
     setZoomAndcenter() {
       this.map.setZoomAndCenter(this.zoom, this.center)
@@ -56,7 +59,7 @@ export default {
   .mapExtent {
     .info{
        position: relative;
-       float: left;
+       float: right;
        background: #d4dde2;
        color: rgb(14, 13, 13);
       .map-zoom{
@@ -87,3 +90,4 @@ export default {
     }
   }
 </style>
+

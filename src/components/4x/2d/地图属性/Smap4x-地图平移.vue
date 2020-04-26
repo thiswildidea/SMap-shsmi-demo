@@ -9,17 +9,16 @@
   </div>
 </template>
 <script>
-import AMap from 'amap-shsmi'
-// import AMap from '../utils/4x/esm/AMap'
+import SMap from 'smap-shsmi'
 export default {
-  name: 'AMap',
+  name: 'SMap',
   components: { },
   data() {
     return {
       mapconfig: [],
       map: null,
       panoffset: [50, 100],
-      centerpoint: [0, 0, 100]
+      centerpoint: [0, 0]
     }
   },
   computed: {
@@ -30,19 +29,18 @@ export default {
   },
   methods: {
     initMap() {
-      this.map = new AMap.Map('container', {
-        viewMode: '3D',
+      this.map = new SMap.Map('container', {
+        viewMode: '2D',
         center: [0, 0],
         zoom: 5,
-        zooms: [1, 9],
-        pitch: 60
+        zooms: [2, 10]
       })
     },
     panBy() {
       this.map.panBy(parseFloat(this.panoffset[0]), parseFloat(this.panoffset[1]))
     },
     panTo() {
-      this.map.panTo([parseFloat(this.centerpoint[0]), parseFloat(this.centerpoint[1]), parseFloat(this.centerpoint[2])])
+      this.map.panTo([parseFloat(this.centerpoint[0]), parseFloat(this.centerpoint[1])])
     }
   }
 }
