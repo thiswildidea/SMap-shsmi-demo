@@ -8,11 +8,11 @@ import SMapLoader from '@/components/SMapLoader'
 Vue.use(Router)
 export default new Router({
   routes: [{
-    path: '/',
+    path: '/map',
     name: 'map',
     component: map
   }, {
-    path: '/Smap4x',
+    path: '/',
     name: 'Smap4x',
     component: Smap4x
   }, {
