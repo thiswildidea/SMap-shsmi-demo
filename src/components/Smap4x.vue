@@ -11,15 +11,20 @@
       <el-button type="primary" @click="addmeasureline">添加线测量</el-button>
       <el-button type="primary" @click="addmeasurearea">添加面测量</el-button>
       <el-button type="primary" @click="addbasemaptoggle">添加底图切换按钮</el-button>
-      <el-button type="primary" @click="setMapStyle">设置地图样式</el-button>
       <el-button type="primary" @click="addUndergroundSwitch">添加地上地下切换控件</el-button>
+    </div>
+    <div class="mapinterface">
+      <h4>地图接口测试</h4>
+      <el-button type="primary" @click="setMapStyle">设置地图样式</el-button>
       <el-button type="primary" @click="remeovelayercontrol">删除图层控制框</el-button>
+      <el-button type="primary" @click="enablethroughground">穿透地表</el-button>
+      <el-button type="primary" @click="disenablethroughground">恢复地表模式</el-button>
     </div>
   </div>
 </template>
 <script>
-// import SMap from 'smap-shsmi'
-import SMap from '../utils/4x/esm/SMap'
+import SMap from 'smap-shsmi'
+// import SMap from '../utils/4x/esm/SMap'
 export default {
   name: 'MapControl',
   components: { },
@@ -47,7 +52,7 @@ export default {
         zooms: [1, 9],
         pitch: 60,
         mapStyle: 'smap://styles/dark', // 'smap://styles/dark' 'smap://styles/image'
-        showBuildingBlock: false
+        showBuildingBlock: true
       })
     },
     addlayercontrol() {
@@ -119,12 +124,19 @@ export default {
     },
     remeovelayercontrol() {
       this.map.removeControl(this.layerListControl)
+    },
+    enablethroughground() {
+      this.map.enableThroughGround(true)
+    },
+    disenablethroughground() {
+      this.map.enableThroughGround(false)
     }
   }
 }
 </script>
 <style lang="scss" scoped>
   .mapExtent {
+       flex-flow: row;
       .info{
        position: relative;
        float: left;
@@ -134,6 +146,15 @@ export default {
        >h4{
           text-align: center;
        }
+
+    }
+    .mapinterface
+    {
+        background: #d4dde2;
+         position: absolute;
+         margin-top: 100px;
+         float: left;
+         margin-left: 5px;
     }
     .mapcontainer {
       width: 100%;
