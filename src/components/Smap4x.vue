@@ -11,22 +11,25 @@
       <el-button type="primary" @click="addmeasureline">添加线测量</el-button>
       <el-button type="primary" @click="addmeasurearea">添加面测量</el-button>
       <el-button type="primary" @click="addbasemaptoggle">添加底图切换按钮</el-button>
+      <el-button type="primary" @click="setMapStyle">设置地图样式</el-button>
       <el-button type="primary" @click="addUndergroundSwitch">添加地上地下切换控件</el-button>
+      <el-button type="primary" @click="remeovelayercontrol">删除图层控制框</el-button>
     </div>
   </div>
 </template>
 <script>
-import SMap from 'smap-shsmi'
-// import SMap from '../utils/4x/esm/SMap'
+// import SMap from 'smap-shsmi'
+import SMap from '../utils/4x/esm/SMap'
 export default {
-  name: 'SMap',
+  name: 'MapControl',
   components: { },
   data() {
     return {
       mapconfig: [],
       map: null,
       panoffset: [50, 100],
-      centerpoint: [0, 0, 100]
+      centerpoint: [0, 0, 100],
+      layerListControl: null
     }
   },
   computed: {
@@ -42,16 +45,18 @@ export default {
         center: [0, 0],
         zoom: 5,
         zooms: [1, 9],
-        pitch: 60
+        pitch: 60,
+        mapStyle: 'smap://styles/dark', // 'smap://styles/dark' 'smap://styles/image'
+        showBuildingBlock: false
       })
     },
     addlayercontrol() {
-      const tocControl = new SMap.LayerListControl({
+      this.layerListControl = new SMap.LayerListControl({
         visible: true,
         position: 'top-right',
         collapse: true
       })
-      this.map.addControl(tocControl)
+      this.map.addControl(this.layerListControl)
     },
     addzoomcontrol() {
       const zoom = new SMap.Zoom({
@@ -108,6 +113,12 @@ export default {
         position: 'bottom-right'
       })
       this.map.addControl(undergroundSwitch)
+    },
+    setMapStyle() {
+      this.map.setMapStyle('smap://styles/normal')
+    },
+    remeovelayercontrol() {
+      this.map.removeControl(this.layerListControl)
     }
   }
 }

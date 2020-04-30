@@ -8,15 +8,18 @@
       <el-button type="primary" @click="addhomecontrol">添加主页控件</el-button>
       <el-button type="primary" @click="addcompasscontrol">添加罗盘控件</el-button>
       <el-button type="primary" @click="addfullscreencontrol">添加全屏控件</el-button>
+      <el-button type="primary" @click="addmeasureline">添加线测量</el-button>
+      <el-button type="primary" @click="addmeasurearea">添加面测量</el-button>
+      <el-button type="primary" @click="addbasemaptoggle">添加底图切换按钮</el-button>
       <el-button type="primary" @click="addUndergroundSwitch">添加地上地下切换控件</el-button>
+      <el-button type="primary" @click="remeovelayercontrol">删除图层控制框</el-button>
     </div>
   </div>
 </template>
 <script>
 import SMap from 'smap-shsmi'
-// import SMap from '../utils/4x/esm/SMap'
 export default {
-  name: 'SMap',
+  name: 'MapControl',
   components: { },
   data() {
     return {
@@ -43,19 +46,19 @@ export default {
       })
     },
     addlayercontrol() {
-      const TocControl = new SMap.LayerListControl({
+      this.layerListControl = new SMap.LayerListControl({
         visible: true,
         position: 'top-right',
         collapse: true
       })
-      this.map.addControl(TocControl)
+      this.map.addControl(this.layerListControl)
     },
     addzoomcontrol() {
-      const Zoom = new SMap.Zoom({
+      const zoom = new SMap.Zoom({
         visible: true,
         position: 'top-right'
       })
-      this.map.addControl(Zoom)
+      this.map.addControl(zoom)
     },
     addhomecontrol() {
       const home = new SMap.Home({
@@ -65,25 +68,49 @@ export default {
       this.map.addControl(home)
     },
     addcompasscontrol() {
-      const Compass = new SMap.Compass({
+      const compass = new SMap.Compass({
         visible: true,
         position: 'top-right'
       })
-      this.map.addControl(Compass)
+      this.map.addControl(compass)
     },
     addfullscreencontrol() {
-      const Fullscreen = new SMap.Fullscreen({
+      const fullscreen = new SMap.Fullscreen({
         visible: true,
         position: 'top-right'
       })
-      this.map.addControl(Fullscreen)
+      this.map.addControl(fullscreen)
+    },
+    addmeasureline() {
+      const measureLine = new SMap.MeasureLine({
+        visible: true,
+        position: 'top-right'
+      })
+      this.map.addControl(measureLine)
+    },
+    addmeasurearea() {
+      const measureArea = new SMap.MeasureArea({
+        visible: true,
+        position: 'top-right'
+      })
+      this.map.addControl(measureArea)
+    },
+    addbasemaptoggle() {
+      const basemapToggle = new SMap.BasemapToggle({
+        visible: true,
+        position: 'top-right'
+      })
+      this.map.addControl(basemapToggle)
     },
     addUndergroundSwitch() {
-      const UndergroundSwitch = new SMap.UndergroundSwitch({
+      const undergroundSwitch = new SMap.UndergroundSwitch({
         visible: true,
         position: 'bottom-right'
       })
-      this.map.addControl(UndergroundSwitch)
+      this.map.addControl(undergroundSwitch)
+    },
+    remeovelayercontrol() {
+      this.map.removeControl(this.layerListControl)
     }
   }
 }
@@ -96,6 +123,9 @@ export default {
        margin-left: 5px;
        background: #d4dde2;
        color: rgb(14, 13, 13);
+       >h4{
+          text-align: center;
+       }
     }
     .mapcontainer {
       width: 100%;

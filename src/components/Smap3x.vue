@@ -1,6 +1,6 @@
 <template>
   <div class="mapExtent">
-    <div id="container" style="height:100%" class="calcite-map calcite-map-absolute calcite-widgets-dark" />
+    <div id="container" style="height:100%" />
     <div class="info">
       <h4>地图的平移</h4>
       <el-button type="primary" @click="panBy">平移像素值  {{ panoffset }}</el-button>
