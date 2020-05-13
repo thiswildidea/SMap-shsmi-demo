@@ -15,17 +15,17 @@
       <el-button type="primary" @click="remeovelayercontrol">删除图层控制框</el-button>
     </div>
     <div class="mapinterface">
-      <h4>地图覆盖物测试</h4>
-      <el-button type="primary" @click="btnaddmark">添加覆盖物点(一次一个)</el-button>
-      <el-button type="primary" @click="btnupdatemark">更新覆盖物点(一个)</el-button>
-      <el-button type="primary" @click="btnclearonemark">清除一个覆盖物点</el-button>
-      <el-button type="primary" @click="btnaddmanymark">添加覆盖物点(多个)</el-button>
-      <el-button type="primary" @click="btnupdatemanymark">更新覆盖物点(多个)</el-button>
-      <el-button type="primary" @click="btncleanmanymark">清除多个覆盖物点</el-button>
-      <el-button type="primary" @click="btnaddmarkgroup">添加覆盖物组</el-button>
-      <el-button type="primary" @click="btnupdatemarkgroup">更新覆盖组</el-button>
-      <el-button type="primary" @click="btncleanmarkgroup">清除覆盖物组</el-button>
-      <el-button type="primary" @click="btnclearallmark">清除所有覆盖物点</el-button>
+      <h4>地图覆盖物线测试</h4>
+      <el-button type="primary" @click="btnaddpolyline">添加覆盖物线(一次一个)</el-button>
+      <el-button type="primary" @click="btnupdatepolyline">更新覆盖物线(一个)</el-button>
+      <el-button type="primary" @click="btnclearonepolyline">清除一个覆盖物线</el-button>
+      <el-button type="primary" @click="btnaddmanypolyline">添加覆盖物线(多个)</el-button>
+      <el-button type="primary" @click="btnupdatemanypolyline">更新覆盖物线(多个)</el-button>
+      <el-button type="primary" @click="btncleanmanypolyline">清除多个覆盖物线</el-button>
+      <el-button type="primary" @click="btnaddpolylinegroup">添加覆盖物组</el-button>
+      <el-button type="primary" @click="btnupdatepolylinegroup">更新覆盖组</el-button>
+      <el-button type="primary" @click="btncleanpolylinegroup">清除覆盖物组</el-button>
+      <el-button type="primary" @click="btnclearallpolyline">清除所有覆盖物线</el-button>
     </div>
   </div>
 </template>
@@ -37,10 +37,10 @@ export default {
   data() {
     return {
       map: null,
-      onemarker: null,
-      sencondmarker: null,
-      threemarker: null,
-      fourmarker: null,
+      onePolyline: null,
+      sencondPolyline: null,
+      threePolyline: null,
+      fourPolyline: null,
       OverlayGroup: null
     }
   },
@@ -60,11 +60,6 @@ export default {
         pitch: 60,
         mapStyle: 'smap://styles/dark', // 'smap://styles/dark' 'smap://styles/image'
         showBuildingBlock: false
-      })
-      this.map.on(SMap.MapEvent.maploaded, function(view) {
-        // this.panTo(100, 100)
-        console.log(view)
-        console.log(this.getZoom())
       })
     },
     addlayercontrol() {
@@ -134,14 +129,19 @@ export default {
     remeovelayercontrol() {
       this.map.removeControl(this.layerListControl)
     },
-    btnaddmark() {
-      this.onemarker = new SMap.Marker({
-        icon: new SMap.Icon({
-          size: new SMap.Size(40, 40),
-          image: require('../assets/repaireorder_Accepted.gif')
-        }),
+    btnaddpolyline() {
+      this.onePolyline = new SMap.Polyline({
+        path: [
+          new SMap.LngLat(0, 0),
+          new SMap.LngLat(10, 10),
+          new SMap.LngLat(50, 50)
+        ],
+        cap: 'square',
+        strokeColor: 'red',
+        style: 'solid',
+        lineJoin: 'round',
         label: new SMap.Label({
-          text: '点1',
+          text: '线一',
           color: 'red',
           visible: true,
           size: 22,
@@ -149,7 +149,7 @@ export default {
           angle: 0,
           backgroundColor: 'red',
           borderLineColor: 'blue',
-          borderLineSize: 1,
+          borderLineSize: 10,
           haloColor: '[51, 204, 51, 0.2]',
           haloSize: 0,
           horizontalAlignment: 'left',
@@ -157,133 +157,152 @@ export default {
           kerning: true,
           lineHeight: 25,
           lineWidth: 200,
-          rotated: true,
+          rotated: false,
           xoffset: 10,
           yoffset: 10
-        }),
-        position: [0, 0, 100]
+        })
       })
-      this.map.add(this.onemarker)
+      this.map.add(this.onePolyline)
 
-      this.sencondmarker = new SMap.Marker({
-        icon: new SMap.Icon({
-          size: new SMap.Size(40, 40),
-          image: require('../assets/repaireorder_Accepted.gif')
-        }),
+      this.sencondPolyline = new SMap.Polyline({
+        path: [
+          new SMap.LngLat(100, 100),
+          new SMap.LngLat(200, 200),
+          new SMap.LngLat(300, 300)
+        ],
+        cap: 'square',
+        strokeColor: 'red',
+        style: 'solid',
+        lineJoin: 'round',
         label: new SMap.Label({
-          text: '点2',
+          text: '线二',
           size: 22,
           color: 'blue',
           xoffset: 10,
           yoffset: 10,
           horizontalAlignment: 'left',
           verticalAlignment: 'top'
-        }),
-        position: [100, 100, 1000]
+        })
       })
-      this.map.add(this.sencondmarker)
+      this.map.add(this.sencondPolyline)
     },
-    btnupdatemark() {
-      this.onemarker.label.text = '点一更新'
-      this.map.update(this.onemarker)
+    btnupdatepolyline() {
+      this.onePolyline.path = [
+        new SMap.LngLat(0, 0),
+        new SMap.LngLat(20, 20),
+        new SMap.LngLat(80, 80)
+      ]
+      this.onePolyline.label.text = '线一更新',
+      this.onePolyline.label.color = 'yellow',
+      this.map.update(this.onePolyline)
     },
-    btnclearonemark() {
-      this.map.remove(this.onemarker)
+    btnclearonepolyline() {
+      this.map.remove(this.onePolyline)
     },
-    btnaddmanymark() {
-      this.threemarker = new SMap.Marker({
-        icon: new SMap.Icon({
-          size: new SMap.Size(40, 40),
-          image: require('../assets/repaireorder_Accepted.gif')
-        }),
+    btnaddmanypolyline() {
+      this.threePolyline = new SMap.Polyline({
+        path: [
+          new SMap.LngLat(400, 400),
+          new SMap.LngLat(420, 420),
+          new SMap.LngLat(450, 450)
+        ],
+        cap: 'square',
+        strokeColor: 'red',
+        style: 'solid',
+        lineJoin: 'round',
         label: new SMap.Label({
-          text: '点3',
+          text: '线三',
           size: 22,
-          xoffset: 0,
-          yoffset: 0,
+          color: 'blue',
+          xoffset: 10,
+          yoffset: 10,
           horizontalAlignment: 'left',
           verticalAlignment: 'top'
-        }),
-        position: [1000, 1000, 10]
+        })
       })
-      this.fourmarker = new SMap.Marker({
-        icon: new SMap.Icon({
-          size: new SMap.Size(40, 40),
-          image: require('../assets/repaireorder_Accepted.gif')
-        }),
+      this.fourPolyline = new SMap.Polyline({
+        path: [
+          new SMap.LngLat(600, 600),
+          new SMap.LngLat(620, 620),
+          new SMap.LngLat(650, 650)
+        ],
+        cap: 'square',
+        strokeColor: 'red',
+        style: 'solid',
+        lineJoin: 'round',
         label: new SMap.Label({
-          text: '点4',
+          text: '线四',
           size: 22,
-          xoffset: 0,
-          yoffset: 0,
+          color: 'blue',
+          xoffset: 10,
+          yoffset: 10,
           horizontalAlignment: 'left',
           verticalAlignment: 'top'
-        }),
-        position: [1100, 1100, 20]
+        })
       })
-      this.map.add([this.threemarker, this.fourmarker])
+      this.map.add([this.threePolyline, this.fourPolyline])
     },
-    btnupdatemanymark() {
-      this.threemarker.icon.image = require('../assets/blue.gif')
-      this.threemarker.label.text = '点三更新'
-
-      this.fourmarker.icon.image = require('../assets/blue.gif')
-      this.fourmarker.label.text = '点四更新'
-      this.map.update([this.threemarker, this.fourmarker])
+    btnupdatemanypolyline() {
+      this.threePolyline.label.text = '线三更新'
+      this.fourPolyline.label.text = '线四更新'
+      this.map.update([this.threePolyline, this.fourPolyline])
     },
-    btncleanmanymark() {
-      this.map.remove([this.threemarker, this.fourmarker])
+    btncleanmanypolyline() {
+      this.map.remove([this.threePolyline, this.fourPolyline])
     },
-    btnaddmarkgroup() {
-      const marker1 = new SMap.Marker({
-        icon: new SMap.Icon({
-          size: new SMap.Size(40, 40),
-          image: require('../assets/blue.gif')
-        }),
+    btnaddpolylinegroup() {
+      const polyline1 = new SMap.Polyline({
+        path: [
+          new SMap.LngLat(400, 400),
+          new SMap.LngLat(420, 420),
+          new SMap.LngLat(450, 450)
+        ],
+        cap: 'square',
+        strokeColor: 'red',
+        style: 'solid',
+        lineJoin: 'round',
         label: new SMap.Label({
-          text: '点5',
+          text: '线6',
           size: 22,
-          color: 'yellow',
-          xoffset: 0.1,
-          yoffset: 0.1,
-          // zoffset: 10,
+          color: 'blue',
+          xoffset: 10,
+          yoffset: 10,
           horizontalAlignment: 'left',
           verticalAlignment: 'top'
-        }),
-        position: [500, 500, 100]
+        })
       })
-      const marker2 = new SMap.Marker({
-        icon: new SMap.Icon({
-          size: new SMap.Size(40, 40),
-          image: require('../assets/blue.gif')
-        }),
+      const polyline2 = new SMap.Polyline({
+        path: [
+          new SMap.LngLat(300, 300),
+          new SMap.LngLat(320, 320),
+          new SMap.LngLat(350, 350)
+        ],
+        cap: 'square',
+        strokeColor: 'red',
+        style: 'solid',
+        lineJoin: 'round',
         label: new SMap.Label({
-          text: '点6',
+          text: '线6',
           size: 22,
-          color: 'black',
-          xoffset: 0.1,
-          yoffset: 0.1,
-          // zoffset: 10,
+          color: 'blue',
+          xoffset: 10,
+          yoffset: 10,
           horizontalAlignment: 'left',
           verticalAlignment: 'top'
-        }),
-        position: [550, 550, 200]
+        })
       })
-      this.OverlayGroup = new SMap.OverlayGroup([marker1, marker2])
+      this.OverlayGroup = new SMap.OverlayGroup([polyline1, polyline2])
       this.map.add(this.OverlayGroup)
     },
-    btnupdatemarkgroup() {
-      this.OverlayGroup.overlayers[0].icon.image = require('../assets/repaireorder_Accepted.gif')
-      this.OverlayGroup.overlayers[0].label.text = '点5更新'
-
-      this.OverlayGroup.overlayers[1].icon.image = require('../assets/repaireorder_Accepted.gif')
-      this.OverlayGroup.overlayers[1].label.text = '点6更新'
+    btnupdatepolylinegroup() {
+      this.OverlayGroup.overlayers[0].label.text = '线5更新'
+      this.OverlayGroup.overlayers[1].label.text = '线6更新'
       this.map.update(this.OverlayGroup)
     },
-    btncleanmarkgroup() {
+    btncleanpolylinegroup() {
       this.map.remove(this.OverlayGroup)
     },
-    btnclearallmark() {
+    btnclearallpolyline() {
       this.map.clearMap()
     }
   }

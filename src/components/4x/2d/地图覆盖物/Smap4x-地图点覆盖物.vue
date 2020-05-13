@@ -61,7 +61,7 @@ export default {
         mapStyle: 'smap://styles/dark', // 'smap://styles/dark' 'smap://styles/image'
         showBuildingBlock: false
       })
-      this.map.on(SMap.MapEvent.maploaded, function(view) {
+      this.map.on('maploaded', function(view) {
         // this.panTo(100, 100)
         console.log(view)
         console.log(this.getZoom())

@@ -53,18 +53,13 @@ export default {
   methods: {
     initMap() {
       this.map = new SMap.Map('container', {
-        viewMode: '2D',
+        viewMode: '3D',
         center: [0, 0],
         zoom: 5,
         zooms: [1, 12],
         pitch: 60,
         mapStyle: 'smap://styles/dark', // 'smap://styles/dark' 'smap://styles/image'
         showBuildingBlock: false
-      })
-      this.map.on(SMap.MapEvent.maploaded, function(view) {
-        // this.panTo(100, 100)
-        console.log(view)
-        console.log(this.getZoom())
       })
     },
     addlayercontrol() {
@@ -184,7 +179,7 @@ export default {
       this.map.add(this.sencondmarker)
     },
     btnupdatemark() {
-      this.onemarker.label.text = '点一更新'
+      this.onemarker.label.text = '点1更新'
       this.map.update(this.onemarker)
     },
     btnclearonemark() {
