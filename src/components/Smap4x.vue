@@ -26,6 +26,7 @@
       <el-button type="primary" @click="btnupdatemarkgroup">更新覆盖组</el-button>
       <el-button type="primary" @click="btncleanmarkgroup">清除覆盖物组</el-button>
       <el-button type="primary" @click="btnclearallmark">清除所有覆盖物点</el-button>
+      <el-button type="primary" @click="btnclearevent">清除事件</el-button>
     </div>
   </div>
 </template>
@@ -53,19 +54,43 @@ export default {
   methods: {
     initMap() {
       this.map = new SMap.Map('container', {
-        viewMode: '2D',
+        viewMode: '3D',
         center: [0, 0],
         zoom: 5,
         zooms: [1, 12],
         pitch: 60,
         mapStyle: 'smap://styles/dark', // 'smap://styles/dark' 'smap://styles/image'
-        showBuildingBlock: false
+        showBuildingBlock: true
       })
       this.map.on(SMap.MapEvent.maploaded, function(view) {
-        // this.panTo(100, 100)
-        console.log(view)
-        console.log(this.getZoom())
+        console.log('当前缩放级别' + this.getZoom())
       })
+      this.map.on(SMap.MapEvent.extentchanged, function(extent) {
+        console.log(extent)
+      })
+      this.map.on(SMap.MapEvent.centerchanged, function(center) {
+        console.log(center)
+      })
+      this.map.on(SMap.MapEvent.click, function(map, event) {
+        map.hitTest(event).then(async function(response) {
+          if (!response.results[0].length) {
+            map.popup.defaultPopupTemplateEnabled = true
+            map.popup.autoOpenEnabled = false
+            map.popup.open({
+              location: response.results[0].graphic.geometry,
+              content: 'wo shi dian1'
+            })
+          }
+        })
+      })
+      this.map.on(SMap.MapEvent.doubleclick, function(map, event) {
+        map.hitTest(event).then(async function(response) {
+          console.log(response)
+        })
+      })
+    },
+    btnclearevent() {
+      this.map.off(SMap.MapEvent.centerchanged, function(center) {})
     },
     addlayercontrol() {
       this.layerListControl = new SMap.LayerListControl({
@@ -140,6 +165,10 @@ export default {
           size: new SMap.Size(40, 40),
           image: require('../assets/repaireorder_Accepted.gif')
         }),
+        attributes: {
+          '名称': '点1',
+          '类型': '点1'
+        },
         label: new SMap.Label({
           text: '点1',
           color: 'red',
