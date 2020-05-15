@@ -16,7 +16,6 @@
     </div>
     <div class="mapinterface">
       <h4>地图覆盖物测试</h4>
-      <el-button type="primary" @click="btnaddmarkfor">循环加载覆盖点</el-button>
       <el-button type="primary" @click="btnaddmark">添加覆盖物点(一次一个)</el-button>
       <el-button type="primary" @click="btnupdatemark">更新覆盖物点(一个)</el-button>
       <el-button type="primary" @click="btnclearonemark">清除一个覆盖物点</el-button>
@@ -27,12 +26,12 @@
       <el-button type="primary" @click="btnupdatemarkgroup">更新覆盖组</el-button>
       <el-button type="primary" @click="btncleanmarkgroup">清除覆盖物组</el-button>
       <el-button type="primary" @click="btnclearallmark">清除所有覆盖物点</el-button>
+      <el-button type="primary" @click="btnclearevent">清除事件</el-button>
     </div>
   </div>
 </template>
 <script>
-// import SMap from 'smap-shsmi'
-import SMap from '../utils/4x/esm/SMap'
+import SMap from 'smap-shsmi'
 export default {
   name: 'MapControl',
   components: { },
@@ -55,13 +54,13 @@ export default {
   methods: {
     initMap() {
       this.map = new SMap.Map('container', {
-        viewMode: '3D',
+        viewMode: '2D',
         center: [0, 0],
         zoom: 5,
         zooms: [1, 12],
         pitch: 60,
         mapStyle: 'smap://styles/dark', // 'smap://styles/normal' 'smap://styles/image'
-        showBuildingBlock: false
+        showBuildingBlock: true
       })
       this.map.on(SMap.MapEvent.maploaded, function(view) {
         console.log('当前缩放级别' + this.getZoom())
@@ -95,7 +94,9 @@ export default {
         })
       })
     },
-
+    btnclearevent() {
+      this.map.off(SMap.MapEvent.centerchanged, function(center) {})
+    },
     addlayercontrol() {
       this.layerListControl = new SMap.LayerListControl({
         visible: true,
@@ -163,47 +164,6 @@ export default {
     remeovelayercontrol() {
       this.map.removeControl(this.layerListControl)
     },
-    btnaddmarkfor() {
-      const marks = []
-      for (let i = 0; i <= 10000; i++) {
-        const x = Math.ceil(Math.random() * 120000)
-        const y = Math.ceil(Math.random() * 120000)
-        const onemarker = new SMap.Marker({
-          icon: new SMap.Icon({
-            size: new SMap.Size(40, 40),
-            image: require('../assets/repaireorder_Accepted.gif')
-          }),
-          attributes: {
-            'name': '点' + i,
-            'type': '点'
-          },
-          label: new SMap.Label({
-            text: '点' + i,
-            color: 'red',
-            visible: false,
-            size: 22,
-            weight: 'normal',
-            angle: 0,
-            backgroundColor: 'red',
-            borderLineColor: 'blue',
-            borderLineSize: 1,
-            haloColor: '[51, 204, 51, 0.2]',
-            haloSize: 0,
-            horizontalAlignment: 'left',
-            verticalAlignment: 'top',
-            kerning: true,
-            lineHeight: 0,
-            lineWidth: 0,
-            rotated: true,
-            xoffset: 0,
-            yoffset: 0
-          }),
-          position: [x, y, 100]
-        })
-        marks.push(onemarker)
-      }
-      this.map.add(marks)
-    },
     btnaddmark() {
       this.onemarker = new SMap.Marker({
         icon: new SMap.Icon({
@@ -229,16 +189,16 @@ export default {
           horizontalAlignment: 'left',
           verticalAlignment: 'top',
           kerning: true,
-          lineHeight: 0,
-          lineWidth: 0,
+          lineHeight: 25,
+          lineWidth: 200,
           rotated: true,
-          xoffset: 0,
-          yoffset: 0,
-          zoffset: 1
+          xoffset: 10,
+          yoffset: 10
         }),
         position: [0, 0, 100]
       })
       this.map.add(this.onemarker)
+
       this.sencondmarker = new SMap.Marker({
         icon: new SMap.Icon({
           size: new SMap.Size(40, 40),
@@ -250,13 +210,12 @@ export default {
         },
         label: new SMap.Label({
           text: '点2',
-          size: 12,
+          size: 22,
           color: 'blue',
-          xoffset: 0,
-          yoffset: 0,
+          xoffset: 10,
+          yoffset: 10,
           horizontalAlignment: 'left',
-          verticalAlignment: 'top',
-          placement: 'center-right'
+          verticalAlignment: 'top'
         }),
         position: [100, 100, 1000]
       })
