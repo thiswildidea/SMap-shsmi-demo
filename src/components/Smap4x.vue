@@ -16,9 +16,9 @@
     </div>
     <div class="mapinterface">
       <h4>地图覆盖物测试</h4>
-      <el-button type="primary" @click="btnaddmarkfor">循环加载覆盖点</el-button>
       <el-button type="primary" @click="btnaddmark">添加覆盖物点(一次一个)</el-button>
       <el-button type="primary" @click="btnupdatemark">更新覆盖物点(一个)</el-button>
+        <el-button type="primary" @click="btnupdatemark1">更新覆盖物点(一个)</el-button>
       <el-button type="primary" @click="btnclearonemark">清除一个覆盖物点</el-button>
       <el-button type="primary" @click="btnaddmanymark">添加覆盖物点(多个)</el-button>
       <el-button type="primary" @click="btnupdatemanymark">更新覆盖物点(多个)</el-button>
@@ -26,13 +26,14 @@
       <el-button type="primary" @click="btnaddmarkgroup">添加覆盖物组</el-button>
       <el-button type="primary" @click="btnupdatemarkgroup">更新覆盖组</el-button>
       <el-button type="primary" @click="btncleanmarkgroup">清除覆盖物组</el-button>
-      <el-button type="primary" @click="btnclearallmark">清除所有覆盖物点</el-button>
+      <el-button type="primary" @click="btnaddmassmarksgroup">循环加载覆盖点组(大量)</el-button>
+      <el-button type="primary" @click="btncleanmassmarksgroup">清除覆盖物组(大量)</el-button>
     </div>
   </div>
 </template>
 <script>
-// import SMap from 'smap-shsmi'
-import SMap from '../utils/4x/esm/SMap'
+import SMap from 'smap-shsmi'
+// import SMap from '../utils/4x/esm/SMap'
 export default {
   name: 'MapControl',
   components: { },
@@ -43,7 +44,8 @@ export default {
       sencondmarker: null,
       threemarker: null,
       fourmarker: null,
-      OverlayGroup: null
+      OverlayGroup: null,
+      massmarksgroup: null
     }
   },
   computed: {
@@ -55,7 +57,7 @@ export default {
   methods: {
     initMap() {
       this.map = new SMap.Map('container', {
-        viewMode: '3D',
+        viewMode: '2D',
         center: [0, 0],
         zoom: 5,
         zooms: [1, 12],
@@ -163,47 +165,7 @@ export default {
     remeovelayercontrol() {
       this.map.removeControl(this.layerListControl)
     },
-    btnaddmarkfor() {
-      const marks = []
-      for (let i = 0; i <= 3000; i++) {
-        const x = Math.ceil(Math.random() * 120000)
-        const y = Math.ceil(Math.random() * 120000)
-        const onemarker = new SMap.Marker({
-          icon: new SMap.Icon({
-            size: new SMap.Size(40, 40),
-            image: require('../assets/repaireorder_Accepted.gif')
-          }),
-          attributes: {
-            'name': '点' + i,
-            'type': '点'
-          },
-          label: new SMap.Label({
-            text: '点' + i,
-            color: 'red',
-            visible: false,
-            size: 22,
-            weight: 'normal',
-            angle: 0,
-            backgroundColor: 'red',
-            borderLineColor: 'blue',
-            borderLineSize: 1,
-            haloColor: '[51, 204, 51, 0.2]',
-            haloSize: 0,
-            horizontalAlignment: 'left',
-            verticalAlignment: 'top',
-            kerning: true,
-            lineHeight: 0,
-            lineWidth: 0,
-            rotated: true,
-            xoffset: 0,
-            yoffset: 0
-          }),
-          position: [x, y, 100]
-        })
-        marks.push(onemarker)
-      }
-      this.map.add(marks)
-    },
+
     btnaddmark() {
       this.onemarker = new SMap.Marker({
         icon: new SMap.Icon({
@@ -215,7 +177,6 @@ export default {
           'type': '点'
         },
         label: new SMap.Label({
-          text: '点1',
           color: 'red',
           visible: true,
           size: 22,
@@ -238,7 +199,7 @@ export default {
         }),
         position: [0, 0, 100]
       })
-      this.map.add(this.onemarker)
+      this.map.addfeature(this.onemarker)
       this.sencondmarker = new SMap.Marker({
         icon: new SMap.Icon({
           size: new SMap.Size(40, 40),
@@ -249,7 +210,6 @@ export default {
           'type': '点'
         },
         label: new SMap.Label({
-          text: '点2',
           size: 12,
           color: 'blue',
           xoffset: 0,
@@ -260,14 +220,20 @@ export default {
         }),
         position: [100, 100, 1000]
       })
-      this.map.add(this.sencondmarker)
+      this.map.addfeature(this.sencondmarker)
     },
     btnupdatemark() {
-      this.onemarker.label.text = '点一更新'
-      this.map.update(this.onemarker)
+      this.onemarker.attributes['name'] = '点一更新'
+      this.onemarker.icon.image = require('../assets/blue.gif')
+      this.map.updatefeature(this.onemarker)
+    },
+    btnupdatemark1() {
+      this.onemarker.attributes['name'] = '点一更新....'
+      this.onemarker.icon.image = require('../assets/repaireorder_Accepted.gif')
+      this.map.updatefeature(this.onemarker)
     },
     btnclearonemark() {
-      this.map.remove(this.onemarker)
+      this.map.removefeature(this.onemarker)
     },
     btnaddmanymark() {
       this.threemarker = new SMap.Marker({
@@ -308,78 +274,136 @@ export default {
         }),
         position: [1100, 1100, 20]
       })
-      this.map.add([this.threemarker, this.fourmarker])
+      this.map.addfeature([this.threemarker, this.fourmarker])
     },
     btnupdatemanymark() {
       this.threemarker.icon.image = require('../assets/blue.gif')
-      this.threemarker.label.text = '点三更新'
+      this.threemarker.attributes['name'] = '点三更新'
 
       this.fourmarker.icon.image = require('../assets/blue.gif')
-      this.fourmarker.label.text = '点四更新'
-      this.map.update([this.threemarker, this.fourmarker])
+      this.fourmarker.attributes['name'] = '点四更新'
+      this.map.updatefeature([this.threemarker, this.fourmarker])
     },
     btncleanmanymark() {
-      this.map.remove([this.threemarker, this.fourmarker])
+      this.map.removefeature([this.threemarker, this.fourmarker])
     },
     btnaddmarkgroup() {
       const marker1 = new SMap.Marker({
-        icon: new SMap.Icon({
-          size: new SMap.Size(40, 40),
-          image: require('../assets/blue.gif')
-        }),
         attributes: {
           'name': '点5',
-          'type': '点'
+          'style': '1'
         },
-        label: new SMap.Label({
-          text: '点5',
-          size: 22,
-          color: 'yellow',
-          xoffset: 0.1,
-          yoffset: 0.1,
-          // zoffset: 10,
-          horizontalAlignment: 'left',
-          verticalAlignment: 'top'
-        }),
         position: [500, 500, 100]
       })
       const marker2 = new SMap.Marker({
-        icon: new SMap.Icon({
-          size: new SMap.Size(40, 40),
-          image: require('../assets/blue.gif')
-        }),
         attributes: {
           'name': '点6',
-          'type': '点'
+          'style': '2'
         },
-        label: new SMap.Label({
-          text: '点6',
-          size: 22,
-          color: 'black',
-          xoffset: 0.1,
-          yoffset: 0.1,
-          // zoffset: 10,
-          horizontalAlignment: 'left',
-          verticalAlignment: 'top'
-        }),
         position: [550, 550, 200]
       })
-      this.OverlayGroup = new SMap.OverlayGroup([marker1, marker2])
-      this.map.add(this.OverlayGroup)
+      const label = new SMap.Label({
+        size: 22,
+        color: 'black',
+        xoffset: 0.1,
+        yoffset: 0.1,
+        horizontalAlignment: 'left',
+        verticalAlignment: 'top',
+        minScale: 5000,
+        maxScale: 1000
+      })
+      const datafiled = [{
+        name: 'name',
+        alias: 'name',
+        type: 'string'
+      }]
+      const style = [
+        {
+          style: '1',
+          size: new SMap.Size(40, 40),
+          url: require('../assets/repaireorder_Accepted.gif')
+        }, {
+          style: '2',
+          size: new SMap.Size(40, 40),
+          url: require('../assets/blue.gif')
+        }
+      ]
+      const featureReduction = new SMap.FeatureReduction({
+        type: 'cluster',
+        clusterRadius: 100
+      })
+      this.OverlayGroup = new SMap.OverlayGroup([marker1, marker2], {
+        overlaytype: 'marker',
+        datafiled: datafiled,
+        style: style,
+        label: label,
+        frreduction: featureReduction
+      })
+      this.map.addfeature(this.OverlayGroup)
     },
     btnupdatemarkgroup() {
-      this.OverlayGroup.overlayers[0].icon.image = require('../assets/repaireorder_Accepted.gif')
-      this.OverlayGroup.overlayers[0].label.text = '点5更新'
+      this.OverlayGroup.overlayers[0].attributes['name'] = '点5更新'
+      this.OverlayGroup.overlayers[0].attributes['style'] = '2'
 
-      this.OverlayGroup.overlayers[1].icon.image = require('../assets/repaireorder_Accepted.gif')
-      this.OverlayGroup.overlayers[1].label.text = '点6更新'
-      this.map.update(this.OverlayGroup)
+      this.OverlayGroup.overlayers[1].attributes['style'] = '1'
+      this.map.updatefeature(this.OverlayGroup)
     },
     btncleanmarkgroup() {
-      this.map.remove(this.OverlayGroup)
+      this.map.removefeature(this.OverlayGroup)
     },
-    btnclearallmark() {
-      this.map.clearMap()
+    btnaddmassmarksgroup() {
+      const marks = []
+      for (let i = 0; i <= 100000; i++) {
+        const x = Math.ceil(Math.random() * 1200)
+        const y = Math.ceil(Math.random() * 1200)
+        const onemarker = new SMap.Marker({
+          attributes: {
+            'name': '点' + i,
+            'style': Math.ceil(Math.random()).toString()
+          },
+          position: [x, y, 100]
+        })
+        marks.push(onemarker)
+      }
+      const label = new SMap.Label({
+        size: 22,
+        color: 'black',
+        xoffset: 0.1,
+        yoffset: 0.1,
+        horizontalAlignment: 'left',
+        verticalAlignment: 'top'
+      })
+      const datafiled = [{
+        name: 'name',
+        alias: 'name',
+        type: 'string'
+      }]
+      const style = [
+        {
+          style: '0',
+          size: new SMap.Size(40, 40),
+          url: require('../assets/repaireorder_Accepted.gif')
+        }, {
+          style: '1',
+          size: new SMap.Size(40, 40),
+          url: require('../assets/blue.gif')
+        }
+      ]
+      const featureReduction = new SMap.FeatureReduction({
+        type: 'cluster',
+        clusterRadius: 100
+      })
+      this.OverlayGroup = new SMap.OverlayGroup(marks, {
+        overlaytype: 'marker',
+        datafiled: datafiled,
+        style: style,
+        label: label,
+        frreduction: featureReduction
+      })
+      this.map.addfeature(this.OverlayGroup)
+    },
+    btncleanmassmarksgroup() {
+      this.map.removefeature(this.massmarksgroup)
     }
   }
 }

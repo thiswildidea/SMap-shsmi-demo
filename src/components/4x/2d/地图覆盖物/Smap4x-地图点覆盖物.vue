@@ -55,7 +55,7 @@ export default {
   methods: {
     initMap() {
       this.map = new SMap.Map('container', {
-        viewMode: '3D',
+        viewMode: '2D',
         center: [0, 0],
         zoom: 5,
         zooms: [1, 12],
@@ -165,7 +165,7 @@ export default {
     },
     btnaddmarkfor() {
       const marks = []
-      for (let i = 0; i <= 10000; i++) {
+      for (let i = 0; i <= 3000; i++) {
         const x = Math.ceil(Math.random() * 120000)
         const y = Math.ceil(Math.random() * 120000)
         const onemarker = new SMap.Marker({
