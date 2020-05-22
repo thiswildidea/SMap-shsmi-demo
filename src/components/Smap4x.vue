@@ -13,6 +13,7 @@
       <el-button type="primary" @click="addbasemaptoggle">添加底图切换按钮</el-button>
       <el-button type="primary" @click="addUndergroundSwitch">添加地上地下切换控件</el-button>
       <el-button type="primary" @click="addbasemapgallery">添加地图切换组</el-button>
+      <el-button type="primary" @click="addbasemapgalleryexpand">添加地图切换组可伸缩</el-button>
       <el-button type="primary" @click="remeovelayercontrol">删除图层控制框</el-button>
     </div>
     <div class="mapinterface">
@@ -33,7 +34,7 @@
   </div>
 </template>
 <script>
-import SMap from 'smap-shsmi'
+import SMap from 'smap-xh'
 // import SMap from '../utils/4x/esm/SMap'
 export default {
   name: 'MapControl',
@@ -58,19 +59,22 @@ export default {
   methods: {
     initMap() {
       this.map = new SMap.Map('container', {
-        viewMode: '2D',
-        center: [0, 0],
+        viewMode: '3D',
+        center: [-2863.616790, -7984.038031],
         zoom: 5,
         zooms: [1, 12],
         pitch: 60,
         mapStyle: 'smap://styles/dark', // 'smap://styles/normal' 'smap://styles/image'
-        showBuildingBlock: false
+        showBuildingBlock: true
       })
       this.map.on(SMap.MapEvent.maploaded, function(view) {
-        console.log('当前缩放级别' + this.getZoom())
+        // console.log('当前缩放级别' + this.getZoom())
       })
       this.map.on(SMap.MapEvent.extentchanged, function(extent) {
         console.log(extent)
+      })
+      this.map.on(SMap.MapEvent.zoomchanged, function(zoom) {
+        console.log('当前缩放级别' + zoom)
       })
       this.map.on(SMap.MapEvent.centerchanged, function(center) {
         console.log(center)
@@ -166,9 +170,16 @@ export default {
     addbasemapgallery() {
       const bMapGallery = new SMap.BMapGallery({
         visible: true,
-        position: 'bottom-right'
+        position: 'top-right'
       })
       this.map.addControl(bMapGallery)
+    },
+    addbasemapgalleryexpand() {
+      const bMapGalleryexpand = new SMap.BMapGalleryExpand({
+        visible: true,
+        position: 'bottom-right'
+      })
+      this.map.addControl(bMapGalleryexpand)
     },
     remeovelayercontrol() {
       this.map.removeControl(this.layerListControl)
@@ -401,14 +412,14 @@ export default {
         type: 'cluster',
         clusterRadius: 100
       })
-      this.OverlayGroup = new SMap.OverlayGroup(marks, {
+      this.massmarksgroup = new SMap.OverlayGroup(marks, {
         overlaytype: 'marker',
         datafiled: datafiled,
         style: style,
         label: label,
         frreduction: featureReduction
       })
-      this.map.addfeature(this.OverlayGroup)
+      this.map.addfeature(this.massmarksgroup)
     },
     btncleanmassmarksgroup() {
       this.map.removefeature(this.massmarksgroup)
