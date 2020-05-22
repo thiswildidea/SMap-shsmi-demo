@@ -4,7 +4,7 @@
   </div>
 </template>
 <script>
-// import SMap from '../utils/4x/esm/SMap'
+import SMap from '../utils/4x/esm/SMap'
 export default {
   name: 'MapControl',
   components: { },
