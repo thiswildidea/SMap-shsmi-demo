@@ -1,6 +1,6 @@
 <template>
   <div class="mapExtent">
-    <div id="container" style="height:100%" />
+    <div id="container" style="height:100%" class="calcite-map calcite-map-absolute calcite-widgets-dark" />
     <div class="info">
       <h4>地图控件</h4>
       <el-button type="primary" @click="addlayercontrol">添加图层控件</el-button>
@@ -12,13 +12,14 @@
       <el-button type="primary" @click="addmeasurearea">添加面测量</el-button>
       <el-button type="primary" @click="addbasemaptoggle">添加底图切换按钮</el-button>
       <el-button type="primary" @click="addUndergroundSwitch">添加地上地下切换控件</el-button>
+      <el-button type="primary" @click="addbasemapgallery">添加地图切换组</el-button>
       <el-button type="primary" @click="remeovelayercontrol">删除图层控制框</el-button>
     </div>
     <div class="mapinterface">
       <h4>地图覆盖物测试</h4>
       <el-button type="primary" @click="btnaddmark">添加覆盖物点(一次一个)</el-button>
       <el-button type="primary" @click="btnupdatemark">更新覆盖物点(一个)</el-button>
-        <el-button type="primary" @click="btnupdatemark1">更新覆盖物点(一个)</el-button>
+      <el-button type="primary" @click="btnupdatemark1">更新覆盖物点(一个)</el-button>
       <el-button type="primary" @click="btnclearonemark">清除一个覆盖物点</el-button>
       <el-button type="primary" @click="btnaddmanymark">添加覆盖物点(多个)</el-button>
       <el-button type="primary" @click="btnupdatemanymark">更新覆盖物点(多个)</el-button>
@@ -161,6 +162,13 @@ export default {
         position: 'bottom-right'
       })
       this.map.addControl(undergroundSwitch)
+    },
+    addbasemapgallery() {
+      const bMapGallery = new SMap.BMapGallery({
+        visible: true,
+        position: 'bottom-right'
+      })
+      this.map.addControl(bMapGallery)
     },
     remeovelayercontrol() {
       this.map.removeControl(this.layerListControl)
@@ -424,6 +432,7 @@ export default {
     }
     .mapinterface
     {
+       width:40%;
         background: #d4dde2;
          position: absolute;
          margin-top: 100px;
