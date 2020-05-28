@@ -14,7 +14,9 @@
       <el-button type="primary" @click="addUndergroundSwitch">添加地上地下切换控件</el-button>
       <el-button type="primary" @click="addbasemapgallery">添加地图切换组</el-button>
       <el-button type="primary" @click="addbasemapgalleryexpand">添加地图切换组可伸缩</el-button>
+      <el-button type="primary" @click="addbimfilter">BIM分层</el-button>
       <el-button type="primary" @click="remeovelayercontrol">删除图层控制框</el-button>
+      <el-button type="primary" @click="test">test</el-button>
     </div>
     <div class="mapinterface">
       <h4>地图覆盖物测试</h4>
@@ -34,8 +36,9 @@
   </div>
 </template>
 <script>
-import SMap from 'smap-xh'
+import SMap from 'smap-shsmi'
 // import SMap from '../utils/4x/esm/SMap'
+// import SMap from 'smap-xh'
 export default {
   name: 'MapControl',
   components: { },
@@ -62,13 +65,78 @@ export default {
         viewMode: '3D',
         center: [-2863.616790, -7984.038031],
         zoom: 5,
-        zooms: [1, 12],
-        pitch: 60,
+        zooms: [4, 12],
+        pitch: 0,
         mapStyle: 'smap://styles/dark', // 'smap://styles/normal' 'smap://styles/image'
-        showBuildingBlock: true
+        showBuildingBlock: false
       })
       this.map.on(SMap.MapEvent.maploaded, function(view) {
         // console.log('当前缩放级别' + this.getZoom())
+        // this.panTo([0, 0, 0])
+        // this.setZoomAndCenter(4, [10000, 1000, 0])
+
+        // const querylayer = view.map.findLayerById('XH_JD')
+        // const queryField = 'jdname_old'
+        // const queryvalue = ['0410', '0415']
+        // let querystr = queryField + "= '" + queryvalue[0] + "'"
+        // queryvalue.map(function(item, key, ary) {
+        //   if (key > 0) {
+        //     querystr += ' OR ' + queryField + "= '" + item + "'"
+        //   }
+        // })
+        // const layerQuery = querylayer.createQuery()
+        // layerQuery.where = querystr
+        // querylayer.queryFeatures(layerQuery).then(function(response) {
+        //   if (response.features.length > 0) {
+        //     const Hight_Graphiclayer = view.map.findLayerById('Hight_Graphiclayer')
+        //     const Graphiclist = []
+        //     SMap.load(['esri/Graphic']).then(([Graphic]) => {
+        //       response.features.map(function(item, key, index) {
+        //         const hightlightgraphic = new Graphic({
+        //           geometry: item.geometry,
+        //           attributes: item.attributes,
+        //           symbol: {
+        //             type: 'simple-fill',
+        //             color: [255, 255, 255, 0.5],
+        //             outline: {
+        //               color: [255, 255, 0, 1],
+        //               width: '5px'
+        //             }
+        //           }
+        //         })
+        //         const textgraphic = new Graphic({
+        //           geometry: item.geometry.extent.center,
+        //           symbol: {
+        //             type: 'text',
+        //             text: '名称',
+        //             color: 'white',
+        //             angle: 0,
+        //             haloColor: 'black',
+        //             haloSize: 0,
+        //             xoffset: 0,
+        //             yoffset: 0,
+        //             verticalAlignment: 'left',
+        //             horizontalAlignment: 'middle',
+        //             font: {
+        //               size: 14,
+        //               family: 'Josefin Slab',
+        //               weight: 'bold'
+        //             }
+        //           }
+        //         })
+        //         Graphiclist.push(textgraphic)
+        //         Graphiclist.push(hightlightgraphic)
+        //       })
+        //       if (Hight_Graphiclayer != null) {
+        //         Hight_Graphiclayer.removeAll()
+        //         Hight_Graphiclayer.addMany(Graphiclist)
+        //       // view.goTo(response.features)
+        //       }
+        //     }).catch((err) => {
+        //       console.error(err)
+        //     })
+        //   }
+        // })
       })
       this.map.on(SMap.MapEvent.extentchanged, function(extent) {
         console.log(extent)
@@ -97,12 +165,27 @@ export default {
         })
       })
       this.map.on(SMap.MapEvent.doubleclick, function(map, event) {
-        map.hitTest(event).then(async function(response) {
-          console.log(response)
-        })
+        // map.hitTest(event).then(async function(response) {
+        //   if (response.results.length > 0) {
+        //     const layername = response.results[0].graphic.layer.id
+        //     const objectid = response.results[0].graphic.attributes.objectid
+        //     const layerQuery = response.results[0].graphic.layer.createQuery()
+        //     layerQuery.where = 'objectid =' + objectid
+        //     switch (layername) {
+        //       case 'XH_JD':
+        //         await response.results[0].graphic.layer.queryFeatures(layerQuery).then(function(response) {
+        //           console.log(response.features)
+        //         })
+        //         break
+        //     }
+        //   }
+        // })
       })
     },
-
+    test() {
+      // this.map.setPitch(60)
+      this.map.showBuilding(false)
+    },
     addlayercontrol() {
       this.layerListControl = new SMap.LayerListControl({
         visible: true,
@@ -181,6 +264,14 @@ export default {
       })
       this.map.addControl(bMapGalleryexpand)
     },
+    addbimfilter() {
+      const bIMFilterControl = new SMap.BIMFilterControl({
+        visible: true,
+        position: 'bottom-right',
+        layerid: 'mxqyBim'
+      })
+      this.map.addControl(bIMFilterControl)
+    },
     remeovelayercontrol() {
       this.map.removeControl(this.layerListControl)
     },
@@ -218,7 +309,7 @@ export default {
         }),
         position: [0, 0, 100]
       })
-      this.map.addfeature(this.onemarker)
+      this.map.add(this.onemarker)
       this.sencondmarker = new SMap.Marker({
         icon: new SMap.Icon({
           size: new SMap.Size(40, 40),
@@ -239,7 +330,7 @@ export default {
         }),
         position: [100, 100, 1000]
       })
-      this.map.addfeature(this.sencondmarker)
+      this.map.add(this.sencondmarker)
     },
     btnupdatemark() {
       this.onemarker.attributes['name'] = '点一更新'
@@ -373,8 +464,8 @@ export default {
     btnaddmassmarksgroup() {
       const marks = []
       for (let i = 0; i <= 100000; i++) {
-        const x = Math.ceil(Math.random() * 1200)
-        const y = Math.ceil(Math.random() * 1200)
+        const x = -2863.616790 + Math.ceil(Math.random() * 1200)
+        const y = -7984.038031 + Math.ceil(Math.random() * 1200)
         const onemarker = new SMap.Marker({
           attributes: {
             'name': '点' + i,
@@ -431,7 +522,8 @@ export default {
   .mapExtent {
        flex-flow: row;
       .info{
-       position: relative;
+       width:80%;
+       position: absolute;
        float: left;
        margin-left: 5px;
        background: #d4dde2;
@@ -446,7 +538,7 @@ export default {
        width:40%;
         background: #d4dde2;
          position: absolute;
-         margin-top: 100px;
+         margin-top: 160px;
          float: left;
          margin-left: 5px;
     }
