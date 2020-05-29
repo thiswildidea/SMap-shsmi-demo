@@ -36,9 +36,9 @@
   </div>
 </template>
 <script>
-import SMap from 'smap-shsmi'
+// import SMap from 'smap-shsmi'
 // import SMap from '../utils/4x/esm/SMap'
-// import SMap from 'smap-xh'
+import SMap from 'smap-xh'
 export default {
   name: 'MapControl',
   components: { },
@@ -62,11 +62,11 @@ export default {
   methods: {
     initMap() {
       this.map = new SMap.Map('container', {
-        viewMode: '3D',
+        viewMode: '2D',
         center: [-2863.616790, -7984.038031],
         zoom: 5,
         zooms: [4, 12],
-        pitch: 0,
+        pitch: 60,
         mapStyle: 'smap://styles/dark', // 'smap://styles/normal' 'smap://styles/image'
         showBuildingBlock: false
       })
@@ -74,7 +74,12 @@ export default {
         // console.log('当前缩放级别' + this.getZoom())
         // this.panTo([0, 0, 0])
         // this.setZoomAndCenter(4, [10000, 1000, 0])
-
+        // view.goTo({
+        //   center: [0, 0],
+        //   zoom: 6,
+        //   tilt: 70,
+        //   heading: 0
+        // })
         // const querylayer = view.map.findLayerById('XH_JD')
         // const queryField = 'jdname_old'
         // const queryvalue = ['0410', '0415']
@@ -151,18 +156,18 @@ export default {
         console.log(visible)
       })
       this.map.on(SMap.MapEvent.click, function(map, event) {
-        map.hitTest(event).then(async function(response) {
-          if (response.results.length) {
-            if (!response.results[0].length) {
-              map.popup.defaultPopupTemplateEnabled = true
-              map.popup.autoOpenEnabled = false
-              map.popup.open({
-                location: response.results[0].graphic.geometry,
-                content: 'wo shi dian1'
-              })
-            }
-          }
-        })
+        // map.hitTest(event).then(async function(response) {
+        //   if (response.results.length) {
+        //     if (!response.results[0].length) {
+        //       map.popup.defaultPopupTemplateEnabled = true
+        //       map.popup.autoOpenEnabled = false
+        //       map.popup.open({
+        //         location: response.results[0].graphic.geometry,
+        //         content: 'wo shi dian1'
+        //       })
+        //     }
+        //   }
+        // })
       })
       this.map.on(SMap.MapEvent.doubleclick, function(map, event) {
         // map.hitTest(event).then(async function(response) {
