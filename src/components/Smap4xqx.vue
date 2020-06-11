@@ -1,6 +1,10 @@
 <template>
   <div class="mapExtent">
     <div id="container" style="height:100%" />
+    <div class="info">
+      <h4>地图控件</h4>
+      <el-button type="primary" @click="addlayercontrol">添加图层控件</el-button>
+    </div>
   </div>
 </template>
 <script>
@@ -28,8 +32,17 @@ export default {
         center: [0, 0],
         zoom: 5,
         zooms: [1, 12],
-        pitch: 60
+        pitch: 60,
+        mapStyle: 'smap://styles/normal' // 'smap://styles/normal' 'smap://styles/image'
       })
+    },
+    addlayercontrol() {
+      this.layerListControl = new SMap.LayerListControl({
+        visible: true,
+        position: 'top-right',
+        collapse: true
+      })
+      this.map.addControl(this.layerListControl)
     }
   }
 }

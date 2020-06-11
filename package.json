@@ -40,7 +40,7 @@
   },
   "dependencies": {
     "@riophae/vue-treeselect": "0.0.38",
-    "smap-shsmi": "^0.0.87",
+    "smap-shsmi": "^0.0.89",
     "smap-xh": "^0.0.18",
     "smap-shsmi-loader": "0.0.1",
     "smap3x-shsmi": "^0.0.1",
