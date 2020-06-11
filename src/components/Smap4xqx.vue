@@ -35,6 +35,9 @@ export default {
         pitch: 60,
         mapStyle: 'smap://styles/normal' // 'smap://styles/normal' 'smap://styles/image'
       })
+      this.map.on(SMap.MapEvent.maploaded, function(view) {
+        console.log(view)
+      })
     },
     addlayercontrol() {
       this.layerListControl = new SMap.LayerListControl({
