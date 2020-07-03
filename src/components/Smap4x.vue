@@ -36,8 +36,8 @@
   </div>
 </template>
 <script>
-import SMap from 'smap-shsmi'
-// import SMap from '../utils/4x/esm/SMap'
+// import SMap from 'smap-shsmi'
+import SMap from '../utils/4x/esm/SMap'
 // import SMap from 'smap-xh'
 export default {
   name: 'MapControl',
@@ -62,13 +62,13 @@ export default {
   methods: {
     initMap() {
       this.map = new SMap.Map('container', {
-        viewMode: '3D',
+        viewMode: '2D',
         center: [-2863.616790, -7984.038031],
         zoom: 5,
         zooms: [0, 12],
         pitch: 60,
         mapStyle: 'smap://styles/dark', // 'smap://styles/normal' 'smap://styles/image'
-        showBuildingBlock: false
+        showBuildingBlock: true
       })
       this.map.on(SMap.MapEvent.maploaded, function(view) {
         // console.log('当前缩放级别' + this.getZoom())

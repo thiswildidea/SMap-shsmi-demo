@@ -44,7 +44,7 @@ export default {
     initMap() {
       this.map = new SMap.Map('container', {
         userName: 'smiapi',
-        menuName: 'smiapi23d',
+        menuName: 'smiapi_23d',
         viewMode: '3D',
         center: [0, 0],
         zoom: 5,
@@ -83,15 +83,15 @@ export default {
     },
     btnaddmaskcustom() {
       const par = {
-        boundarydistance: 150,
+        boundarydistance: 1000,
         bounarycount: 5,
         boundaryColor: 'blue',
         maskColor: [255, 255, 255, 0.8],
         inputgeometry: [[0, 0], [10000, 0], [10000, 10000],
-          [0, 10000], [0, 0]]
-        // symbol: {
-        //   size: 20
-        // }
+          [0, 10000], [0, 0]],
+        symbol: {
+          size: 200
+        }
       }
       this.map.setmaskboundary(par)
     },
