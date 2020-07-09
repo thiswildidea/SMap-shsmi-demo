@@ -36,8 +36,8 @@
   </div>
 </template>
 <script>
-// import SMap from 'smap-shsmi'
-import SMap from '../utils/4x/esm/SMap'
+import SMap from 'smap-shsmi'
+// import SMap from '../utils/4x/esm/SMap'
 // import SMap from 'smap-xh'
 export default {
   name: 'MapControl',
@@ -62,13 +62,13 @@ export default {
   methods: {
     initMap() {
       this.map = new SMap.Map('container', {
-        viewMode: '2D',
-        center: [-2863.616790, -7984.038031],
-        zoom: 5,
+        viewMode: '3D',
+        center: [0, 0],
+        zoom: 4,
         zooms: [0, 12],
         pitch: 60,
-        mapStyle: 'smap://styles/dark', // 'smap://styles/normal' 'smap://styles/image'
-        showBuildingBlock: true
+        // mapStyle: 'smap://styles/image', // 'smap://styles/light' 'smap://styles/image'
+        showBuildingBlock: false
       })
       this.map.on(SMap.MapEvent.maploaded, function(view) {
         // console.log('当前缩放级别' + this.getZoom())
@@ -447,7 +447,7 @@ export default {
         type: 'cluster',
         clusterRadius: 100
       })
-      this.OverlayGroup = new SMap.OverlayGroup([marker1, marker2], {
+      this.OverlayGroup = new SMap.OverlayGroup([marker1, marker2], {        
         overlaytype: 'marker',
         datafiled: datafiled,
         style: style,
@@ -528,6 +528,7 @@ export default {
        flex-flow: row;
       .info{
        width:80%;
+       display: none;
        position: absolute;
        float: left;
        margin-left: 5px;
@@ -541,6 +542,7 @@ export default {
     .mapinterface
     {
        width:40%;
+        display: none;
         background: #d4dde2;
          position: absolute;
          margin-top: 160px;

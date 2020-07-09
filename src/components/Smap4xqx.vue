@@ -16,10 +16,10 @@
       <el-button type="primary" @click="addbasemapgalleryexpand">添加地图切换组可伸缩</el-button>
       <el-button type="primary" @click="addbimfilter">BIM分层</el-button>
       <el-button type="primary" @click="remeovelayercontrol">删除图层控制框</el-button>
-      <el-button type="primary" @click="btnaddmasktest">test</el-button>
       <el-button type="primary" @click="btnaddmask">添加黄埔遮盖</el-button>
-      <el-button type="primary" @click="btnaddmaskjiad">添加嘉定遮盖</el-button>
       <el-button type="primary" @click="btnaddmaskcustom">添加自定义范围遮盖</el-button>
+      <el-button type="primary" @click="btnaddmaskjiedao">添加街道遮盖</el-button>
+      <el-button type="primary" @click="btnaddmaskjwh">添加居委会遮盖</el-button>
     </div>
   </div>
 </template>
@@ -45,36 +45,47 @@ export default {
       this.map = new SMap.Map('container', {
         userName: 'smiapi',
         menuName: 'smiapi_23d',
-        viewMode: '3D',
+        viewMode: '2D',
         center: [0, 0],
-        zoom: 5,
+        zoom: 4,
         zooms: [1, 12],
         pitch: 60,
-        mapStyle: 'smap://styles/dark' // 'smap://styles/normal' 'smap://styles/image'
+        mapStyle: 'smap://styles/dark' // 'smap://styles/dark' 'smap://styles/image'
       })
       this.map.on(SMap.MapEvent.maploaded, function(view) {
         // console.log(view)
       })
     },
-    btnaddmaskjiad() {
+    btnaddmaskjiedao() {
       const par = {
-        boundaryType: 'qx',
-        boundaryDefinition: "qx_name like '%长宁%'",
+        boundaryType: 'jd',
+        boundaryDefinition: "name like '%上钢新村街道%'", // jd_code  like '%3509%
         boundarydistance: 150,
         bounarycount: 5,
-        boundaryColor: [58, 95, 225, 1],
-        maskColor: [255, 255, 255, 1]
+        boundaryColor: [58, 95, 225, 0.6],
+        maskColor: [0, 17, 35, 0.9]
+      }
+      this.map.setmaskboundary(par)
+    },
+    btnaddmaskjwh() {
+      const par = {
+        boundaryType: 'jwh',
+        boundaryDefinition: "jwhcode like '%072128%'", // name like '%曹杨新苑%
+        boundarydistance: 150,
+        bounarycount: 5,
+        boundaryColor: [58, 95, 225, 0.6],
+        maskColor: [0, 17, 35, 0.9]
       }
       this.map.setmaskboundary(par)
     },
     btnaddmask() {
       const par = {
         boundaryType: 'qx',
-        boundaryDefinition: "qx_name like '%黄浦%'",
+        boundaryDefinition: "name like '%黄浦%'", // qxcode like '%01%
         boundarydistance: 150,
         bounarycount: 5,
         boundaryColor: 'blue',
-        maskColor: [255, 255, 255, 0.8],
+        maskColor: [0, 17, 33, 0.9],
         symbol: {
           size: 20
         }
@@ -85,130 +96,15 @@ export default {
       const par = {
         boundarydistance: 1000,
         bounarycount: 5,
-        boundaryColor: 'blue',
-        maskColor: [255, 255, 255, 0.8],
+        boundaryColor: 'red',
+        maskColor: [112, 117, 233, 0.9],
         inputgeometry: [[0, 0], [10000, 0], [10000, 10000],
           [0, 10000], [0, 0]],
         symbol: {
-          size: 200
+          size: 10
         }
       }
       this.map.setmaskboundary(par)
-    },
-    btnaddmasktest() {
-      window.view = this.map.map
-      SMap.load(['esri/Graphic', 'esri/layers/GraphicsLayer', 'esri/geometry/geometryEngine', 'esri/geometry/support/webMercatorUtils','esri/geometry/SpatialReference'])
-        .then(([Graphic, GraphicsLayer, geometryEngine, webMercatorUtils, SpatialReference]) => {
-          const qxboundary = this.map.map.map.findLayerById('qx_boundary')
-          const queryParams = qxboundary.createQuery()
-          queryParams.where = "qx_name like '%黄浦%'"
-          qxboundary.queryFeatures(queryParams).then(function(results) {
-            const geomtry = results.features[0].geometry
-            geomtry.spatialReference = SpatialReference.WebMercator
-            // const clickpointGraphic = new Graphic({
-            //   geometry: geomtry,
-            //   symbol: {
-            //     type: 'simple-fill',
-            //     color: [51, 51, 204, 0.9],
-            //     style: 'solid',
-            //     outline: {
-            //       color: 'white',
-            //       width: 1
-            //     }
-            //   }
-            // })
-            // window.view.graphics.add(clickpointGraphic)
-            const fullgeometry = qxboundary.fullExtent
-            fullgeometry.spatialReference = SpatialReference.WebMercator
-            const outermask1 = geometryEngine.difference(fullgeometry, geomtry)
-
-            var symbol = {
-              type: 'polygon-3d',
-              symbolLayers: [{
-                type: 'fill',
-                material: { color: [51, 51, 204, 0.5] },
-                outline: {
-                  color: 'white',
-                  size: '0px'
-                }
-              }]
-            }
-            const outermaskGraphic = new Graphic({
-              geometry: outermask1,
-              symbol: symbol
-            })
-            window.view.graphics.add(outermaskGraphic)
-
-            const geomtry2 = geometryEngine.buffer(geomtry, 50, 'meters')
-            const outermask2 = geometryEngine.difference(geomtry2, geomtry)
-            var symbol2 = {
-              type: 'polygon-3d',
-              symbolLayers: [{
-                type: 'fill',
-                material: { color: [255, 255, 255, 0.5] },
-                outline: {
-                  color: 'white',
-                  size: '0px'
-                }
-              }]
-            }
-            const outermaskGraphic2 = new Graphic({
-              geometry: outermask2,
-              symbol: symbol2
-            })
-            window.view.graphics.add(outermaskGraphic2)
-
-            const geomtry3 = geometryEngine.buffer(geomtry, 100, 'meters')
-            const outermask3 = geometryEngine.difference(geomtry3, geomtry2)
-            var symbol3 = {
-              type: 'polygon-3d',
-              symbolLayers: [{
-                type: 'fill',
-                material: { color: [255, 0, 0, 0.5] },
-                outline: {
-                  color: 'white',
-                  size: '0px'
-                }
-              }]
-            }
-            const outermaskGraphic3 = new Graphic({
-              geometry: outermask3,
-              symbol: symbol3
-            })
-            window.view.graphics.add(outermaskGraphic3)
-
-            const geomtry4 = geometryEngine.buffer(geomtry, 150, 'meters')
-            const outermask4 = geometryEngine.difference(geomtry4, geomtry3)
-            var symbol4 = {
-              type: 'polygon-3d',
-              symbolLayers: [{
-                type: 'fill',
-                material: { color: [255, 255, 0, 0.5] },
-                outline: {
-                  color: 'white',
-                  size: '0px'
-                }
-              }]
-            }
-            const outermaskGraphic4 = new Graphic({
-              geometry: outermask4,
-              symbol: symbol4
-            })
-            window.view.graphics.add(outermaskGraphic4)
-          })
-          // qxboundary.renderer = { type: 'simple',
-          //   symbol: {
-          //     type: 'simple-fill',
-          //     color: [51, 51, 204, 0.9],
-          //     style: 'solid',
-          //     outline: {
-          //       color: 'white',
-          //       width: 1
-          //     }
-          //   }
-          // }
-
-        }).catch((err) => { console.error(err) })
     },
     addlayercontrol() {
       this.layerListControl = new SMap.LayerListControl({
