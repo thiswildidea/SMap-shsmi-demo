@@ -51,6 +51,7 @@ export default {
         zoom: 4,
         zooms: [1, 12],
         pitch: 60,
+        showBuildingBlock: true,
         mapStyle: 'smap://styles/dark' // 'smap://styles/dark' 'smap://styles/image'
       })
       this.map.on(SMap.MapEvent.maploaded, function(view) {

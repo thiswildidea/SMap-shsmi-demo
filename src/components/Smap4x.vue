@@ -36,9 +36,9 @@
   </div>
 </template>
 <script>
-import SMap from 'smap-shsmi'
+// import SMap from 'smap-shsmi'
 import axios from 'axios'
-// import SMap from '../utils/4x/esm/SMap'
+import SMap from '../utils/4x/esm/SMap'
 // import SMap from 'smap-xh'
 export default {
   name: 'MapControl',
@@ -70,7 +70,7 @@ export default {
         zooms: [0, 12],
         pitch: 60,
         // mapStyle: 'smap://styles/image', // 'smap://styles/light' 'smap://styles/image'
-        showBuildingBlock: false
+        showBuildingBlock: true
       })
       this.map.on(SMap.MapEvent.maploaded, function(view) {
         // console.log('当前缩放级别' + this.getZoom())

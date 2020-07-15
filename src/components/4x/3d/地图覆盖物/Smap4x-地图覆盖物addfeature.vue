@@ -327,7 +327,7 @@ export default {
       this.sencondmarker = new SMap.Marker({
         icon: new SMap.Icon({
           size: new SMap.Size(40, 40),
-          image: require('../assets/repaireorder_Accepted.gif')
+          image: require('../assets/blue.gif')
         }),
         attributes: {
           'name': '点2',
