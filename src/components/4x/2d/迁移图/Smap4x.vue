@@ -36,7 +36,7 @@ export default {
   methods: {
     initMap() {
       this.map = new SMap.Map('container', {
-        viewMode: '3D',
+        viewMode: '2D',
         center: [0, 0],
         zoom: 4,
         tokenconfigname: 'smiapi_new',
