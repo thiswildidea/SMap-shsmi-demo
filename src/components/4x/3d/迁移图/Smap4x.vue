@@ -157,7 +157,7 @@ export default {
       })
     },
     stoproutelpalyback() {
-      this.trajectory.hideHistoryRoute()
+      this.trajectory.remove()
     },
     addechart() {
       this.migrationMap = new Plugins.MigrationMap(this.map.map)

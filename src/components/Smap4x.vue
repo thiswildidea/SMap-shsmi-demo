@@ -13,10 +13,10 @@
 </template>
 <script>
 // import SMap from 'smap-shsmi'
-// import Plugins from 'smap-plugins-shsmi'
+import Plugins from 'smap-plugins-shsmi'
 import SMap from 'smap-shsmi-aa'
 // import SMap from '../utils/4x/smap/esm/SMap'
-import Plugins from '../utils/4x/plugins/esm/Plugins'
+// import Plugins from '../utils/4x/plugins/esm/Plugins'
 export default {
   name: 'MapControl',
   components: { },
@@ -38,9 +38,9 @@ export default {
       this.map = new SMap.Map('container', {
         viewMode: '3D',
         center: [0, 0],
-        zoom: 4,
+        zoom: 6,
         tokenconfigname: 'smiapi_new',
-        zooms: [0, 12],
+        zooms: [0, 11],
         pitch: 60,
         mapStyle: 'smap://styles/dark', // 'smap://styles/light' 'smap://styles/dark'
         showBuildingBlock: true
@@ -157,7 +157,7 @@ export default {
       })
     },
     stoproutelpalyback() {
-      this.trajectory.hideHistoryRoute()
+      this.trajectory.remove()
     },
     addechart() {
       this.migrationMap = new Plugins.MigrationMap(this.map.map)

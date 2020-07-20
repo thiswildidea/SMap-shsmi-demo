@@ -154,7 +154,7 @@ export default {
       })
     },
     stoproutelpalyback() {
-      this.trajectory.hideHistoryRoute()
+      this.trajectory.remove()
     }
   }
 }

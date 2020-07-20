@@ -65,7 +65,7 @@ var Map = /** @class */ (function (_super) {
         _this.mapoverlayers = [];
         _this.mapoverlayersflayer = [];
         _this.viewMode = options.viewMode === undefined || options.viewMode === '2D' ? '2D' : '3D';
-        _this.zooms = options.zooms === undefined ? [1, 12] : options.zooms;
+        _this.zooms = options.zooms === undefined ? [0, 11] : options.zooms;
         _this.showBuildingBlock = options.showBuildingBlock ? true : false;
         _this.init(container, _this.viewMode, options);
         return _this;
