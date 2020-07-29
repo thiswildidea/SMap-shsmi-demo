@@ -117,8 +117,8 @@ export default {
           y: -355.09700
         }
       ]
-      this.trajectory = new Plugins.Trajectory(this.map.map)
-      this.trajectory.playback({
+      this.trajectory = new Plugins.Trajectory(this.map.view)
+      this.trajectory.play({
         coords: routedata,
         showtrail: true,
         trailsymbol: {
@@ -160,7 +160,7 @@ export default {
       this.trajectory.remove()
     },
     addechart() {
-      this.migrationMap = new Plugins.MigrationMap(this.map.map)
+      this.migrationMap = new Plugins.MigrationMap(this.map.view)
       const geoCoordMap = {
         '浦东区': [21704.88, -10564.32],
         '奉贤区': [6530.67, -36110.78],

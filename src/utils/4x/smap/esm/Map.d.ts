@@ -11,10 +11,16 @@ export default class Map extends EventEmitter implements IOverlayers {
     private viewMode;
     private zooms;
     private showBuildingBlock;
-    private map;
+    private mapconfig;
+    private maplayers;
+    private mapwidgets;
+    private mapProxys;
+    private mapextent;
+    private view;
     private mapControl;
     private mapoverlayers;
     private mapoverlayersflayer;
+    private watchHandles;
     constructor(container: string, options?: IMapOptions);
     getZoom(): number;
     setZoom(zoomlevel: number): void;
@@ -37,6 +43,8 @@ export default class Map extends EventEmitter implements IOverlayers {
     addControl(control: MapControlBase): void;
     removeControl(control: MapControlBase): void;
     enableThroughGround(isunderground: boolean): void;
+    setExtentConstrain(leftbottom: [number, number], righttop: [number, number]): void;
+    removeExtentConstrain(): void;
     add(overlayers: Overlayerbase | Overlayerbase[] | OverlayGroup): void;
     remove(overlayers: Overlayerbase | Overlayerbase[] | OverlayGroup): void;
     update(overlayers: Overlayerbase | Overlayerbase[] | OverlayGroup): void;
@@ -46,5 +54,6 @@ export default class Map extends EventEmitter implements IOverlayers {
     clearMap(): void;
     setmaskboundary(maskOptions: IMaskOptions): void;
     private init;
+    private init1;
     private initEvent;
 }

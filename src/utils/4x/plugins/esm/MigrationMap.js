@@ -52,10 +52,10 @@ import { load } from './modules';
 import utils from './utils/index';
 var MigrationMap = /** @class */ (function (_super) {
     __extends(MigrationMap, _super);
-    function MigrationMap(map) {
+    function MigrationMap(view) {
         var _this = _super.call(this) || this;
-        _this.map = null;
-        _this.init(map);
+        _this.view = null;
+        _this.init(view);
         return _this;
     }
     MigrationMap.prototype.add = function (mgrationMapOptions) {
@@ -148,7 +148,7 @@ var MigrationMap = /** @class */ (function (_super) {
                     })
                 });
             });
-            var chart = new echartsLayer(_this.map, "", mgrationMapOptions.id);
+            var chart = new echartsLayer(_this.view, "", mgrationMapOptions.id);
             var option = {
                 title: {
                     text: '',
@@ -245,10 +245,10 @@ var MigrationMap = /** @class */ (function (_super) {
         script.addEventListener('error', onScriptError, false);
         return onScriptError;
     };
-    MigrationMap.prototype.init = function (map) {
+    MigrationMap.prototype.init = function (view) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                this.map = map;
+                this.view = view;
                 return [2 /*return*/];
             });
         });

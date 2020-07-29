@@ -60,31 +60,32 @@ var Map = /** @class */ (function (_super) {
         var _this = _super.call(this) || this;
         _this.viewMode = '2D' || '3D';
         _this.showBuildingBlock = false;
-        _this.map = null;
+        _this.view = null;
         _this.mapControl = [];
         _this.mapoverlayers = [];
         _this.mapoverlayersflayer = [];
+        _this.watchHandles = [];
         _this.viewMode = options.viewMode === undefined || options.viewMode === '2D' ? '2D' : '3D';
-        _this.zooms = options.zooms === undefined ? [0, 11] : options.zooms;
+        _this.zooms = options.zooms === undefined ? [1, 12] : options.zooms;
         _this.showBuildingBlock = options.showBuildingBlock ? true : false;
         _this.init(container, _this.viewMode, options);
         return _this;
     }
     Map.prototype.getZoom = function () {
-        if (this.map === null) {
+        if (this.view === null) {
             return;
         }
-        return this.map.zoom;
+        return this.view.zoom;
     };
     Map.prototype.setZoom = function (zoomlevel) {
-        if (this.map === null) {
+        if (this.view === null) {
             return;
         }
-        this.map.zoom = zoomlevel;
+        this.view.zoom = zoomlevel;
     };
     Map.prototype.panTo = function (targetpoint) {
         var _this = this;
-        if (this.map === null) {
+        if (this.view === null) {
             return;
         }
         // tslint:disable-next-line:variable-name
@@ -96,47 +97,47 @@ var Map = /** @class */ (function (_super) {
                 x: targetpoint[0],
                 y: targetpoint[1],
                 z: targetpoint[2] !== undefined ? targetpoint[2] : 0,
-                spatialReference: _this.map.spatialReference
+                spatialReference: _this.view.spatialReference
             });
-            _this.map.center = mappoint;
+            _this.view.center = mappoint;
         })
             .catch(function (err) {
             console.error(err);
         });
     };
     Map.prototype.panBy = function (offsetx, offsety) {
-        if (this.map === null) {
+        if (this.view === null) {
             return;
         }
-        var mapcenter = this.map.center;
-        var mapcenterscreen = this.map.toScreen(mapcenter);
-        this.map.center = this.map.toMap({
+        var mapcenter = this.view.center;
+        var mapcenterscreen = this.view.toScreen(mapcenter);
+        this.view.center = this.view.toMap({
             x: mapcenterscreen.x + offsetx,
             y: mapcenterscreen.y + offsety
         });
     };
     Map.prototype.getBounds = function () {
-        if (this.map === null) {
+        if (this.view === null) {
             return;
         }
         var bounds = {};
-        bounds.southwest = [this.map.extent.xmin.toFixed(6), this.map.extent.ymin.toFixed(6)];
+        bounds.southwest = [this.view.extent.xmin.toFixed(6), this.view.extent.ymin.toFixed(6)];
         if (this.viewMode === '3D') {
-            if (this.map.extent.zmin !== undefined) {
-                bounds.southwest.push(this.map.extent.zmin.toFixed(6));
+            if (this.view.extent.zmin !== undefined) {
+                bounds.southwest.push(this.view.extent.zmin.toFixed(6));
             }
         }
-        bounds.northeast = [this.map.extent.xmax.toFixed(6), this.map.extent.ymax.toFixed(6)];
+        bounds.northeast = [this.view.extent.xmax.toFixed(6), this.view.extent.ymax.toFixed(6)];
         if (this.viewMode === '3D') {
-            if (this.map.extent.zmax !== undefined) {
-                bounds.northeast.push(this.map.extent.zmax.toFixed(6));
+            if (this.view.extent.zmax !== undefined) {
+                bounds.northeast.push(this.view.extent.zmax.toFixed(6));
             }
         }
         return bounds;
     };
     Map.prototype.setBounds = function (bds) {
         var _this = this;
-        if (this.map === null) {
+        if (this.view === null) {
             return;
         }
         var dojoConfig = {
@@ -153,7 +154,7 @@ var Map = /** @class */ (function (_super) {
                 ymin: bds.ymin,
                 xmax: bds.xmax,
                 zmax: bds.ymax,
-                spatialReference: _this.map.spatialReference
+                spatialReference: _this.view.spatialReference
             });
             if (_this.viewMode === '3D') {
                 if (bds.zmin !== undefined && bds.zmax !== undefined) {
@@ -161,7 +162,7 @@ var Map = /** @class */ (function (_super) {
                     EXTENT.zmax = bds.zmax;
                 }
             }
-            _this.map.extent = EXTENT;
+            _this.view.extent = EXTENT;
         })
             .catch(function (err) {
             console.error(err);
@@ -173,7 +174,7 @@ var Map = /** @class */ (function (_super) {
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
-                        if (this.map === null) {
+                        if (this.view === null) {
                             return [2 /*return*/];
                         }
                         return [4 /*yield*/, load([
@@ -187,7 +188,7 @@ var Map = /** @class */ (function (_super) {
                             mapcenter = new Point({
                                 x: centerx,
                                 y: centery,
-                                spatialReference: this.map.spatialReference
+                                spatialReference: this.view.spatialReference
                             });
                         }
                         else {
@@ -195,10 +196,10 @@ var Map = /** @class */ (function (_super) {
                                 x: centerx,
                                 y: centery,
                                 z: (centerz !== undefined ? centerz : 0),
-                                spatialReference: this.map.spatialReference
+                                spatialReference: this.view.spatialReference
                             });
                         }
-                        this.map.center = mapcenter;
+                        this.view.center = mapcenter;
                         return [2 /*return*/];
                 }
             });
@@ -210,7 +211,7 @@ var Map = /** @class */ (function (_super) {
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
-                        if (this.map === null) {
+                        if (this.view === null) {
                             return [2 /*return*/];
                         }
                         return [4 /*yield*/, load([
@@ -221,26 +222,26 @@ var Map = /** @class */ (function (_super) {
                         _a = _b.sent(), Point = _a[0], SpatialReference = _a[1];
                         mapcenter = null;
                         if (this.viewMode === '2D') {
-                            this.map.zoom = zoomlevel;
+                            this.view.zoom = zoomlevel;
                             mapcenter = new Point({
                                 x: center[0],
                                 y: center[1],
-                                spatialReference: this.map.spatialReference
+                                spatialReference: this.view.spatialReference
                             });
-                            this.map.center = mapcenter;
+                            this.view.center = mapcenter;
                         }
                         else {
                             mapcenter = new Point({
                                 x: center[0],
                                 y: center[1],
                                 z: (center[2] !== undefined ? center[2] : 0),
-                                spatialReference: this.map.spatialReference
+                                spatialReference: this.view.spatialReference
                             });
-                            this.map.goTo({
+                            this.view.goTo({
                                 center: mapcenter,
                                 zoom: zoomlevel,
-                                tilt: this.map.camera.tilt,
-                                heading: this.map.camera.heading
+                                tilt: this.view.camera.tilt,
+                                heading: this.view.camera.heading
                             });
                         }
                         return [2 /*return*/];
@@ -249,123 +250,123 @@ var Map = /** @class */ (function (_super) {
         });
     };
     Map.prototype.getCenter = function () {
-        if (this.map === null) {
+        if (this.view === null) {
             return;
         }
         var pointxy = [];
-        pointxy.push(this.map.center.x.toFixed(6));
-        pointxy.push(this.map.center.y.toFixed(6));
+        pointxy.push(this.view.center.x.toFixed(6));
+        pointxy.push(this.view.center.y.toFixed(6));
         if (this.viewMode === '3D') {
-            pointxy.push(this.map.center.z.toFixed(6));
+            pointxy.push(this.view.center.z.toFixed(6));
         }
         return pointxy;
     };
     Map.prototype.getScale = function () {
-        if (this.map === null) {
+        if (this.view === null) {
             return;
         }
-        return this.map.scale;
+        return this.view.scale;
     };
     Map.prototype.setRotation = function (rotation) {
-        if (this.map === null) {
+        if (this.view === null) {
             return;
         }
         if (this.viewMode === '2D') {
-            this.map.rotation = rotation;
+            this.view.rotation = rotation;
         }
         else {
-            var flyanimation = this.map.goTo({
-                center: this.map.center,
-                zoom: this.map.zoom,
-                tilt: this.map.camera.tilt,
+            var flyanimation = this.view.goTo({
+                center: this.view.center,
+                zoom: this.view.zoom,
+                tilt: this.view.camera.tilt,
                 heading: rotation
             });
         }
     };
     Map.prototype.setPitch = function (pitch) {
-        if (this.map === null) {
+        if (this.view === null) {
             return;
         }
         if (this.viewMode === '3D') {
-            this.map.goTo({
-                center: this.map.center,
-                zoom: this.map.zoom,
+            this.view.goTo({
+                center: this.view.center,
+                zoom: this.view.zoom,
                 tilt: pitch,
-                heading: this.map.camera.heading
+                heading: this.view.camera.heading
             });
         }
     };
     Map.prototype.getPitch = function () {
-        if (this.map === null) {
+        if (this.view === null) {
             return;
         }
         if (this.viewMode === '3D') {
-            return this.map.camera.tilt;
+            return this.view.camera.tilt;
         }
     };
     Map.prototype.zoomIn = function () {
-        if (this.map === null) {
+        if (this.view === null) {
             return;
         }
         if (this.viewMode === '3D') {
-            if (this.map.zoom + 1 >= this.zooms[0] && this.map.zoom + 1 <= this.zooms[1]) {
-                this.map.goTo({
-                    center: this.map.center,
-                    zoom: this.map.zoom + 1,
-                    tilt: this.map.camera.tilt,
-                    heading: this.map.camera.heading
+            if (this.view.zoom + 1 >= this.zooms[0] && this.view.zoom + 1 <= this.zooms[1]) {
+                this.view.goTo({
+                    center: this.view.center,
+                    zoom: this.view.zoom + 1,
+                    tilt: this.view.camera.tilt,
+                    heading: this.view.camera.heading
                 });
             }
         }
         else {
-            this.map.goTo({
-                center: this.map.center,
-                zoom: this.map.zoom + 1
+            this.view.goTo({
+                center: this.view.center,
+                zoom: this.view.zoom + 1
             });
         }
     };
     Map.prototype.zoomOut = function () {
-        if (this.map === null) {
+        if (this.view === null) {
             return;
         }
         if (this.viewMode === '3D') {
-            if (this.map.zoom - 1 >= this.zooms[0] && this.map.zoom - 1 <= this.zooms[1]) {
-                this.map.goTo({
-                    center: this.map.center,
-                    zoom: this.map.zoom - 1,
-                    tilt: this.map.camera.tilt,
-                    heading: this.map.camera.heading
+            if (this.view.zoom - 1 >= this.zooms[0] && this.view.zoom - 1 <= this.zooms[1]) {
+                this.view.goTo({
+                    center: this.view.center,
+                    zoom: this.view.zoom - 1,
+                    tilt: this.view.camera.tilt,
+                    heading: this.view.camera.heading
                 });
             }
         }
         else {
-            this.map.goTo({
-                center: this.map.center,
-                zoom: this.map.zoom - 1
+            this.view.goTo({
+                center: this.view.center,
+                zoom: this.view.zoom - 1
             });
         }
     };
     Map.prototype.setMapStyle = function (style) {
         var _this = this;
-        if (this.map === null) {
+        if (this.view === null) {
             return;
         }
         switch (style) {
             case "smap://styles/light":
-                this.map.map.basemap.id = 'basemap_zw';
+                this.view.map.basemap.id = 'basemap_zw';
                 break;
             case "smap://styles/dark":
-                this.map.map.basemap.id = 'basemap_as';
+                this.view.map.basemap.id = 'basemap_as';
                 break;
             case "smap://styles/image":
-                this.map.map.basemap.id = 'basemap_air';
+                this.view.map.basemap.id = 'basemap_air';
                 break;
             default:
                 return;
         }
-        this.map.map.basemap.baseLayers.items.forEach(function (layer) {
+        this.view.map.basemap.baseLayers.items.forEach(function (layer) {
             // tslint:disable-next-line:prefer-conditional-expression
-            if (layer.id === _this.map.map.basemap.id) {
+            if (layer.id === _this.view.map.basemap.id) {
                 layer.visible = true;
             }
             else {
@@ -376,14 +377,14 @@ var Map = /** @class */ (function (_super) {
             return;
         }
         ['model_white_zw', 'model_air_real', 'model_white_as'].forEach(function (layname) {
-            var buildingmodel = _this.map.map.findLayerById(layname);
+            var buildingmodel = _this.view.map.findLayerById(layname);
             if (_this.showBuildingBlock === false) {
                 buildingmodel.visible = false;
             }
             else {
                 if (buildingmodel) {
                     // tslint:disable-next-line:prefer-conditional-expression
-                    if (_this.map.map.basemap.id === 'basemap_zw') {
+                    if (_this.view.map.basemap.id === 'basemap_zw') {
                         // tslint:disable-next-line:prefer-conditional-expression
                         if (layname === 'model_white_zw') {
                             buildingmodel.visible = true;
@@ -392,7 +393,7 @@ var Map = /** @class */ (function (_super) {
                             buildingmodel.visible = false;
                         }
                     }
-                    else if (_this.map.map.basemap.id === 'basemap_as') {
+                    else if (_this.view.map.basemap.id === 'basemap_as') {
                         // tslint:disable-next-line:prefer-conditional-expression
                         if (layname === 'model_white_as') {
                             buildingmodel.visible = true;
@@ -401,7 +402,7 @@ var Map = /** @class */ (function (_super) {
                             buildingmodel.visible = false;
                         }
                     }
-                    else if (_this.map.map.basemap.id === 'basemap_air') {
+                    else if (_this.view.map.basemap.id === 'basemap_air') {
                         // tslint:disable-next-line:prefer-conditional-expression
                         if (layname === 'model_air_real') {
                             buildingmodel.visible = true;
@@ -415,10 +416,10 @@ var Map = /** @class */ (function (_super) {
         });
     };
     Map.prototype.getMapStyle = function () {
-        if (this.map === null) {
+        if (this.view === null) {
             return;
         }
-        switch (this.map.map.basemap.id) {
+        switch (this.view.map.basemap.id) {
             case "basemap_zw":
                 return 'smap://styles/light';
                 break;
@@ -432,7 +433,7 @@ var Map = /** @class */ (function (_super) {
     };
     Map.prototype.showBuilding = function (isbuidingBlockshow) {
         var _this = this;
-        if (this.map === null) {
+        if (this.view === null) {
             return;
         }
         if (this.viewMode === '2D') {
@@ -440,14 +441,14 @@ var Map = /** @class */ (function (_super) {
         }
         isbuidingBlockshow ? this.showBuildingBlock = true : this.showBuildingBlock = false;
         ['model_white_zw', 'model_air_real', 'model_white_as'].forEach(function (layname) {
-            var buildingmodel = _this.map.map.findLayerById(layname);
+            var buildingmodel = _this.view.map.findLayerById(layname);
             if (_this.showBuildingBlock === false) {
                 buildingmodel.visible = false;
             }
             else {
                 if (buildingmodel) {
                     // tslint:disable-next-line:prefer-conditional-expression
-                    if (_this.map.map.basemap.id === 'basemap_zw') {
+                    if (_this.view.map.basemap.id === 'basemap_zw') {
                         // tslint:disable-next-line:prefer-conditional-expression
                         if (layname === 'model_white_zw') {
                             buildingmodel.visible = true;
@@ -456,7 +457,7 @@ var Map = /** @class */ (function (_super) {
                             buildingmodel.visible = false;
                         }
                     }
-                    else if (_this.map.map.basemap.id === 'basemap_as') {
+                    else if (_this.view.map.basemap.id === 'basemap_as') {
                         // tslint:disable-next-line:prefer-conditional-expression
                         if (layname === 'model_white_as') {
                             buildingmodel.visible = true;
@@ -465,7 +466,7 @@ var Map = /** @class */ (function (_super) {
                             buildingmodel.visible = false;
                         }
                     }
-                    else if (_this.map.map.basemap.id === 'basemap_air') {
+                    else if (_this.view.map.basemap.id === 'basemap_air') {
                         // tslint:disable-next-line:prefer-conditional-expression
                         if (layname === 'model_air_real') {
                             buildingmodel.visible = true;
@@ -489,12 +490,12 @@ var Map = /** @class */ (function (_super) {
                 var layerlistWidget = new LayerList({
                     container: document.createElement('div'),
                     id: 'maplayerlist',
-                    view: _this.map
+                    view: _this.view
                 });
                 if (control.collapse) {
                     var layerListExpand = new Expand({
                         id: 'layerlistonly',
-                        view: _this.map,
+                        view: _this.view,
                         content: layerlistWidget.domNode,
                         expandIconClass: 'esri-icon-layers',
                         expandTooltip: '专题图层框',
@@ -502,12 +503,12 @@ var Map = /** @class */ (function (_super) {
                     });
                     _this.mapControl.push([control.controlName, layerListExpand]);
                     if (control.visible) {
-                        _this.map.ui.add(layerListExpand, control.position);
+                        _this.view.ui.add(layerListExpand, control.position);
                     }
                 }
                 else {
                     _this.mapControl.push([control.controlName, layerlistWidget]);
-                    _this.map.ui.add(layerlistWidget, control.position);
+                    _this.view.ui.add(layerlistWidget, control.position);
                 }
             }).catch(function (err) { console.error(err); });
         }
@@ -518,11 +519,11 @@ var Map = /** @class */ (function (_super) {
                 var Zoom = _a[0];
                 // eslint-disable-next-line no-case-declarations
                 var zoomWidget = new Zoom({
-                    view: _this.map
+                    view: _this.view
                 });
                 _this.mapControl.push([control.controlName, zoomWidget]);
                 if (control.visible) {
-                    _this.map.ui.add(zoomWidget, control.position);
+                    _this.view.ui.add(zoomWidget, control.position);
                 }
             }).catch(function (err) { console.error(err); });
         }
@@ -533,11 +534,11 @@ var Map = /** @class */ (function (_super) {
                 var Compass = _a[0];
                 // eslint-disable-next-line no-case-declarations
                 var comcpassWidget = new Compass({
-                    view: _this.map
+                    view: _this.view
                 });
                 _this.mapControl.push([control.controlName, comcpassWidget]);
                 if (control.visible) {
-                    _this.map.ui.add(comcpassWidget, control.position);
+                    _this.view.ui.add(comcpassWidget, control.position);
                 }
             }).catch(function (err) { console.error(err); });
         }
@@ -548,11 +549,11 @@ var Map = /** @class */ (function (_super) {
                 var Home = _a[0];
                 // eslint-disable-next-line no-case-declarations
                 var homeWidget = new Home({
-                    view: _this.map
+                    view: _this.view
                 });
                 _this.mapControl.push([control.controlName, homeWidget]);
                 if (control.visible) {
-                    _this.map.ui.add(homeWidget, control.position);
+                    _this.view.ui.add(homeWidget, control.position);
                 }
             }).catch(function (err) { console.error(err); });
         }
@@ -563,11 +564,11 @@ var Map = /** @class */ (function (_super) {
                 var Fullscreen = _a[0];
                 // eslint-disable-next-line no-case-declarations
                 var fullscreenWidget = new Fullscreen({
-                    view: _this.map
+                    view: _this.view
                 });
                 _this.mapControl.push([control.controlName, fullscreenWidget]);
                 if (control.visible) {
-                    _this.map.ui.add(fullscreenWidget, control.position);
+                    _this.view.ui.add(fullscreenWidget, control.position);
                 }
             }).catch(function (err) { console.error(err); });
         }
@@ -582,11 +583,11 @@ var Map = /** @class */ (function (_super) {
                     var AboveBelowModeSwitch = _a[0];
                     // eslint-disable-next-line no-case-declarations
                     var aboveBelowModeSwitchWidget = new AboveBelowModeSwitch({
-                        view: _this.map
+                        view: _this.view
                     });
                     _this.mapControl.push([control.controlName, aboveBelowModeSwitchWidget]);
                     if (control.visible) {
-                        _this.map.ui.add(aboveBelowModeSwitchWidget, control.position);
+                        _this.view.ui.add(aboveBelowModeSwitchWidget, control.position);
                     }
                 }).catch(function (err) { console.error(err); });
             }
@@ -599,11 +600,11 @@ var Map = /** @class */ (function (_super) {
                     var AreaMeasureMentButton2D = _a[0];
                     // eslint-disable-next-line no-case-declarations
                     var areaMeasureMentButton2dWidget = new AreaMeasureMentButton2D({
-                        view: _this.map
+                        view: _this.view
                     });
                     _this.mapControl.push([control.controlName, areaMeasureMentButton2dWidget]);
                     if (control.visible) {
-                        _this.map.ui.add(areaMeasureMentButton2dWidget, control.position);
+                        _this.view.ui.add(areaMeasureMentButton2dWidget, control.position);
                     }
                 }).catch(function (err) { console.error(err); });
             }
@@ -614,11 +615,11 @@ var Map = /** @class */ (function (_super) {
                     var AreaMeasureMentButton3D = _a[0];
                     // eslint-disable-next-line no-case-declarations
                     var areaMeasureMentButtonWidget = new AreaMeasureMentButton3D({
-                        view: _this.map
+                        view: _this.view
                     });
                     _this.mapControl.push([control.controlName, areaMeasureMentButtonWidget]);
                     if (control.visible) {
-                        _this.map.ui.add(areaMeasureMentButtonWidget, control.position);
+                        _this.view.ui.add(areaMeasureMentButtonWidget, control.position);
                     }
                 }).catch(function (err) { console.error(err); });
             }
@@ -631,11 +632,11 @@ var Map = /** @class */ (function (_super) {
                     var DistanceMeasureMentButton2D = _a[0];
                     // eslint-disable-next-line no-case-declarations
                     var distanceMeasureMentButton2dWidget = new DistanceMeasureMentButton2D({
-                        view: _this.map
+                        view: _this.view
                     });
                     _this.mapControl.push([control.controlName, distanceMeasureMentButton2dWidget]);
                     if (control.visible) {
-                        _this.map.ui.add(distanceMeasureMentButton2dWidget, control.position);
+                        _this.view.ui.add(distanceMeasureMentButton2dWidget, control.position);
                     }
                 }).catch(function (err) { console.error(err); });
             }
@@ -646,11 +647,11 @@ var Map = /** @class */ (function (_super) {
                     var DistanceMeasureMentButton3D = _a[0];
                     // eslint-disable-next-line no-case-declarations
                     var distanceMeasureMentButtonWidget = new DistanceMeasureMentButton3D({
-                        view: _this.map
+                        view: _this.view
                     });
                     _this.mapControl.push([control.controlName, distanceMeasureMentButtonWidget]);
                     if (control.visible) {
-                        _this.map.ui.add(distanceMeasureMentButtonWidget, control.position);
+                        _this.view.ui.add(distanceMeasureMentButtonWidget, control.position);
                     }
                 }).catch(function (err) { console.error(err); });
             }
@@ -663,11 +664,11 @@ var Map = /** @class */ (function (_super) {
                     var BaseMapSwitchButton2D = _a[0];
                     // eslint-disable-next-line no-case-declarations
                     var baseMapSwitchButton2DWidget = new BaseMapSwitchButton2D({
-                        view: _this.map
+                        view: _this.view
                     });
                     _this.mapControl.push([control.controlName, baseMapSwitchButton2DWidget]);
                     if (control.visible) {
-                        _this.map.ui.add(baseMapSwitchButton2DWidget, control.position);
+                        _this.view.ui.add(baseMapSwitchButton2DWidget, control.position);
                     }
                 }).catch(function (err) { console.error(err); });
             }
@@ -678,12 +679,12 @@ var Map = /** @class */ (function (_super) {
                     var BaseMapSwitchButton3D = _a[0];
                     // eslint-disable-next-line no-case-declarations
                     var baseMapSwitchButton3DWidget = new BaseMapSwitchButton3D({
-                        view: _this.map,
+                        view: _this.view,
                         showBuildingBlock: _this.showBuildingBlock
                     });
                     _this.mapControl.push([control.controlName, baseMapSwitchButton3DWidget]);
                     if (control.visible) {
-                        _this.map.ui.add(baseMapSwitchButton3DWidget, control.position);
+                        _this.view.ui.add(baseMapSwitchButton3DWidget, control.position);
                     }
                 }).catch(function (err) { console.error(err); });
             }
@@ -695,12 +696,12 @@ var Map = /** @class */ (function (_super) {
                 var BMapGallery_Control = _a[0];
                 // eslint-disable-next-line no-case-declarations
                 var bMapGallerywidget = new BMapGallery_Control({
-                    view: _this.map,
+                    view: _this.view,
                     showBuildingBlock: _this.showBuildingBlock
                 });
                 _this.mapControl.push([control.controlName, bMapGallerywidget]);
                 if (control.visible) {
-                    _this.map.ui.add(bMapGallerywidget, control.position);
+                    _this.view.ui.add(bMapGallerywidget, control.position);
                 }
             }).catch(function (err) { console.error(err); });
         }
@@ -711,12 +712,12 @@ var Map = /** @class */ (function (_super) {
                 var BMapGallery_Expand = _a[0];
                 // eslint-disable-next-line no-case-declarations
                 var bMapGalleryexpandwidget = new BMapGallery_Expand({
-                    view: _this.map,
+                    view: _this.view,
                     showBuildingBlock: _this.showBuildingBlock
                 });
                 _this.mapControl.push([control.controlName, bMapGalleryexpandwidget]);
                 if (control.visible) {
-                    _this.map.ui.add(bMapGalleryexpandwidget, control.position);
+                    _this.view.ui.add(bMapGalleryexpandwidget, control.position);
                 }
             }).catch(function (err) { console.error(err); });
         }
@@ -731,12 +732,12 @@ var Map = /** @class */ (function (_super) {
                     var BuildingSencelayerFilter = _a[0];
                     // eslint-disable-next-line no-case-declarations
                     var buildingSencelayerFilterwidget = new BuildingSencelayerFilter({
-                        view: _this.map,
+                        view: _this.view,
                         layerid: control.layerid
                     });
                     _this.mapControl.push([control.controlName, buildingSencelayerFilterwidget]);
                     if (control.visible) {
-                        _this.map.ui.add(buildingSencelayerFilterwidget, control.position);
+                        _this.view.ui.add(buildingSencelayerFilterwidget, control.position);
                     }
                 }).catch(function (err) { console.error(err); });
             }
@@ -746,32 +747,66 @@ var Map = /** @class */ (function (_super) {
         var _this = this;
         this.mapControl.forEach(function (controlelement, idx, array) {
             if (controlelement[0] === control.controlName) {
-                _this.map.ui.remove(controlelement[1]);
+                _this.view.ui.remove(controlelement[1]);
                 _this.mapControl.slice(idx, 1);
             }
         });
     };
     Map.prototype.enableThroughGround = function (isunderground) {
-        if (this.map === null) {
+        if (this.view === null) {
             return;
         }
         if (this.viewMode === '2D') {
             return;
         }
         if (isunderground) {
-            this.map.map.ground.surfaceColor = '#fff';
-            this.map.map.ground.opacity = 0;
-            this.map.map.ground.navigationConstraint = {
+            this.view.map.ground.surfaceColor = '#fff';
+            this.view.map.ground.opacity = 0;
+            this.view.map.ground.navigationConstraint = {
                 type: "none"
             };
         }
         else {
-            this.map.map.ground.surfaceColor = null;
-            this.map.map.ground.opacity = 1;
-            this.map.map.ground.navigationConstraint = {
+            this.view.map.ground.surfaceColor = null;
+            this.view.map.ground.opacity = 1;
+            this.view.map.ground.navigationConstraint = {
                 type: "stay-above"
             };
         }
+    };
+    Map.prototype.setExtentConstrain = function (leftbottom, righttop) {
+        var _this = this;
+        load(['esri/geometry/Extent', 'esri/geometry/geometryEngine', 'esri/core/watchUtils'])
+            // tslint:disable-next-line:variable-name
+            .then(function (_a) {
+            var Extent = _a[0], geometryEngine = _a[1], watchUtils = _a[2];
+            var cextent = new Extent({
+                xmin: leftbottom[0],
+                ymin: leftbottom[1],
+                xmax: righttop[0],
+                ymax: righttop[1],
+                spatialReference: _this.view.spatialReference
+            });
+            _this.view.extent = cextent;
+            var extentconstraintshander = watchUtils.whenTrue(_this.view, "stationary", function () {
+                var iscontainer = geometryEngine.contains(cextent, _this.view.extent);
+                if (!iscontainer) {
+                    _this.view.extent = cextent;
+                }
+            });
+            _this.watchHandles.push(['extentcontrain', extentconstraintshander]);
+        });
+    };
+    Map.prototype.removeExtentConstrain = function () {
+        var watchextentHandles = this.watchHandles.filter(function (item) {
+            return item[0] === 'extentcontrain';
+        });
+        watchextentHandles.forEach(function (handle) {
+            handle[1].remove();
+        });
+        this.watchHandles = this.watchHandles.filter(function (item) {
+            return item[0] !== 'extentcontrain';
+        });
     };
     Map.prototype.add = function (overlayers) {
         var _this = this;
@@ -811,13 +846,13 @@ var Map = /** @class */ (function (_super) {
                                 y: overelement.position[1],
                                 z: overelement.position[2] === undefined ? 0 :
                                     overelement.position[2],
-                                spatialReference: _this.map.spatialReference
+                                spatialReference: _this.view.spatialReference
                             }),
                             symbol: psymbol,
                             attributes: markerattributes
                         });
                         _this.mapoverlayers.push(['smap-default', overelement.uuid, graphic]);
-                        _this.map.graphics.add(graphic);
+                        _this.view.graphics.add(graphic);
                         if (overelement.label.visible) {
                             var graphictext = new Graphic({
                                 geometry: new Point({
@@ -827,7 +862,7 @@ var Map = /** @class */ (function (_super) {
                                         + overelement.label.yoffset : overelement.position[1],
                                     z: _this.viewMode === '3D' ? overelement.position[2]
                                         + overelement.label.zoffset : overelement.position[2],
-                                    spatialReference: _this.map.spatialReference
+                                    spatialReference: _this.view.spatialReference
                                 }),
                                 symbol: {
                                     type: overelement.label.type,
@@ -855,7 +890,7 @@ var Map = /** @class */ (function (_super) {
                                 },
                                 attributes: markerattributes
                             });
-                            _this.map.graphics.add(graphictext);
+                            _this.view.graphics.add(graphictext);
                             _this.mapoverlayers.push(['smap-default', overelement.uuid, graphictext]);
                         }
                     }
@@ -876,7 +911,7 @@ var Map = /** @class */ (function (_super) {
                             hasZ: false,
                             hasM: false,
                             paths: path_1,
-                            spatialReference: _this.map.spatialReference
+                            spatialReference: _this.view.spatialReference
                         });
                         var polylineattributes = overelement.attributes;
                         polylineattributes['uuid'] = overelement.uuid;
@@ -886,7 +921,7 @@ var Map = /** @class */ (function (_super) {
                             attributes: polylineattributes
                         });
                         _this.mapoverlayers.push(['smap-default', overelement.uuid, polylineGraphic]);
-                        _this.map.graphics.add(polylineGraphic);
+                        _this.view.graphics.add(polylineGraphic);
                         if (overelement.label.visible) {
                             var graphictext = new Graphic({
                                 geometry: polylineGraphic.geometry.extent.center,
@@ -916,7 +951,7 @@ var Map = /** @class */ (function (_super) {
                                 },
                                 attributes: polylineattributes
                             });
-                            _this.map.graphics.add(graphictext);
+                            _this.view.graphics.add(graphictext);
                             _this.mapoverlayers.push(['smap-default', overelement.uuid, graphictext]);
                         }
                     }
@@ -955,7 +990,7 @@ var Map = /** @class */ (function (_super) {
                             hasZ: true,
                             hasM: true,
                             rings: rs_1,
-                            spatialReference: _this.map.spatialReference
+                            spatialReference: _this.view.spatialReference
                         });
                         var polygoneattributes = overelement.attributes;
                         polygoneattributes['uuid'] = overelement.uuid;
@@ -965,7 +1000,7 @@ var Map = /** @class */ (function (_super) {
                             attributes: polygoneattributes
                         });
                         _this.mapoverlayers.push(['smap-default', overelement.uuid, polygonGraphic]);
-                        _this.map.graphics.add(polygonGraphic);
+                        _this.view.graphics.add(polygonGraphic);
                         if (overelement.label.visible) {
                             var graphictext = new Graphic({
                                 geometry: polygonGraphic.geometry.extent.center,
@@ -995,7 +1030,7 @@ var Map = /** @class */ (function (_super) {
                                 },
                                 attributes: polygoneattributes
                             });
-                            _this.map.graphics.add(graphictext);
+                            _this.view.graphics.add(graphictext);
                             _this.mapoverlayers.push(['smap-default', overelement.uuid, graphictext]);
                         }
                     }
@@ -1033,14 +1068,14 @@ var Map = /** @class */ (function (_super) {
                                 y: overelement.position[1],
                                 z: overelement.position[2] === undefined ? 0 :
                                     overelement.position[2],
-                                spatialReference: _this.map.spatialReference
+                                spatialReference: _this.view.spatialReference
                             }),
                             symbol: psymbol,
                             attributes: markerattributes
                         });
                         _this.mapoverlayers.push([overlayers.uuid,
                             overelement.uuid, graphic]);
-                        _this.map.graphics.add(graphic);
+                        _this.view.graphics.add(graphic);
                         if (overelement.label.visible) {
                             var graphictext = new Graphic({
                                 geometry: new Point({
@@ -1053,7 +1088,7 @@ var Map = /** @class */ (function (_super) {
                                     z: _this.viewMode === '3D' ? overelement.position[2]
                                         + overelement.label.zoffset :
                                         overelement.position[2],
-                                    spatialReference: _this.map.spatialReference
+                                    spatialReference: _this.view.spatialReference
                                 }),
                                 symbol: {
                                     type: overelement.label.type,
@@ -1081,7 +1116,7 @@ var Map = /** @class */ (function (_super) {
                                 },
                                 attributes: markerattributes
                             });
-                            _this.map.graphics.add(graphictext);
+                            _this.view.graphics.add(graphictext);
                             _this.mapoverlayers.push([overlayers.uuid,
                                 overelement.uuid, graphictext]);
                         }
@@ -1103,7 +1138,7 @@ var Map = /** @class */ (function (_super) {
                             hasZ: false,
                             hasM: false,
                             paths: path_2,
-                            spatialReference: _this.map.spatialReference
+                            spatialReference: _this.view.spatialReference
                         });
                         var polylineattributes = overelement.attributes;
                         polylineattributes['uuid'] = overelement.uuid;
@@ -1114,7 +1149,7 @@ var Map = /** @class */ (function (_super) {
                         });
                         _this.mapoverlayers.push([overlayers.uuid,
                             overelement.uuid, polylineGraphic]);
-                        _this.map.graphics.add(polylineGraphic);
+                        _this.view.graphics.add(polylineGraphic);
                         if (overelement.label.visible) {
                             var graphictext = new Graphic({
                                 geometry: polylineGraphic.geometry.extent.center,
@@ -1144,7 +1179,7 @@ var Map = /** @class */ (function (_super) {
                                 },
                                 attributes: polylineattributes
                             });
-                            _this.map.graphics.add(graphictext);
+                            _this.view.graphics.add(graphictext);
                             _this.mapoverlayers.push([overlayers.uuid,
                                 overelement.uuid, graphictext]);
                         }
@@ -1186,7 +1221,7 @@ var Map = /** @class */ (function (_super) {
                             hasZ: true,
                             hasM: true,
                             rings: rs_2,
-                            spatialReference: _this.map.spatialReference
+                            spatialReference: _this.view.spatialReference
                         });
                         var polygonGraphic = new Graphic({
                             geometry: polygon,
@@ -1195,7 +1230,7 @@ var Map = /** @class */ (function (_super) {
                         });
                         _this.mapoverlayers.push([overlayers.uuid,
                             overelement.uuid, polygonGraphic]);
-                        _this.map.graphics.add(polygonGraphic);
+                        _this.view.graphics.add(polygonGraphic);
                         if (overelement.label.visible) {
                             var graphictext = new Graphic({
                                 geometry: polygonGraphic.geometry.extent.center,
@@ -1225,7 +1260,7 @@ var Map = /** @class */ (function (_super) {
                                 },
                                 attributes: polygoneattributes
                             });
-                            _this.map.graphics.add(graphictext);
+                            _this.view.graphics.add(graphictext);
                             _this.mapoverlayers.push([overlayers.uuid,
                                 overelement.uuid, graphictext]);
                         }
@@ -1263,13 +1298,13 @@ var Map = /** @class */ (function (_super) {
                             y: overlayers.position[1],
                             z: overlayers.position[2] === undefined ? 0 :
                                 overlayers.position[2],
-                            spatialReference: _this.map.spatialReference
+                            spatialReference: _this.view.spatialReference
                         }),
                         symbol: psymbol,
                         attributes: markeattributes
                     });
                     _this.mapoverlayers.push(['smap-default', overlayers.uuid, graphic]);
-                    _this.map.graphics.add(graphic);
+                    _this.view.graphics.add(graphic);
                     if (overlayers.label.visible) {
                         var graphictext = new Graphic({
                             geometry: new Point({
@@ -1279,7 +1314,7 @@ var Map = /** @class */ (function (_super) {
                                     + overlayers.label.yoffset : overlayers.position[1],
                                 z: _this.viewMode === '3D' ? overlayers.position[2]
                                     + overlayers.label.zoffset : overlayers.position[2],
-                                spatialReference: _this.map.spatialReference
+                                spatialReference: _this.view.spatialReference
                             }),
                             symbol: {
                                 type: overlayers.label.type,
@@ -1307,7 +1342,7 @@ var Map = /** @class */ (function (_super) {
                             },
                             attributes: markeattributes
                         });
-                        _this.map.graphics.add(graphictext);
+                        _this.view.graphics.add(graphictext);
                         _this.mapoverlayers.push(['smap-default', overlayers.uuid, graphictext]);
                     }
                 }
@@ -1328,7 +1363,7 @@ var Map = /** @class */ (function (_super) {
                         hasZ: false,
                         hasM: false,
                         paths: path_3,
-                        spatialReference: _this.map.spatialReference
+                        spatialReference: _this.view.spatialReference
                     });
                     var polylineattributes = overlayers.attributes;
                     polylineattributes['uuid'] = overlayers.uuid;
@@ -1338,7 +1373,7 @@ var Map = /** @class */ (function (_super) {
                         attributes: polylineattributes
                     });
                     _this.mapoverlayers.push(['smap-default', overlayers.uuid, polylineGraphic]);
-                    _this.map.graphics.add(polylineGraphic);
+                    _this.view.graphics.add(polylineGraphic);
                     if (overlayers.label.visible) {
                         var graphictext = new Graphic({
                             geometry: polylineGraphic.geometry.extent.center,
@@ -1368,7 +1403,7 @@ var Map = /** @class */ (function (_super) {
                             },
                             attributes: polylineattributes
                         });
-                        _this.map.graphics.add(graphictext);
+                        _this.view.graphics.add(graphictext);
                         _this.mapoverlayers.push(['smap-default', overlayers.uuid, graphictext]);
                     }
                 }
@@ -1409,7 +1444,7 @@ var Map = /** @class */ (function (_super) {
                         hasZ: true,
                         hasM: true,
                         rings: rs_3,
-                        spatialReference: _this.map.spatialReference
+                        spatialReference: _this.view.spatialReference
                     });
                     var polygonGraphic = new Graphic({
                         geometry: polygon,
@@ -1417,7 +1452,7 @@ var Map = /** @class */ (function (_super) {
                         attributes: polygonattributes
                     });
                     _this.mapoverlayers.push(['smap-default', overlayers.uuid, polygonGraphic]);
-                    _this.map.graphics.add(polygonGraphic);
+                    _this.view.graphics.add(polygonGraphic);
                     if (overlayers.label.visible) {
                         var graphictext = new Graphic({
                             geometry: polygonGraphic.geometry.extent.center,
@@ -1447,7 +1482,7 @@ var Map = /** @class */ (function (_super) {
                             },
                             attributes: polygonattributes
                         });
-                        _this.map.graphics.add(graphictext);
+                        _this.view.graphics.add(graphictext);
                         _this.mapoverlayers.push(['smap-default', overlayers.uuid, graphictext]);
                     }
                 }
@@ -1462,7 +1497,7 @@ var Map = /** @class */ (function (_super) {
                     return item[1] === overelemnt.uuid;
                 });
                 graphiclist.forEach(function (item) {
-                    _this.map.graphics.remove(item[2]);
+                    _this.view.graphics.remove(item[2]);
                 });
                 _this.mapoverlayers = _this.mapoverlayers.filter(function (item) { return item[1] !==
                     overelemnt.uuid; });
@@ -1472,7 +1507,7 @@ var Map = /** @class */ (function (_super) {
             var graphiclist = this.mapoverlayers.filter(function (item) { return item[0] ===
                 overlayers.uuid; });
             graphiclist.forEach(function (item) {
-                _this.map.graphics.remove(item[2]);
+                _this.view.graphics.remove(item[2]);
             });
             this.mapoverlayers = this.mapoverlayers.filter(function (item) { return item[0] !==
                 overlayers.uuid; });
@@ -1482,7 +1517,7 @@ var Map = /** @class */ (function (_super) {
                 return item[1] === overlayers.uuid;
             });
             graphiclist.forEach(function (item) {
-                _this.map.graphics.remove(item[2]);
+                _this.view.graphics.remove(item[2]);
             });
             this.mapoverlayers = this.mapoverlayers.filter(function (item) { return item[1] !== overlayers.uuid; });
         }
@@ -1499,7 +1534,7 @@ var Map = /** @class */ (function (_super) {
                         return item[1] === overelement.uuid;
                     });
                     graphiclist.forEach(function (item) {
-                        _this.map.graphics.remove(item[2]);
+                        _this.view.graphics.remove(item[2]);
                     });
                     _this.mapoverlayers = _this.mapoverlayers.filter(function (item) { return item[1] !== overelement.uuid; });
                     if (overelement.overlaytype.toLowerCase() === 'marker') {
@@ -1532,13 +1567,13 @@ var Map = /** @class */ (function (_super) {
                                 y: overelement.position[1],
                                 z: overelement.position[2] === undefined ? 0 :
                                     overelement.position[2],
-                                spatialReference: _this.map.spatialReference
+                                spatialReference: _this.view.spatialReference
                             }),
                             symbol: psymbol,
                             attributes: markerattributes
                         });
                         _this.mapoverlayers.push(['smap-default', overelement.uuid, graphic]);
-                        _this.map.graphics.add(graphic);
+                        _this.view.graphics.add(graphic);
                         if (overelement.label.visible) {
                             var graphictext = new Graphic({
                                 geometry: new Point({
@@ -1548,7 +1583,7 @@ var Map = /** @class */ (function (_super) {
                                         + overelement.label.yoffset : overelement.position[1],
                                     z: _this.viewMode === '3D' ? overelement.position[2]
                                         + overelement.label.zoffset : overelement.position[2],
-                                    spatialReference: _this.map.spatialReference
+                                    spatialReference: _this.view.spatialReference
                                 }),
                                 symbol: {
                                     type: overelement.label.type,
@@ -1576,7 +1611,7 @@ var Map = /** @class */ (function (_super) {
                                 },
                                 attributes: markerattributes
                             });
-                            _this.map.graphics.add(graphictext);
+                            _this.view.graphics.add(graphictext);
                             _this.mapoverlayers.push(['smap-default', overelement.uuid, graphictext]);
                         }
                     }
@@ -1597,7 +1632,7 @@ var Map = /** @class */ (function (_super) {
                             hasZ: false,
                             hasM: false,
                             paths: path_4,
-                            spatialReference: _this.map.spatialReference
+                            spatialReference: _this.view.spatialReference
                         });
                         var polylineattributes = overelement.attributes;
                         polylineattributes['uuid'] = overelement.uuid;
@@ -1607,7 +1642,7 @@ var Map = /** @class */ (function (_super) {
                             attributes: polylineattributes
                         });
                         _this.mapoverlayers.push(['smap-default', overelement.uuid, polylineGraphic]);
-                        _this.map.graphics.add(polylineGraphic);
+                        _this.view.graphics.add(polylineGraphic);
                         if (overelement.label.visible) {
                             var graphictext = new Graphic({
                                 geometry: polylineGraphic.geometry.extent.center,
@@ -1637,7 +1672,7 @@ var Map = /** @class */ (function (_super) {
                                 },
                                 attributes: polylineattributes
                             });
-                            _this.map.graphics.add(graphictext);
+                            _this.view.graphics.add(graphictext);
                             _this.mapoverlayers.push(['smap-default', overelement.uuid, graphictext]);
                         }
                     }
@@ -1676,7 +1711,7 @@ var Map = /** @class */ (function (_super) {
                             hasZ: true,
                             hasM: true,
                             rings: rs_4,
-                            spatialReference: _this.map.spatialReference
+                            spatialReference: _this.view.spatialReference
                         });
                         var polygonattributes = overelement.attributes;
                         polygonattributes['uuid'] = overelement.uuid;
@@ -1686,7 +1721,7 @@ var Map = /** @class */ (function (_super) {
                             attributes: polygonattributes
                         });
                         _this.mapoverlayers.push(['smap-default', overelement.uuid, polygonGraphic]);
-                        _this.map.graphics.add(polygonGraphic);
+                        _this.view.graphics.add(polygonGraphic);
                         if (overelement.label.visible) {
                             var graphictext = new Graphic({
                                 geometry: polygonGraphic.geometry.extent.center,
@@ -1716,7 +1751,7 @@ var Map = /** @class */ (function (_super) {
                                 },
                                 attributes: polygonattributes
                             });
-                            _this.map.graphics.add(graphictext);
+                            _this.view.graphics.add(graphictext);
                             _this.mapoverlayers.push(['smap-default', overelement.uuid, graphictext]);
                         }
                     }
@@ -1727,7 +1762,7 @@ var Map = /** @class */ (function (_super) {
                     return item[0] === overlayers.uuid;
                 });
                 graphiclist.forEach(function (item) {
-                    _this.map.graphics.remove(item[2]);
+                    _this.view.graphics.remove(item[2]);
                 });
                 _this.mapoverlayers = _this.mapoverlayers.filter(function (item) { return item[0] !== overlayers.uuid; });
                 overlayers.overlayers.forEach(function (overelement) {
@@ -1761,14 +1796,14 @@ var Map = /** @class */ (function (_super) {
                                 y: overelement.position[1],
                                 z: overelement.position[2] === undefined ? 0 :
                                     overelement.position[2],
-                                spatialReference: _this.map.spatialReference
+                                spatialReference: _this.view.spatialReference
                             }),
                             symbol: psymbol,
                             attributes: markerattributes
                         });
                         _this.mapoverlayers.push([overlayers.uuid,
                             overelement.uuid, graphic]);
-                        _this.map.graphics.add(graphic);
+                        _this.view.graphics.add(graphic);
                         if (overelement.label.visible) {
                             var graphictext = new Graphic({
                                 geometry: new Point({
@@ -1781,7 +1816,7 @@ var Map = /** @class */ (function (_super) {
                                     z: _this.viewMode === '3D' ? overelement.position[2]
                                         + overelement.label.zoffset :
                                         overelement.position[2],
-                                    spatialReference: _this.map.spatialReference
+                                    spatialReference: _this.view.spatialReference
                                 }),
                                 symbol: {
                                     type: overelement.label.type,
@@ -1809,7 +1844,7 @@ var Map = /** @class */ (function (_super) {
                                 },
                                 attributes: markerattributes
                             });
-                            _this.map.graphics.add(graphictext);
+                            _this.view.graphics.add(graphictext);
                             _this.mapoverlayers.push([overlayers.uuid,
                                 overelement.uuid, graphictext]);
                         }
@@ -1831,7 +1866,7 @@ var Map = /** @class */ (function (_super) {
                             hasZ: false,
                             hasM: false,
                             paths: path_5,
-                            spatialReference: _this.map.spatialReference
+                            spatialReference: _this.view.spatialReference
                         });
                         var polylineattributes = overelement.attributes;
                         polylineattributes['uuid'] = overelement.uuid;
@@ -1842,7 +1877,7 @@ var Map = /** @class */ (function (_super) {
                         });
                         _this.mapoverlayers.push([overlayers.uuid,
                             overelement.uuid, polylineGraphic]);
-                        _this.map.graphics.add(polylineGraphic);
+                        _this.view.graphics.add(polylineGraphic);
                         if (overelement.label.visible) {
                             var graphictext = new Graphic({
                                 geometry: polylineGraphic.geometry.extent.center,
@@ -1872,7 +1907,7 @@ var Map = /** @class */ (function (_super) {
                                 },
                                 attributes: polylineattributes
                             });
-                            _this.map.graphics.add(graphictext);
+                            _this.view.graphics.add(graphictext);
                             _this.mapoverlayers.push([overlayers.uuid,
                                 overelement.uuid, graphictext]);
                         }
@@ -1914,7 +1949,7 @@ var Map = /** @class */ (function (_super) {
                             hasZ: true,
                             hasM: true,
                             rings: rs_5,
-                            spatialReference: _this.map.spatialReference
+                            spatialReference: _this.view.spatialReference
                         });
                         var polygonGraphic = new Graphic({
                             geometry: polygon,
@@ -1922,7 +1957,7 @@ var Map = /** @class */ (function (_super) {
                             attributes: polygonattributes
                         });
                         _this.mapoverlayers.push(['smap-default', overlayers.uuid, polygonGraphic]);
-                        _this.map.graphics.add(polygonGraphic);
+                        _this.view.graphics.add(polygonGraphic);
                         if (overlayers.label.visible) {
                             var graphictext = new Graphic({
                                 geometry: polygonGraphic.geometry.extent.center,
@@ -1952,7 +1987,7 @@ var Map = /** @class */ (function (_super) {
                                 },
                                 attributes: polygonattributes
                             });
-                            _this.map.graphics.add(graphictext);
+                            _this.view.graphics.add(graphictext);
                             _this.mapoverlayers.push(['smap-default', overlayers.uuid, graphictext]);
                         }
                     }
@@ -1963,7 +1998,7 @@ var Map = /** @class */ (function (_super) {
                     return item[1] === overlayers.uuid;
                 });
                 graphiclist.forEach(function (item) {
-                    _this.map.graphics.remove(item[2]);
+                    _this.view.graphics.remove(item[2]);
                 });
                 _this.mapoverlayers = _this.mapoverlayers.filter(function (item) { return item[1] !== overlayers.uuid; });
                 if (overlayers.overlaytype.toLowerCase() === 'marker') {
@@ -1996,13 +2031,13 @@ var Map = /** @class */ (function (_super) {
                             y: overlayers.position[1],
                             z: overlayers.position[2] === undefined ? 0 :
                                 overlayers.position[2],
-                            spatialReference: _this.map.spatialReference
+                            spatialReference: _this.view.spatialReference
                         }),
                         symbol: psymbol,
                         attributes: markerattributes
                     });
                     _this.mapoverlayers.push(['smap-default', overlayers.uuid, graphic]);
-                    _this.map.graphics.add(graphic);
+                    _this.view.graphics.add(graphic);
                     if (overlayers.label.visible) {
                         var graphictext = new Graphic({
                             geometry: new Point({
@@ -2012,7 +2047,7 @@ var Map = /** @class */ (function (_super) {
                                     + overlayers.label.yoffset : overlayers.position[1],
                                 z: _this.viewMode === '3D' ? overlayers.position[2]
                                     + overlayers.label.zoffset : overlayers.position[2],
-                                spatialReference: _this.map.spatialReference
+                                spatialReference: _this.view.spatialReference
                             }),
                             symbol: {
                                 type: overlayers.label.type,
@@ -2040,7 +2075,7 @@ var Map = /** @class */ (function (_super) {
                             },
                             attributes: markerattributes
                         });
-                        _this.map.graphics.add(graphictext);
+                        _this.view.graphics.add(graphictext);
                         _this.mapoverlayers.push(['smap-default', overlayers.uuid, graphictext]);
                     }
                 }
@@ -2061,7 +2096,7 @@ var Map = /** @class */ (function (_super) {
                         hasZ: false,
                         hasM: false,
                         paths: path_6,
-                        spatialReference: _this.map.spatialReference
+                        spatialReference: _this.view.spatialReference
                     });
                     var polylineattributes = overlayers.attributes;
                     polylineattributes['uuid'] = overlayers.uuid;
@@ -2071,7 +2106,7 @@ var Map = /** @class */ (function (_super) {
                         attributes: polylineattributes
                     });
                     _this.mapoverlayers.push(['smap-default', overlayers.uuid, polylineGraphic]);
-                    _this.map.graphics.add(polylineGraphic);
+                    _this.view.graphics.add(polylineGraphic);
                     if (overlayers.label.visible) {
                         var graphictext = new Graphic({
                             geometry: polylineGraphic.geometry.extent.center,
@@ -2101,7 +2136,7 @@ var Map = /** @class */ (function (_super) {
                             },
                             attributes: polylineattributes
                         });
-                        _this.map.graphics.add(graphictext);
+                        _this.view.graphics.add(graphictext);
                         _this.mapoverlayers.push(['smap-default', overlayers.uuid, graphictext]);
                     }
                 }
@@ -2140,7 +2175,7 @@ var Map = /** @class */ (function (_super) {
                         hasZ: true,
                         hasM: true,
                         rings: rs_6,
-                        spatialReference: _this.map.spatialReference
+                        spatialReference: _this.view.spatialReference
                     });
                     var polygonattributes = overlayers.attributes;
                     polygonattributes['uuid'] = overlayers.uuid;
@@ -2150,7 +2185,7 @@ var Map = /** @class */ (function (_super) {
                         attributes: polygonattributes
                     });
                     _this.mapoverlayers.push(['smap-default', overlayers.uuid, polygonGraphic]);
-                    _this.map.graphics.add(polygonGraphic);
+                    _this.view.graphics.add(polygonGraphic);
                     if (overlayers.label.visible) {
                         var graphictext = new Graphic({
                             geometry: polygonGraphic.geometry.extent.center,
@@ -2180,7 +2215,7 @@ var Map = /** @class */ (function (_super) {
                             },
                             attributes: polygonattributes
                         });
-                        _this.map.graphics.add(graphictext);
+                        _this.view.graphics.add(graphictext);
                         _this.mapoverlayers.push(['smap-default', overlayers.uuid, graphictext]);
                     }
                 }
@@ -2252,7 +2287,7 @@ var Map = /** @class */ (function (_super) {
                             // elevationInfo: 'on-the-ground',
                             fields: datafiled_1,
                             source: [],
-                            spatialReference: _this.map.spatialReference
+                            spatialReference: _this.view.spatialReference
                         });
                         var dataattributes = overelement.attributes;
                         dataattributes['uuid'] = overelement.uuid;
@@ -2262,12 +2297,12 @@ var Map = /** @class */ (function (_super) {
                                 y: overelement.position[1],
                                 z: overelement.position[2] === undefined ? 0 :
                                     overelement.position[2],
-                                spatialReference: _this.map.spatialReference
+                                spatialReference: _this.view.spatialReference
                             }),
                             attributes: dataattributes
                         });
                         clientoperateLayer.source.add(graphic);
-                        _this.map.map.add(clientoperateLayer);
+                        _this.view.map.add(clientoperateLayer);
                         _this.mapoverlayersflayer.push([overelement.uuid, overelement.uuid, graphic]);
                         if (overelement.label.visible) {
                             var labelsymbol = void 0;
@@ -2392,9 +2427,9 @@ var Map = /** @class */ (function (_super) {
                         // elevationInfo: 'on-the-ground',
                         fields: datafiled_2,
                         source: [],
-                        spatialReference: _this.map.spatialReference
+                        spatialReference: _this.view.spatialReference
                     });
-                    _this.map.map.add(clientoperateLayer_1);
+                    _this.view.map.add(clientoperateLayer_1);
                     overlayers.overlayers.forEach(function (overelement) {
                         var dataattributes = overelement.attributes;
                         dataattributes['uuid'] = overelement.uuid;
@@ -2404,7 +2439,7 @@ var Map = /** @class */ (function (_super) {
                                 y: overelement.position[1],
                                 z: overelement.position[2] === undefined ? 0 :
                                     overelement.position[2],
-                                spatialReference: _this.map.spatialReference
+                                spatialReference: _this.view.spatialReference
                             }),
                             attributes: overelement.attributes
                         });
@@ -2514,7 +2549,8 @@ var Map = /** @class */ (function (_super) {
                             type: 'string'
                         }];
                     Object.keys(overlayers.attributes).forEach(function (element) {
-                        datafiled_3.push({ name: element,
+                        datafiled_3.push({
+                            name: element,
                             alias: element,
                             type: "string"
                         });
@@ -2531,7 +2567,7 @@ var Map = /** @class */ (function (_super) {
                         // elevationInfo: 'on-the-ground',
                         fields: datafiled_3,
                         source: [],
-                        spatialReference: _this.map.spatialReference
+                        spatialReference: _this.view.spatialReference
                     });
                     var dataattributes = overlayers.attributes;
                     dataattributes['uuid'] = overlayers.uuid;
@@ -2541,12 +2577,12 @@ var Map = /** @class */ (function (_super) {
                             y: overlayers.position[1],
                             z: overlayers.position[2] === undefined ? 0 :
                                 overlayers.position[2],
-                            spatialReference: _this.map.spatialReference
+                            spatialReference: _this.view.spatialReference
                         }),
                         attributes: dataattributes
                     });
                     clientoperateLayer.source.add(graphic);
-                    _this.map.map.add(clientoperateLayer);
+                    _this.view.map.add(clientoperateLayer);
                     _this.mapoverlayersflayer.push([overlayers.uuid, overlayers.uuid, graphic]);
                     if (overlayers.label.visible) {
                         var labelsymbol = void 0;
@@ -2625,7 +2661,7 @@ var Map = /** @class */ (function (_super) {
                                 y: overelemnt.position[1],
                                 z: overelemnt.position[2] === undefined ? 0 :
                                     overelemnt.position[2],
-                                spatialReference: _this.map.spatialReference
+                                spatialReference: _this.view.spatialReference
                             });
                             item[2].geometry = point;
                             var keys = Object.keys(overelemnt.attributes);
@@ -2635,7 +2671,7 @@ var Map = /** @class */ (function (_super) {
                                 }
                             });
                             upFeatures.push(item[2]);
-                            var flayer = _this.map.map.findLayerById(item[0]);
+                            var flayer = _this.view.map.findLayerById(item[0]);
                             if (flayer !== null) {
                                 flayer.applyEdits({
                                     updateFeatures: upFeatures
@@ -2743,7 +2779,7 @@ var Map = /** @class */ (function (_super) {
                             y: overelement.position[1],
                             z: overelement.position[2] === undefined ? 0 :
                                 overelement.position[2],
-                            spatialReference: _this.map.spatialReference
+                            spatialReference: _this.view.spatialReference
                         });
                         graphiclist[0][2].geometry = point;
                         var keys = Object.keys(overelement.attributes);
@@ -2755,7 +2791,7 @@ var Map = /** @class */ (function (_super) {
                         upFeatures_1.push(graphiclist[0][2]);
                     }
                 });
-                var flayer_1 = _this.map.map.findLayerById(overlayers.uuid);
+                var flayer_1 = _this.view.map.findLayerById(overlayers.uuid);
                 if (flayer_1 !== null) {
                     flayer_1.applyEdits({
                         updateFeatures: upFeatures_1
@@ -2875,7 +2911,7 @@ var Map = /** @class */ (function (_super) {
                         y: overlayers.position[1],
                         z: overlayers.position[2] === undefined ? 0 :
                             overlayers.position[2],
-                        spatialReference: _this.map.spatialReference
+                        spatialReference: _this.view.spatialReference
                     });
                     item[2].geometry = point;
                     var keys = Object.keys(overlayers.attributes);
@@ -2885,7 +2921,7 @@ var Map = /** @class */ (function (_super) {
                         }
                     });
                     upFeatures.push(item[2]);
-                    var flayer = _this.map.map.findLayerById(item[0]);
+                    var flayer = _this.view.map.findLayerById(item[0]);
                     if (flayer !== null) {
                         flayer.applyEdits({
                             updateFeatures: upFeatures
@@ -2980,14 +3016,14 @@ var Map = /** @class */ (function (_super) {
                     return item[1] === overelemnt.uuid;
                 });
                 graphiclist.forEach(function (item) {
-                    var flayer = _this.map.map.findLayerById(item[0]);
+                    var flayer = _this.view.map.findLayerById(item[0]);
                     if (flayer !== null) {
                         flayer.applyEdits({
                             deleteFeatures: [item[2]]
                         }).then(function (editsResult) {
                             flayer.queryFeatures().then(function (results) {
                                 if (results.features.length === 0) {
-                                    _this.map.map.remove(flayer);
+                                    _this.view.map.remove(flayer);
                                 }
                             });
                         });
@@ -2998,9 +3034,9 @@ var Map = /** @class */ (function (_super) {
             });
         }
         else if (overlayers.type === 'group') {
-            var flayer = this.map.map.findLayerById(overlayers.uuid);
+            var flayer = this.view.map.findLayerById(overlayers.uuid);
             if (flayer !== null) {
-                this.map.map.remove(flayer);
+                this.view.map.remove(flayer);
             }
             this.mapoverlayersflayer = this.mapoverlayersflayer.filter(function (item) { return item[0] !==
                 overlayers.uuid; });
@@ -3010,14 +3046,14 @@ var Map = /** @class */ (function (_super) {
                 return item[1] === overlayers.uuid;
             });
             graphiclist.forEach(function (item) {
-                var flayer = _this.map.map.findLayerById(item[0]);
+                var flayer = _this.view.map.findLayerById(item[0]);
                 if (flayer !== null) {
                     flayer.applyEdits({
                         deleteFeatures: [item[2]]
                     }).then(function (editsResult) {
                         flayer.queryFeatures().then(function (results) {
                             if (results.features.length === 0) {
-                                _this.map.map.remove(flayer);
+                                _this.view.map.remove(flayer);
                             }
                         });
                     });
@@ -3027,7 +3063,7 @@ var Map = /** @class */ (function (_super) {
         }
     };
     Map.prototype.clearMap = function () {
-        this.map.graphics.removeAll();
+        this.view.graphics.removeAll();
         this.mapoverlayers = [];
     };
     Map.prototype.setmaskboundary = function (maskOptions) {
@@ -3039,37 +3075,37 @@ var Map = /** @class */ (function (_super) {
             var Graphic = _a[0], GraphicsLayer = _a[1], ArcPolygon = _a[2], geometryEngineAsync = _a[3], SpatialReference = _a[4], Color = _a[5];
             var boundaryLayer = null;
             if (maskOptions.boundaryType === "qx") {
-                boundaryLayer = _this.map.map.findLayerById('qx_boundary');
+                boundaryLayer = _this.view.map.findLayerById('qx_boundary');
             }
             else if (maskOptions.boundaryType === "jd") {
-                boundaryLayer = _this.map.map.findLayerById('jd_boundary');
+                boundaryLayer = _this.view.map.findLayerById('jd_boundary');
             }
             else if (maskOptions.boundaryType === "jwh") {
-                boundaryLayer = _this.map.map.findLayerById('jwh_boundary');
+                boundaryLayer = _this.view.map.findLayerById('jwh_boundary');
             }
-            var maskgraphiclayer = _this.map.map.findLayerById('mask_boundary_graphiclayer');
+            var maskgraphiclayer = _this.view.map.findLayerById('mask_boundary_graphiclayer');
             if (maskgraphiclayer == null) {
                 maskgraphiclayer = new GraphicsLayer({
                     id: 'mask_boundary_graphiclayer',
                     title: '遮罩层',
                     listMode: 'hide'
                 });
-                _this.map.map.add(maskgraphiclayer);
+                _this.view.map.add(maskgraphiclayer);
             }
             maskgraphiclayer.removeAll();
             if (maskOptions.inputgeometry) {
-                boundaryLayer = _this.map.map.findLayerById('qx_boundary');
+                boundaryLayer = _this.view.map.findLayerById('qx_boundary');
                 if (boundaryLayer === null) {
                     return;
                 }
                 var pgon = new ArcPolygon({
                     rings: maskOptions.inputgeometry,
-                    spatialReference: _this.map.spatialReference
+                    spatialReference: _this.view.spatialReference
                 });
                 var fullgeometry_1 = boundaryLayer.fullExtent;
-                fullgeometry_1.spatialReference = _this.map.spatialReference;
+                fullgeometry_1.spatialReference = _this.view.spatialReference;
                 var geomtry_1 = pgon;
-                geomtry_1.spatialReference = _this.map.spatialReference;
+                geomtry_1.spatialReference = _this.view.spatialReference;
                 geometryEngineAsync.buffer(geomtry_1, maskOptions.boundarydistance, 'meters').
                     then(function (targetGeometry) {
                     geometryEngineAsync.difference(fullgeometry_1, targetGeometry).then(function (outermask) {
@@ -3197,9 +3233,9 @@ var Map = /** @class */ (function (_super) {
                         return;
                     }
                     var fullgeometry = boundaryLayer.fullExtent;
-                    fullgeometry.spatialReference = _this.map.spatialReference;
+                    fullgeometry.spatialReference = _this.view.spatialReference;
                     var geomtry = results.features[0].geometry;
-                    geomtry.spatialReference = _this.map.spatialReference;
+                    geomtry.spatialReference = _this.view.spatialReference;
                     geometryEngineAsync.buffer(geomtry, maskOptions.boundarydistance, 'meters').
                         then(function (targetGeometry) {
                         geometryEngineAsync.difference(fullgeometry, targetGeometry).then(function (outermask) {
@@ -3249,8 +3285,7 @@ var Map = /** @class */ (function (_super) {
                                 symbol: masksymbol
                             });
                             maskgraphiclayer.add(outermaskGraphic);
-                            var length = maskOptions.bounarycount === undefined ? 30
-                                : maskOptions.bounarycount;
+                            var length = maskOptions.bounarycount === undefined ? 30 : maskOptions.bounarycount;
                             var maskgcount = Math.ceil(maskOptions.boundarydistance / length);
                             //  let calgeometry = geomtry;
                             var setingcolor = new Color(maskOptions.boundaryColor).toRgba();
@@ -3323,89 +3358,212 @@ var Map = /** @class */ (function (_super) {
     };
     Map.prototype.init = function (container, viewMode, mapoptions) {
         return __awaiter(this, void 0, void 0, function () {
-            var tokendata, maptokenrequesturl, response, response, expirationTime, tokenUrl;
+            var username, menuName;
             var _this = this;
             return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        if (!(Mapcofig.tokenserver.tokenType === 'back')) return [3 /*break*/, 1];
-                        tokendata = {
-                            tokenconfigname: mapoptions.tokenconfigname === undefined ? 'smiapi_new' : mapoptions.tokenconfigname,
-                            domainName: window.location.host
-                        };
-                        maptokenrequesturl = Mapcofig.tokenserver.token_black.url;
-                        request.get(maptokenrequesturl, '', tokendata, request.RequestMode.noCors, request.RequestCache.forceCache).then(function (maptokenResult) { return __awaiter(_this, void 0, void 0, function () {
-                            var maptoken, response, response;
-                            return __generator(this, function (_a) {
-                                switch (_a.label) {
-                                    case 0:
-                                        maptoken = JSON.parse(maptokenResult.data).token;
-                                        if (!(this.viewMode === '3D')) return [3 /*break*/, 2];
-                                        return [4 /*yield*/, init3Dmap(container, Mapcofig.gisService, Mapcofig.proxyConifg, maptoken, mapoptions)];
-                                    case 1:
-                                        response = _a.sent();
-                                        this.map = response.sceneView;
-                                        return [3 /*break*/, 4];
-                                    case 2: return [4 /*yield*/, init2Dmap(container, Mapcofig.gisService, Mapcofig.proxyConifg, maptoken, mapoptions)];
-                                    case 3:
-                                        response = _a.sent();
-                                        this.map = response.mapView;
-                                        _a.label = 4;
-                                    case 4:
-                                        this.initEvent();
-                                        return [2 /*return*/];
-                                }
-                            });
-                        }); });
-                        return [3 /*break*/, 7];
-                    case 1:
-                        if (!(Mapcofig.tokenserver.tokenType === 'free')) return [3 /*break*/, 6];
-                        if (!(this.viewMode === '3D')) return [3 /*break*/, 3];
-                        return [4 /*yield*/, init3Dmap(container, Mapcofig.gisService, Mapcofig.proxyConifg, '', mapoptions)];
-                    case 2:
-                        response = _a.sent();
-                        this.map = response.sceneView;
-                        return [3 /*break*/, 5];
-                    case 3: return [4 /*yield*/, init2Dmap(container, Mapcofig.gisService, Mapcofig.proxyConifg, '', mapoptions)];
-                    case 4:
-                        response = _a.sent();
-                        this.map = response.mapView;
-                        _a.label = 5;
-                    case 5:
-                        this.initEvent();
-                        return [3 /*break*/, 7];
-                    case 6:
-                        expirationTime = 1440;
-                        tokenUrl = Mapcofig.tokenserver.token_front.url + '?request=getToken&username=' +
-                            Mapcofig.tokenserver.token_front.user + '&password=' + Mapcofig.tokenserver.token_front.password
-                            + '&clientid=ref.' + window.location.host + '&expiration=' +
-                            expirationTime + '&f=json';
-                        request.post(tokenUrl, '', '', request.RequestMode.noCors, request.RequestCache.default).then(function (maptokenResult) { return __awaiter(_this, void 0, void 0, function () {
-                            var maptoken, response, response;
-                            return __generator(this, function (_a) {
-                                switch (_a.label) {
-                                    case 0:
-                                        maptoken = maptokenResult.token;
-                                        if (!(viewMode === '3D')) return [3 /*break*/, 2];
-                                        return [4 /*yield*/, init3Dmap(container, Mapcofig.gisService, Mapcofig.proxyConifg, maptoken, mapoptions)];
-                                    case 1:
-                                        response = _a.sent();
-                                        this.map = response.sceneView;
-                                        return [3 /*break*/, 4];
-                                    case 2: return [4 /*yield*/, init2Dmap(container, Mapcofig.gisService, Mapcofig.proxyConifg, maptoken, mapoptions)];
-                                    case 3:
-                                        response = _a.sent();
-                                        this.map = response.mapView;
-                                        _a.label = 4;
-                                    case 4:
-                                        this.initEvent();
-                                        return [2 /*return*/];
-                                }
-                            });
-                        }); });
-                        _a.label = 7;
-                    case 7: return [2 /*return*/];
-                }
+                username = mapoptions.userName === undefined ? Mapcofig.userName : mapoptions.userName;
+                menuName = mapoptions.menuName === undefined ? Mapcofig.menuName : mapoptions.menuName;
+                load(['smiapi/utils/xhrutils'])
+                    // tslint:disable-next-line:no-shadowed-variable
+                    .then(function (_a) {
+                    var xhrutils = _a[0];
+                    xhrutils.mapconfig(username, menuName, Mapcofig.proxyURL, Mapcofig.mapconfigbackendurl)
+                        .then(function (mapconfigresult) { return __awaiter(_this, void 0, void 0, function () {
+                        var tokenconfigname, domainName, response, response;
+                        var _this = this;
+                        return __generator(this, function (_a) {
+                            switch (_a.label) {
+                                case 0:
+                                    this.mapconfig = mapconfigresult.data.mapconfig[0];
+                                    this.maplayers = mapconfigresult.data.layers;
+                                    this.mapwidgets = mapconfigresult.data.mapwidgets;
+                                    this.mapProxys = mapconfigresult.data.mapProxys;
+                                    this.mapextent = mapconfigresult.data.mapextent[0];
+                                    if (!(this.mapconfig.tokenType === '1')) return [3 /*break*/, 1];
+                                    tokenconfigname = this.mapconfig.backtokenconfigname === undefined ?
+                                        Mapcofig.tokenconfigname : this.mapconfig.backtokenconfigname;
+                                    domainName = window.location.host;
+                                    xhrutils.maptoken_backend(Mapcofig.proxyURL, this.mapconfig.backtokenUrl, tokenconfigname, domainName)
+                                        .then(function (maptokenResult) { return __awaiter(_this, void 0, void 0, function () {
+                                        var maptoken, response, response;
+                                        return __generator(this, function (_a) {
+                                            switch (_a.label) {
+                                                case 0:
+                                                    maptoken = JSON.parse(maptokenResult.data).token;
+                                                    if (!(this.viewMode === '3D')) return [3 /*break*/, 2];
+                                                    return [4 /*yield*/, init3Dmap(container, this.mapconfig, this.maplayers, this.mapwidgets, this.mapProxys, this.mapextent, maptoken, mapoptions)];
+                                                case 1:
+                                                    response = _a.sent();
+                                                    this.view = response.sceneView;
+                                                    return [3 /*break*/, 4];
+                                                case 2: return [4 /*yield*/, init2Dmap(container, this.mapconfig, this.maplayers, this.mapwidgets, this.mapProxys, this.mapextent, maptoken, mapoptions)];
+                                                case 3:
+                                                    response = _a.sent();
+                                                    this.view = response.mapView;
+                                                    _a.label = 4;
+                                                case 4:
+                                                    this.initEvent();
+                                                    return [2 /*return*/];
+                                            }
+                                        });
+                                    }); });
+                                    return [3 /*break*/, 7];
+                                case 1:
+                                    if (!(this.mapconfig.tokenType === '2')) return [3 /*break*/, 6];
+                                    if (!(this.viewMode === '3D')) return [3 /*break*/, 3];
+                                    return [4 /*yield*/, init3Dmap(container, this.mapconfig, this.maplayers, this.mapwidgets, this.mapProxys, this.mapextent, '', mapoptions)];
+                                case 2:
+                                    response = _a.sent();
+                                    this.view = response.sceneView;
+                                    return [3 /*break*/, 5];
+                                case 3: return [4 /*yield*/, init2Dmap(container, this.mapconfig, this.maplayers, this.mapwidgets, this.mapProxys, this.mapextent, '', mapoptions)];
+                                case 4:
+                                    response = _a.sent();
+                                    this.view = response.mapView;
+                                    _a.label = 5;
+                                case 5:
+                                    this.initEvent();
+                                    return [3 /*break*/, 7];
+                                case 6:
+                                    xhrutils.maptoken_front(this.mapconfig.fronttokenUrl, Mapcofig.tokenUser, Mapcofig.tokenPassword)
+                                        .then(function (maptokenResult) { return __awaiter(_this, void 0, void 0, function () {
+                                        var maptoken, response, response;
+                                        return __generator(this, function (_a) {
+                                            switch (_a.label) {
+                                                case 0:
+                                                    maptoken = maptokenResult.token;
+                                                    if (!(viewMode === '3D')) return [3 /*break*/, 2];
+                                                    return [4 /*yield*/, init3Dmap(container, this.mapconfig, this.maplayers, this.mapwidgets, this.mapProxys, this.mapextent, maptoken, mapoptions)];
+                                                case 1:
+                                                    response = _a.sent();
+                                                    this.view = response.sceneView;
+                                                    return [3 /*break*/, 4];
+                                                case 2: return [4 /*yield*/, init2Dmap(container, this.mapconfig, this.maplayers, this.mapwidgets, this.mapProxys, this.mapextent, maptoken, mapoptions)];
+                                                case 3:
+                                                    response = _a.sent();
+                                                    this.view = response.mapView;
+                                                    _a.label = 4;
+                                                case 4:
+                                                    this.initEvent();
+                                                    return [2 /*return*/];
+                                            }
+                                        });
+                                    }); });
+                                    _a.label = 7;
+                                case 7: return [2 /*return*/];
+                            }
+                        });
+                    }); });
+                })
+                    .catch(function (err) {
+                    console.error(err);
+                });
+                return [2 /*return*/];
+            });
+        });
+    };
+    Map.prototype.init1 = function (container, viewMode, mapoptions) {
+        return __awaiter(this, void 0, void 0, function () {
+            var data, requesturl;
+            var _this = this;
+            return __generator(this, function (_a) {
+                data = {
+                    username: mapoptions.userName === undefined ? Mapcofig.userName : mapoptions.userName,
+                    menuName: mapoptions.menuName === undefined ? Mapcofig.menuName : mapoptions.menuName
+                };
+                requesturl = Mapcofig.mapconfigbackendurl;
+                request.get(requesturl, '', data, request.RequestMode.noCors, request.RequestCache.forceCache).then(function (mapconfigresult) { return __awaiter(_this, void 0, void 0, function () {
+                    var tokendata, maptokenrequesturl, response, response, expirationTime, tokenUrl;
+                    var _this = this;
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0:
+                                this.mapconfig = mapconfigresult.data.mapconfig[0];
+                                this.maplayers = mapconfigresult.data.layers;
+                                this.mapwidgets = mapconfigresult.data.mapwidgets;
+                                this.mapProxys = mapconfigresult.data.mapProxys;
+                                this.mapextent = mapconfigresult.data.mapextent[0];
+                                if (!(this.mapconfig.tokenType === '1')) return [3 /*break*/, 1];
+                                tokendata = {
+                                    tokenconfigname: this.mapconfig.backtokenconfigname === undefined
+                                        ? Mapcofig.tokenconfigname : this.mapconfig.backtokenconfigname,
+                                    domainName: window.location.host
+                                };
+                                maptokenrequesturl = this.mapconfig.backtokenUrl;
+                                request.get(maptokenrequesturl, '', tokendata, request.RequestMode.noCors, request.RequestCache.forceCache).then(function (maptokenResult) { return __awaiter(_this, void 0, void 0, function () {
+                                    var maptoken, response, response;
+                                    return __generator(this, function (_a) {
+                                        switch (_a.label) {
+                                            case 0:
+                                                maptoken = JSON.parse(maptokenResult.data).token;
+                                                if (!(this.viewMode === '3D')) return [3 /*break*/, 2];
+                                                return [4 /*yield*/, init3Dmap(container, this.mapconfig, this.maplayers, this.mapwidgets, this.mapProxys, this.mapextent, maptoken, mapoptions)];
+                                            case 1:
+                                                response = _a.sent();
+                                                this.view = response.sceneView;
+                                                return [3 /*break*/, 4];
+                                            case 2: return [4 /*yield*/, init2Dmap(container, this.mapconfig, this.maplayers, this.mapwidgets, this.mapProxys, this.mapextent, maptoken, mapoptions)];
+                                            case 3:
+                                                response = _a.sent();
+                                                this.view = response.mapView;
+                                                _a.label = 4;
+                                            case 4:
+                                                this.initEvent();
+                                                return [2 /*return*/];
+                                        }
+                                    });
+                                }); });
+                                return [3 /*break*/, 7];
+                            case 1:
+                                if (!(this.mapconfig.tokenType === '2')) return [3 /*break*/, 6];
+                                if (!(this.viewMode === '3D')) return [3 /*break*/, 3];
+                                return [4 /*yield*/, init3Dmap(container, this.mapconfig, this.maplayers, this.mapwidgets, this.mapProxys, this.mapextent, '', mapoptions)];
+                            case 2:
+                                response = _a.sent();
+                                this.view = response.sceneView;
+                                return [3 /*break*/, 5];
+                            case 3: return [4 /*yield*/, init2Dmap(container, this.mapconfig, this.maplayers, this.mapwidgets, this.mapProxys, this.mapextent, '', mapoptions)];
+                            case 4:
+                                response = _a.sent();
+                                this.view = response.mapView;
+                                _a.label = 5;
+                            case 5:
+                                this.initEvent();
+                                return [3 /*break*/, 7];
+                            case 6:
+                                expirationTime = 1440;
+                                tokenUrl = this.mapconfig.fronttokenUrl + '?request=getToken&username=' + Mapcofig.tokenUser
+                                    + '&password=' + Mapcofig.tokenPassword + '&clientid=ref.' + window.location.host + '&expiration='
+                                    + expirationTime + '&f=json';
+                                request.post(tokenUrl, '', '', request.RequestMode.noCors, request.RequestCache.default).then(function (maptokenResult) { return __awaiter(_this, void 0, void 0, function () {
+                                    var maptoken, response, response;
+                                    return __generator(this, function (_a) {
+                                        switch (_a.label) {
+                                            case 0:
+                                                maptoken = maptokenResult.token;
+                                                if (!(viewMode === '3D')) return [3 /*break*/, 2];
+                                                return [4 /*yield*/, init3Dmap(container, this.mapconfig, this.maplayers, this.mapwidgets, this.mapProxys, this.mapextent, maptoken, mapoptions)];
+                                            case 1:
+                                                response = _a.sent();
+                                                this.view = response.sceneView;
+                                                return [3 /*break*/, 4];
+                                            case 2: return [4 /*yield*/, init2Dmap(container, this.mapconfig, this.maplayers, this.mapwidgets, this.mapProxys, this.mapextent, maptoken, mapoptions)];
+                                            case 3:
+                                                response = _a.sent();
+                                                this.view = response.mapView;
+                                                _a.label = 4;
+                                            case 4:
+                                                this.initEvent();
+                                                return [2 /*return*/];
+                                        }
+                                    });
+                                }); });
+                                _a.label = 7;
+                            case 7: return [2 /*return*/];
+                        }
+                    });
+                }); });
+                return [2 /*return*/];
             });
         });
     };
@@ -3417,101 +3575,101 @@ var Map = /** @class */ (function (_super) {
                     // tslint:disable-next-line:variable-name
                     .then(function (_a) {
                     var watchUtils = _a[0];
-                    _this.map.when(function () {
-                        watchUtils.whenTrueOnce(_this.map, 'ready', function () {
-                            _this.emit(MapEvent.maploaded, _this.map);
+                    _this.view.when(function () {
+                        watchUtils.whenTrueOnce(_this.view, 'ready', function () {
+                            _this.emit(MapEvent.maploaded, _this.view);
                         });
-                        watchUtils.whenTrue(_this.map, 'stationary', function () {
-                            if (_this.map.extent) {
+                        watchUtils.whenTrue(_this.view, 'stationary', function () {
+                            if (_this.view.extent) {
                                 {
                                     var mapextent = {
-                                        xmin: _this.map.extent.xmin.toFixed(6),
-                                        ymin: _this.map.extent.ymin.toFixed(6),
-                                        xmax: _this.map.extent.xmax.toFixed(6),
-                                        ymax: _this.map.extent.ymax.toFixed(6)
+                                        xmin: _this.view.extent.xmin.toFixed(6),
+                                        ymin: _this.view.extent.ymin.toFixed(6),
+                                        xmax: _this.view.extent.xmax.toFixed(6),
+                                        ymax: _this.view.extent.ymax.toFixed(6)
                                     };
                                     if (_this.viewMode === '2D') {
                                         _this.emit(MapEvent.extentchanged, mapextent);
                                     }
                                     else {
                                         var mapextent3d = {
-                                            xmin: _this.map.extent.xmin.toFixed(6),
-                                            ymin: _this.map.extent.ymin.toFixed(6),
-                                            xmax: _this.map.extent.xmax.toFixed(6),
-                                            ymax: _this.map.extent.ymax.toFixed(6),
-                                            zmin: _this.map.extent.zmin,
-                                            zmax: _this.map.extent.zmax
+                                            xmin: _this.view.extent.xmin.toFixed(6),
+                                            ymin: _this.view.extent.ymin.toFixed(6),
+                                            xmax: _this.view.extent.xmax.toFixed(6),
+                                            ymax: _this.view.extent.ymax.toFixed(6),
+                                            zmin: _this.view.extent.zmin,
+                                            zmax: _this.view.extent.zmax
                                         };
                                         _this.emit(MapEvent.extentchanged, mapextent3d);
                                     }
                                 }
-                                if (_this.map.center) {
+                                if (_this.view.center) {
                                     if (_this.viewMode === '2D') {
                                         _this.emit(MapEvent.centerchanged, {
-                                            x: _this.map.center.x.toFixed(6),
-                                            y: _this.map.center.y.toFixed(6)
+                                            x: _this.view.center.x.toFixed(6),
+                                            y: _this.view.center.y.toFixed(6)
                                         });
                                     }
                                     else {
                                         _this.emit(MapEvent.centerchanged, {
-                                            x: _this.map.center.x.toFixed(6),
-                                            y: _this.map.center.y.toFixed(6),
-                                            z: _this.map.center.z
+                                            x: _this.view.center.x.toFixed(6),
+                                            y: _this.view.center.y.toFixed(6),
+                                            z: _this.view.center.z
                                         });
                                     }
                                 }
-                                if (_this.map.zoom) {
-                                    _this.emit(MapEvent.zoomchanged, _this.map.zoom);
+                                if (_this.view.zoom) {
+                                    _this.emit(MapEvent.zoomchanged, _this.view.zoom);
                                 }
                             }
                         });
-                        _this.map.popup.watch("visible", function (visible) {
+                        _this.view.popup.watch("visible", function (visible) {
                             _this.emit(MapEvent.popupvisible, visible);
                         });
-                        _this.map.on("blur", function (event) {
-                            _this.emit(MapEvent.blur, _this.map, event);
+                        _this.view.on("blur", function (event) {
+                            _this.emit(MapEvent.blur, _this.view, event);
                         });
-                        _this.map.on("click", function (event) {
-                            _this.emit(MapEvent.click, _this.map, event);
+                        _this.view.on("click", function (event) {
+                            _this.emit(MapEvent.click, _this.view, event);
                         });
-                        _this.map.on("double-click", function (event) {
-                            _this.emit(MapEvent.doubleclick, _this.map, event);
+                        _this.view.on("double-click", function (event) {
+                            _this.emit(MapEvent.doubleclick, _this.view, event);
                         });
-                        _this.map.on("drag", function (event) {
-                            _this.emit(MapEvent.drag, _this.map, event);
+                        _this.view.on("drag", function (event) {
+                            _this.emit(MapEvent.drag, _this.view, event);
                         });
-                        _this.map.on("focus", function (event) {
-                            _this.emit(MapEvent.focus, _this.map, event);
+                        _this.view.on("focus", function (event) {
+                            _this.emit(MapEvent.focus, _this.view, event);
                         });
-                        _this.map.on("hold", function (event) {
-                            _this.emit(MapEvent.hold, _this.map, event);
+                        _this.view.on("hold", function (event) {
+                            _this.emit(MapEvent.hold, _this.view, event);
                         });
-                        _this.map.on("key-down", function (event) {
-                            _this.emit(MapEvent.keydown, _this.map, event);
+                        _this.view.on("key-down", function (event) {
+                            _this.emit(MapEvent.keydown, _this.view, event);
                         });
-                        _this.map.on("key-up", function (event) {
-                            _this.emit(MapEvent.keyup, _this.map, event);
+                        _this.view.on("key-up", function (event) {
+                            _this.emit(MapEvent.keyup, _this.view, event);
                         });
-                        _this.map.on("mouse-wheel", function (event) {
-                            _this.emit(MapEvent.mousewheel, _this.map, event);
+                        _this.view.on("mouse-wheel", function (event) {
+                            _this.emit(MapEvent.mousewheel, _this.view, event);
                         });
-                        _this.map.on("pointer-down", function (event) {
-                            _this.emit(MapEvent.pointerdown, _this.map, event);
+                        _this.view.on("pointer-down", function (event) {
+                            _this.emit(MapEvent.pointerdown, _this.view, event);
                         });
-                        _this.map.on("pointer-enter", function (event) {
-                            _this.emit(MapEvent.pointerenter, _this.map, event);
+                        _this.view.on("pointer-enter", function (event) {
+                            _this.emit(MapEvent.pointerenter, _this.view, event);
                         });
-                        _this.map.on("pointer-leave", function (event) {
-                            _this.emit(MapEvent.pointerleave, _this.map, event);
+                        _this.view.on("pointer-leave", function (event) {
+                            _this.emit(MapEvent.pointerleave, _this.view, event);
                         });
-                        _this.map.on("pointer-move", function (event) {
-                            _this.emit(MapEvent.pointermove, _this.map, event);
+                        _this.view.on("pointer-move", function (event) {
+                            _this.emit(MapEvent.pointermove, _this.view, event);
                         });
-                        _this.map.on("pointer-up", function (event) {
-                            _this.emit(MapEvent.pointerup, _this.map, event);
+                        _this.view.on("pointer-up", function (event) {
+                            _this.emit(MapEvent.pointerup, _this.view, event);
                         });
-                        _this.map.on("resize", function (event) {
-                            _this.emit(MapEvent.resize, _this.map, event);
+                        _this.view.on("resize", function (event) {
+                            _this.emit(MapEvent.resize, _this.view, event);
                         });
                     });
                 });

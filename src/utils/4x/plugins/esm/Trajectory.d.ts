@@ -1,12 +1,13 @@
 import ITrajectoryOptions from './interface/ITrajectoryOptions';
 import EventEmitter from './mod';
 export default class Trajectory extends EventEmitter {
-    private map;
+    private view;
     private routepalybackinternal;
+    private routelayerid;
     private track;
-    constructor(map: any);
-    playback(playbackoption?: ITrajectoryOptions): void;
-    hideHistoryRoute(): void;
+    constructor(view: any);
+    play(playbackoption?: ITrajectoryOptions): void;
+    remove(): void;
     private getHeading;
     private createAnimateRoute;
     private init;

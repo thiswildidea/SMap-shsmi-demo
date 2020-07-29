@@ -50,100 +50,116 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 import EventEmitter from './mod';
 import { load } from './modules';
 import Guid from './utils/Guid';
-var Trajectory = /** @class */ (function (_super) {
-    __extends(Trajectory, _super);
-    function Trajectory(view) {
+var TrajectoryPlus = /** @class */ (function (_super) {
+    __extends(TrajectoryPlus, _super);
+    function TrajectoryPlus(view) {
         var _this = _super.call(this) || this;
         _this.view = null;
-        _this.routepalybackinternal = null;
+        _this.mapRoamplayinternal = null;
         _this.routelayerid = "";
-        _this.track = null;
+        _this.mobilelayerid = "";
         _this.init(view);
         return _this;
     }
-    Trajectory.prototype.play = function (playbackoption) {
+    TrajectoryPlus.prototype.play = function (playbackoption) {
         var _this = this;
         if (playbackoption === void 0) { playbackoption = {}; }
-        load(['geolocate', "esri/widgets/Track", 'esri/geometry/support/webMercatorUtils'])
+        load(['esri/geometry/Point', 'esri/Graphic', "esri/layers/GraphicsLayer", 'esri/geometry/support/webMercatorUtils'])
             // tslint:disable-next-line:no-shadowed-variable
             .then(function (_a) {
-            var geolocate = _a[0], track = _a[1], webMercatorUtils = _a[2];
+            var point = _a[0], graphic = _a[1], graphicsLayer = _a[2], webMercatorUtils = _a[3];
             if (playbackoption.coords === undefined) {
                 return;
             }
             var trajectorycount = 0;
-            _this.track = new track({
-                view: _this.view,
-                goToLocationEnabled: false
-            });
-            // this.map.ui.add(this.track , "bottom-left");
             var currentCoordIndex = 0;
-            geolocate.use();
-            if (typeof (_this.routepalybackinternal) !== 'undefined') {
-                clearInterval(_this.routepalybackinternal);
+            var prevLocation = _this.view.center;
+            if (typeof (_this.mapRoamplayinternal) !== 'undefined') {
+                clearInterval(_this.mapRoamplayinternal);
             }
-            _this.routepalybackinternal = setInterval(function () {
-                var lngLatArr = webMercatorUtils.xyToLngLat(playbackoption.coords[currentCoordIndex].x, playbackoption.coords[currentCoordIndex].y);
-                var lngLatObj = {
-                    lng: lngLatArr[0],
-                    lat: lngLatArr[1]
+            var timespan = playbackoption.duration !== undefined ? playbackoption.duration : 2000;
+            var speed = playbackoption.speedFactor !== undefined ? playbackoption.speedFactor : 1;
+            _this.mapRoamplayinternal = setInterval(function () {
+                var xyz = {
+                    x: playbackoption.coords[currentCoordIndex].x,
+                    y: playbackoption.coords[currentCoordIndex].y,
+                    z: playbackoption.coords[currentCoordIndex].z !== undefined ?
+                        playbackoption.coords[currentCoordIndex].z : 0
                 };
-                geolocate.change(lngLatObj);
                 currentCoordIndex = (currentCoordIndex + 1) % playbackoption.coords.length;
                 ++trajectorycount;
-                if (trajectorycount === playbackoption.coords.length) {
-                    clearInterval(_this.routepalybackinternal);
-                }
-            }, 2500);
-            _this.view.when(function () {
-                var prevLocation = _this.view.center;
-                _this.track.on("track", function () {
-                    if (playbackoption.mobilesymbol) {
-                        _this.track.graphic.symbol = playbackoption.mobilesymbol;
-                    }
-                    var location = _this.track.graphic.geometry;
-                    if (trajectorycount > 1) {
-                        if (playbackoption.showtrail) {
-                            _this.createAnimateRoute(location, prevLocation, playbackoption.trailsymbol);
-                        }
-                    }
-                    _this.view.goTo({
-                        center: location,
-                        tilt: 70,
-                        scale: 2500,
-                        heading: 360 - _this.getHeading(location, prevLocation),
-                        rotation: 360 - _this.getHeading(location, prevLocation) // only applies to MapView
-                    })
-                        .catch(function (error) {
-                        if (error.name !== "AbortError") {
-                            console.error(error);
-                        }
-                    });
-                    prevLocation = location.clone();
+                var location = new point({
+                    x: xyz.x,
+                    y: xyz.y,
+                    z: xyz.z,
+                    spatialReference: _this.view.spatialReference
                 });
-                _this.track.start();
-            });
+                var mobileLayer = _this.view.map.findLayerById(_this.mobilelayerid);
+                if (typeof (mobileLayer) === 'undefined') {
+                    mobileLayer = new graphicsLayer({
+                        title: '漫游路径' + _this.mobilelayerid,
+                        id: _this.mobilelayerid,
+                        listMode: 'hide'
+                    });
+                    _this.view.map.add(mobileLayer);
+                }
+                mobileLayer.removeAll();
+                var animateGraphic = new graphic({
+                    geometry: location,
+                    symbol: playbackoption.mobilesymbol
+                });
+                mobileLayer.add(animateGraphic);
+                if (trajectorycount > 1) {
+                    if (playbackoption.showtrail) {
+                        _this.createAnimateRoute(location, prevLocation, playbackoption.trailsymbol);
+                    }
+                }
+                _this.view.goTo({
+                    center: location,
+                    tilt: 70,
+                    scale: 2500,
+                    heading: 360 - _this.getHeading(location, prevLocation),
+                    rotation: 360 - _this.getHeading(location, prevLocation) // only applies to MapView
+                }, {
+                    speedFactor: speed,
+                    duration: timespan - timespan * 0.2,
+                    maxDuration: timespan - timespan * 0.2,
+                    easing: "in-out-coast-quadratic"
+                }).then()
+                    .catch(function (error) {
+                    if (error.name !== "AbortError") {
+                        console.error(error);
+                    }
+                });
+                prevLocation = location.clone();
+                if (trajectorycount === playbackoption.coords.length) {
+                    clearInterval(_this.mapRoamplayinternal);
+                }
+            }, timespan);
         })
             .catch(function (err) {
             console.error(err);
         });
     };
-    Trajectory.prototype.remove = function () {
-        if (typeof (this.routepalybackinternal) !== undefined) {
-            clearInterval(this.routepalybackinternal);
-            this.track.destroy();
+    TrajectoryPlus.prototype.remove = function () {
+        if (typeof (this.mapRoamplayinternal) !== undefined) {
+            clearInterval(this.mapRoamplayinternal);
             var animateRouteLayer = this.view.map.findLayerById(this.routelayerid);
             if (animateRouteLayer) {
                 this.view.map.remove(animateRouteLayer);
             }
+            var mobilelayer = this.view.map.findLayerById(this.mobilelayerid);
+            if (mobilelayer) {
+                this.view.map.remove(mobilelayer);
+            }
         }
     };
-    Trajectory.prototype.getHeading = function (point, oldPoint) {
+    TrajectoryPlus.prototype.getHeading = function (point, oldPoint) {
         var angleInDegrees = (Math.atan2(point.y - oldPoint.y, point.x - oldPoint.x) * 180) /
             Math.PI;
         return -90 + angleInDegrees;
     };
-    Trajectory.prototype.createAnimateRoute = function (point, oldPoint, trailsymbol) {
+    TrajectoryPlus.prototype.createAnimateRoute = function (point, oldPoint, trailsymbol) {
         var _this = this;
         load(['esri/Graphic', "esri/layers/GraphicsLayer"])
             // tslint:disable-next-line:no-shadowed-variable
@@ -153,9 +169,10 @@ var Trajectory = /** @class */ (function (_super) {
             var animateLine = {
                 type: 'polyline',
                 paths: [
-                    [oldPoint.longitude, oldPoint.latitude],
-                    [point.longitude, point.latitude]
-                ]
+                    [oldPoint.x, oldPoint.y, oldPoint.z],
+                    [point.x, point.y, point.z]
+                ],
+                spatialReference: _this.view.spatialReference
             };
             var polylineSymbol;
             if (trailsymbol !== undefined) {
@@ -175,7 +192,7 @@ var Trajectory = /** @class */ (function (_super) {
             var animateRouteLayer = _this.view.map.findLayerById(_this.routelayerid);
             if (typeof (animateRouteLayer) === 'undefined') {
                 animateRouteLayer = new GraphicsLayer({
-                    title: '路径轨迹播放',
+                    title: '漫游路径' + _this.routelayerid,
                     id: _this.routelayerid,
                     listMode: 'hide'
                 });
@@ -184,15 +201,16 @@ var Trajectory = /** @class */ (function (_super) {
             animateRouteLayer.add(animateGraphic);
         });
     };
-    Trajectory.prototype.init = function (view) {
+    TrajectoryPlus.prototype.init = function (view) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 this.routelayerid = new Guid().uuid;
+                this.mobilelayerid = new Guid().uuid;
                 this.view = view;
                 return [2 /*return*/];
             });
         });
     };
-    return Trajectory;
+    return TrajectoryPlus;
 }(EventEmitter));
-export default Trajectory;
+export default TrajectoryPlus;

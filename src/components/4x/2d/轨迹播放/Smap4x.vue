@@ -114,8 +114,8 @@ export default {
           y: -355.09700
         }
       ]
-      this.trajectory = new Plugins.Trajectory(this.map.map)
-      this.trajectory.playback({
+      this.trajectory = new Plugins.Trajectory(this.map.view)
+      this.trajectory.play({
         coords: routedata,
         showtrail: true,
         trailsymbol: {

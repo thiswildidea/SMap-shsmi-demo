@@ -8,15 +8,19 @@
       <el-button type="primary" @click="stoproutelpalyback">停止轨迹播放</el-button>
       <el-button type="primary" @click="addechart">添加迁移图</el-button>
       <el-button type="primary" @click="removeechart">移除迁移图</el-button>
+      <el-button type="primary" @click="roanmap">漫游</el-button>
+      <el-button type="primary" @click="removeroanmap">清除漫游</el-button>
+      <el-button type="primary" @click="setmapextentcontrans">地图范围限制</el-button>
+      <el-button type="primary" @click="removemapextentcontrans">移除地图范围限制</el-button>
     </div>
   </div>
 </template>
 <script>
 // import SMap from 'smap-shsmi'
-import Plugins from 'smap-plugins-shsmi'
-import SMap from 'smap-shsmi-aa'
-// import SMap from '../utils/4x/smap/esm/SMap'
-// import Plugins from '../utils/4x/plugins/esm/Plugins'
+// import Plugins from 'smap-plugins-shsmi'
+// import SMap from 'smap-shsmi-aa'
+import SMap from '../utils/4x/smap/esm/SMap'
+import Plugins from '../utils/4x/plugins/esm/Plugins'
 export default {
   name: 'MapControl',
   components: { },
@@ -24,7 +28,8 @@ export default {
     return {
       map: null,
       trajectory: null,
-      migrationMap: null
+      migrationMap: null,
+      mapRoam: null
     }
   },
   computed: {
@@ -36,14 +41,14 @@ export default {
   methods: {
     initMap() {
       this.map = new SMap.Map('container', {
-        viewMode: '3D',
+        viewMode: '2D',
         center: [0, 0],
         zoom: 6,
         tokenconfigname: 'smiapi_new',
         zooms: [0, 11],
         pitch: 60,
         mapStyle: 'smap://styles/dark', // 'smap://styles/light' 'smap://styles/dark'
-        showBuildingBlock: true
+        showBuildingBlock: false
       })
       this.map.on(SMap.MapEvent.click, function(map, event) {
         console.log(event.mapPoint)
@@ -117,8 +122,8 @@ export default {
           y: -355.09700
         }
       ]
-      this.trajectory = new Plugins.Trajectory(this.map.map)
-      this.trajectory.playback({
+      this.trajectory = new Plugins.Trajectory(this.map.view)
+      this.trajectory.play({
         coords: routedata,
         showtrail: true,
         trailsymbol: {
@@ -160,7 +165,7 @@ export default {
       this.trajectory.remove()
     },
     addechart() {
-      this.migrationMap = new Plugins.MigrationMap(this.map.map)
+      this.migrationMap = new Plugins.MigrationMap(this.map.view)
       const geoCoordMap = {
         '浦东区': [21704.88, -10564.32],
         '奉贤区': [6530.67, -36110.78],
@@ -383,6 +388,129 @@ export default {
     },
     removeechart() {
       this.migrationMap.remove('echart')
+    },
+    roanmap() {
+      var routedata = [
+        {
+          x: 358.5185,
+          y: -77.2235,
+          z: 1000
+        },
+        {
+          x: 267.4522,
+          y: 99.1188,
+          z: 900
+        },
+        {
+          x: 234.90484,
+          y: 212.834811,
+          z: 800
+        },
+        {
+          x: 181.7233,
+          y: 381.1000,
+          z: 700
+        },
+        {
+          x: 138.1169,
+          y: 527.79151,
+          z: 600
+        },
+        {
+          x: 88.0071,
+          y: 647.4898,
+          z: 500
+        },
+        {
+          x: 63.1774,
+          y: 692.2989,
+          z: 400
+        },
+        {
+          x: 94.5310,
+          y: 706.0872,
+          z: 300
+        },
+        {
+          x: 143.59157,
+          y: 595.3354,
+          z: 200
+        },
+        {
+          x: 182.1127,
+          y: 481.7369,
+          z: 100
+        },
+        {
+          x: 223.4553,
+          y: 323.6532,
+          z: 0
+        },
+        {
+          x: 248.4933,
+          y: 203.5321,
+          z: 100
+        },
+        {
+          x: 325.065,
+          y: 31.37497,
+          z: 200
+        },
+        {
+          x: 546.1844,
+          y: -355.09700,
+          z: 300
+        }
+      ]
+      this.mapRoam = new Plugins.TrajectoryPlus(this.map.view)
+      this.mapRoam.play({
+        coords: routedata,
+        duration: 3000,
+        speedFactor: 1,
+        showtrail: true,
+        trailsymbol: {
+          type: 'simple-line',
+          color: [255, 255, 255, 0.5],
+          width: '10px',
+          style: 'solid'
+        },
+        mobilesymbol: {
+          // type: 'picture-marker',
+          // url: require('@/assets/car.png'),
+          // width: '64px',
+          // height: '64px'
+          type: 'point-3d',
+          symbolLayers: [{
+            type: 'icon',
+            size: '100px',
+            resource: {
+              href: require('@/assets/ballon.svg')
+            }
+          }],
+          verticalOffset: {
+            screenLength: 150,
+            maxWorldLength: 2000,
+            minWorldLength: 20
+          },
+          callout: {
+            type: 'line',
+            color: [0, 0, 0],
+            size: 2,
+            border: {
+              color: [255, 255, 255, 0.5]
+            }
+          }
+        }
+      })
+    },
+    removeroanmap() {
+      this.mapRoam.remove()
+    },
+    setmapextentcontrans() {
+      this.map.setExtentConstrain([0, 0], [1000, 1000])
+    },
+    removemapextentcontrans() {
+      this.map.removeExtentConstrain()
     }
   }
 }
