@@ -60,7 +60,7 @@ var Query = /** @class */ (function (_super) {
         _this.init(view);
         return _this;
     }
-    Query.prototype.featurelayer = function (queryFeaturelayerOptions) {
+    Query.prototype.featureLayer = function (queryFeaturelayerOptions) {
         if (queryFeaturelayerOptions === void 0) { queryFeaturelayerOptions = {}; }
         return __awaiter(this, void 0, void 0, function () {
             var result;
@@ -69,23 +69,29 @@ var Query = /** @class */ (function (_super) {
                 switch (_a.label) {
                     case 0:
                         result = null;
-                        return [4 /*yield*/, load(["esri/layers/GraphicsLayer", "esri/Graphic"])
+                        return [4 /*yield*/, load(["esri/layers/GraphicsLayer", "esri/Graphic", "esri/layers/FeatureLayer"])
                                 // tslint:disable-next-line:variable-name
                                 .then(function (_a) {
-                                var GraphicsLayer = _a[0], Graphic = _a[1];
+                                var GraphicsLayer = _a[0], Graphic = _a[1], FeatureLayer = _a[2];
                                 return __awaiter(_this, void 0, void 0, function () {
                                     var layer, boundaryqueryParams;
                                     var _this = this;
                                     return __generator(this, function (_b) {
                                         switch (_b.label) {
                                             case 0:
-                                                if (!queryFeaturelayerOptions.layerUniqueId) {
-                                                    return [2 /*return*/];
-                                                }
                                                 if (!this.view) {
                                                     return [2 /*return*/];
                                                 }
-                                                layer = this.view.map.findLayerById(queryFeaturelayerOptions.layerUniqueId);
+                                                if (queryFeaturelayerOptions.layerUniqueId) {
+                                                    layer = this.view.map.findLayerById(queryFeaturelayerOptions.layerUniqueId);
+                                                }
+                                                else {
+                                                    if (queryFeaturelayerOptions.queryurl) {
+                                                        layer = new FeatureLayer({
+                                                            url: queryFeaturelayerOptions.queryurl
+                                                        });
+                                                    }
+                                                }
                                                 if (!layer) {
                                                     return [2 /*return*/];
                                                 }
@@ -142,8 +148,10 @@ var Query = /** @class */ (function (_super) {
                                                                     }
                                                                 }
                                                                 response.features.map(function (feature) {
+                                                                    feature.geometry.spatialReference = _this.view.spatialReference;
                                                                     var animateGraphic = new Graphic({
                                                                         geometry: feature.geometry,
+                                                                        attributes: feature.attributes,
                                                                         symbol: simpleSymbol_1
                                                                     });
                                                                     boundaryLayer_1.add(animateGraphic);
@@ -168,7 +176,7 @@ var Query = /** @class */ (function (_super) {
             });
         });
     };
-    Query.prototype.mapImagelayer = function (queryFeaturelayerOptions) {
+    Query.prototype.mapImageLayer = function (queryFeaturelayerOptions) {
         if (queryFeaturelayerOptions === void 0) { queryFeaturelayerOptions = {}; }
         return __awaiter(this, void 0, void 0, function () {
             var result;
@@ -182,26 +190,25 @@ var Query = /** @class */ (function (_super) {
                                 .then(function (_a) {
                                 var GraphicsLayer = _a[0], Graphic = _a[1], QueryTask = _a[2], MQuery = _a[3];
                                 return __awaiter(_this, void 0, void 0, function () {
-                                    var layer, queryTask, query;
+                                    var querylayerurl, layer, queryTask, query;
                                     var _this = this;
                                     return __generator(this, function (_b) {
                                         switch (_b.label) {
                                             case 0:
-                                                if (!queryFeaturelayerOptions.layerUniqueId) {
-                                                    return [2 /*return*/];
+                                                if (queryFeaturelayerOptions.layerUniqueId) {
+                                                    layer = this.view.map.findLayerById(queryFeaturelayerOptions.layerUniqueId);
+                                                    if (layer) {
+                                                        querylayerurl = layer.url;
+                                                    }
                                                 }
-                                                if (!this.view) {
-                                                    return [2 /*return*/];
-                                                }
-                                                layer = this.view.map.findLayerById(queryFeaturelayerOptions.layerUniqueId);
-                                                if (!layer) {
-                                                    return [2 /*return*/];
+                                                else {
+                                                    querylayerurl = queryFeaturelayerOptions.queryurl;
                                                 }
                                                 if (!queryFeaturelayerOptions.layerId) {
                                                     return [2 /*return*/];
                                                 }
                                                 queryTask = new QueryTask({
-                                                    url: layer.url + "/" + queryFeaturelayerOptions.layerId
+                                                    url: querylayerurl + "/" + queryFeaturelayerOptions.layerId
                                                 });
                                                 query = new MQuery();
                                                 query.returnGeometry = true;
@@ -256,8 +263,10 @@ var Query = /** @class */ (function (_super) {
                                                                     }
                                                                 }
                                                                 response.features.map(function (feature) {
+                                                                    feature.geometry.spatialReference = _this.view.map.spatialReference;
                                                                     var animateGraphic = new Graphic({
                                                                         geometry: feature.geometry,
+                                                                        attributes: feature.attributes,
                                                                         symbol: simpleSymbol_2
                                                                     });
                                                                     boundaryLayer_2.add(animateGraphic);

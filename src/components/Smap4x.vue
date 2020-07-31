@@ -58,9 +58,12 @@ export default {
         mapStyle: 'smap://styles/dark', // 'smap://styles/light' 'smap://styles/dark'
         showBuildingBlock: false
       })
-      this.map.on(SMap.MapEvent.click, function(map, event) {
-        console.log(event.mapPoint)
-        console.log(map.camera)
+      this.map.on(SMap.MapEvent.click, function(view, eventParamter) {
+        console.log(eventParamter.mapPoint)
+        console.log(view.camera)
+        view.hitTest(eventParamter).then(async function(response) {
+          console.log(response)
+        })
       })
     },
     addlayercontrol() {
@@ -549,12 +552,12 @@ export default {
       const par = {
         layerUniqueId: 'qx_boundary',
         queryDefinition: "name like '%黄浦%'", // qxcode like '%01%
-        displayed: false,
+        displayed: true,
         outFields: ['*'],
         type: 'polygon',
         symbol: {
           type: 'simple-fill',
-          color: [255, 255, 255, 0],
+          color: [255, 255, 255, 1],
           outline: {
             color: [255, 255, 0, 1],
             width: '5px'

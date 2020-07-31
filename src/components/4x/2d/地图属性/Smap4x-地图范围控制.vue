@@ -42,9 +42,9 @@ export default {
         mapStyle: 'smap://styles/dark', // 'smap://styles/light' 'smap://styles/dark'
         showBuildingBlock: false
       })
-      this.map.on(SMap.MapEvent.click, function(map, event) {
-        console.log(event.mapPoint)
-        console.log(map.camera)
+      this.map.on(SMap.MapEvent.click, function(view, eventParamter) {
+        console.log(eventParamter.mapPoint)
+        console.log(view.camera)
       })
     },
     addlayercontrol() {

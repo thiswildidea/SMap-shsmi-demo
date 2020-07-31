@@ -157,13 +157,13 @@ export default {
       this.map.on(SMap.MapEvent.popupvisible, function(visible) {
         console.log(visible)
       })
-      this.map.on(SMap.MapEvent.click, function(map, event) {
-        map.hitTest(event).then(async function(response) {
+      this.map.on(SMap.MapEvent.click, function(view, eventParamter) {
+        view.hitTest(eventParamter).then(async function(response) {
           if (response.results.length) {
             if (!response.results[0].length) {
-              map.popup.defaultPopupTemplateEnabled = true
-              map.popup.autoOpenEnabled = false
-              map.popup.open({
+              view.popup.defaultPopupTemplateEnabled = true
+              view.popup.autoOpenEnabled = false
+              view.popup.open({
                 location: response.results[0].graphic.geometry,
                 content: 'wo shi dian1'
               })
@@ -171,8 +171,8 @@ export default {
           }
         })
       })
-      this.map.on(SMap.MapEvent.doubleclick, function(map, event) {
-        // map.hitTest(event).then(async function(response) {
+      this.map.on(SMap.MapEvent.doubleclick, function(view, eventParamter) {
+        // view.hitTest(eventParamter).then(async function(response) {
         //   if (response.results.length > 0) {
         //     const layername = response.results[0].graphic.layer.id
         //     const objectid = response.results[0].graphic.attributes.objectid
