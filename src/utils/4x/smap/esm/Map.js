@@ -66,7 +66,7 @@ var Map = /** @class */ (function (_super) {
         _this.mapoverlayersflayer = [];
         _this.watchHandles = [];
         _this.viewMode = options.viewMode === undefined || options.viewMode === '2D' ? '2D' : '3D';
-        _this.zooms = options.zooms === undefined ? [1, 12] : options.zooms;
+        _this.zooms = options.zooms === undefined ? [0, 11] : options.zooms;
         _this.showBuildingBlock = options.showBuildingBlock ? true : false;
         _this.init(container, _this.viewMode, options);
         return _this;
@@ -773,40 +773,6 @@ var Map = /** @class */ (function (_super) {
                 type: "stay-above"
             };
         }
-    };
-    Map.prototype.setExtentConstrain = function (leftbottom, righttop) {
-        var _this = this;
-        load(['esri/geometry/Extent', 'esri/geometry/geometryEngine', 'esri/core/watchUtils'])
-            // tslint:disable-next-line:variable-name
-            .then(function (_a) {
-            var Extent = _a[0], geometryEngine = _a[1], watchUtils = _a[2];
-            var cextent = new Extent({
-                xmin: leftbottom[0],
-                ymin: leftbottom[1],
-                xmax: righttop[0],
-                ymax: righttop[1],
-                spatialReference: _this.view.spatialReference
-            });
-            _this.view.extent = cextent;
-            var extentconstraintshander = watchUtils.whenTrue(_this.view, "stationary", function () {
-                var iscontainer = geometryEngine.contains(cextent, _this.view.extent);
-                if (!iscontainer) {
-                    _this.view.extent = cextent;
-                }
-            });
-            _this.watchHandles.push(['extentcontrain', extentconstraintshander]);
-        });
-    };
-    Map.prototype.removeExtentConstrain = function () {
-        var watchextentHandles = this.watchHandles.filter(function (item) {
-            return item[0] === 'extentcontrain';
-        });
-        watchextentHandles.forEach(function (handle) {
-            handle[1].remove();
-        });
-        this.watchHandles = this.watchHandles.filter(function (item) {
-            return item[0] !== 'extentcontrain';
-        });
     };
     Map.prototype.add = function (overlayers) {
         var _this = this;
@@ -2549,8 +2515,7 @@ var Map = /** @class */ (function (_super) {
                             type: 'string'
                         }];
                     Object.keys(overlayers.attributes).forEach(function (element) {
-                        datafiled_3.push({
-                            name: element,
+                        datafiled_3.push({ name: element,
                             alias: element,
                             type: "string"
                         });
@@ -3066,6 +3031,40 @@ var Map = /** @class */ (function (_super) {
         this.view.graphics.removeAll();
         this.mapoverlayers = [];
     };
+    Map.prototype.setExtentConstrain = function (leftbottom, righttop) {
+        var _this = this;
+        load(['esri/geometry/Extent', 'esri/geometry/geometryEngine', 'esri/core/watchUtils'])
+            // tslint:disable-next-line:variable-name
+            .then(function (_a) {
+            var Extent = _a[0], geometryEngine = _a[1], watchUtils = _a[2];
+            var cextent = new Extent({
+                xmin: leftbottom[0],
+                ymin: leftbottom[1],
+                xmax: righttop[0],
+                ymax: righttop[1],
+                spatialReference: _this.view.spatialReference
+            });
+            _this.view.extent = cextent;
+            var extentconstraintshander = watchUtils.whenTrue(_this.view, "stationary", function () {
+                var iscontainer = geometryEngine.contains(cextent, _this.view.extent);
+                if (!iscontainer) {
+                    _this.view.extent = cextent;
+                }
+            });
+            _this.watchHandles.push(['extentcontrain', extentconstraintshander]);
+        });
+    };
+    Map.prototype.removeExtentConstrain = function () {
+        var watchextentHandles = this.watchHandles.filter(function (item) {
+            return item[0] === 'extentcontrain';
+        });
+        watchextentHandles.forEach(function (handle) {
+            handle[1].remove();
+        });
+        this.watchHandles = this.watchHandles.filter(function (item) {
+            return item[0] !== 'extentcontrain';
+        });
+    };
     Map.prototype.setmaskboundary = function (maskOptions) {
         var _this = this;
         load(['esri/Graphic', 'esri/layers/GraphicsLayer', 'esri/geometry/Polygon', 'esri/geometry/geometryEngineAsync',
@@ -3285,7 +3284,8 @@ var Map = /** @class */ (function (_super) {
                                 symbol: masksymbol
                             });
                             maskgraphiclayer.add(outermaskGraphic);
-                            var length = maskOptions.bounarycount === undefined ? 30 : maskOptions.bounarycount;
+                            var length = maskOptions.bounarycount === undefined ? 30
+                                : maskOptions.bounarycount;
                             var maskgcount = Math.ceil(maskOptions.boundarydistance / length);
                             //  let calgeometry = geomtry;
                             var setingcolor = new Color(maskOptions.boundaryColor).toRgba();
@@ -3354,49 +3354,43 @@ var Map = /** @class */ (function (_super) {
                     });
                 });
             }
+        }).catch(function (err) {
+            console.error(err);
         });
     };
     Map.prototype.init = function (container, viewMode, mapoptions) {
         return __awaiter(this, void 0, void 0, function () {
-            var username, menuName;
             var _this = this;
             return __generator(this, function (_a) {
-                username = mapoptions.userName === undefined ? Mapcofig.userName : mapoptions.userName;
-                menuName = mapoptions.menuName === undefined ? Mapcofig.menuName : mapoptions.menuName;
                 load(['smiapi/utils/xhrutils'])
                     // tslint:disable-next-line:no-shadowed-variable
                     .then(function (_a) {
                     var xhrutils = _a[0];
-                    xhrutils.mapconfig(username, menuName, Mapcofig.proxyURL, Mapcofig.mapconfigbackendurl)
-                        .then(function (mapconfigresult) { return __awaiter(_this, void 0, void 0, function () {
-                        var tokenconfigname, domainName, response, response;
+                    return __awaiter(_this, void 0, void 0, function () {
+                        var tokenconfigname, domainName, maptokenrequesturl, response, response, fronttokenUrl, user, password;
                         var _this = this;
-                        return __generator(this, function (_a) {
-                            switch (_a.label) {
+                        return __generator(this, function (_b) {
+                            switch (_b.label) {
                                 case 0:
-                                    this.mapconfig = mapconfigresult.data.mapconfig[0];
-                                    this.maplayers = mapconfigresult.data.layers;
-                                    this.mapwidgets = mapconfigresult.data.mapwidgets;
-                                    this.mapProxys = mapconfigresult.data.mapProxys;
-                                    this.mapextent = mapconfigresult.data.mapextent[0];
-                                    if (!(this.mapconfig.tokenType === '1')) return [3 /*break*/, 1];
-                                    tokenconfigname = this.mapconfig.backtokenconfigname === undefined ?
-                                        Mapcofig.tokenconfigname : this.mapconfig.backtokenconfigname;
+                                    if (!(Mapcofig.tokenserver.tokenType === 'back')) return [3 /*break*/, 1];
+                                    tokenconfigname = mapoptions.tokenconfigname === undefined ?
+                                        Mapcofig.tokenserver.token_black.tokenconfigname : mapoptions.tokenconfigname;
                                     domainName = window.location.host;
-                                    xhrutils.maptoken_backend(Mapcofig.proxyURL, this.mapconfig.backtokenUrl, tokenconfigname, domainName)
+                                    maptokenrequesturl = Mapcofig.tokenserver.token_black.url;
+                                    xhrutils.maptoken_backend(Mapcofig.proxyConifg.url, maptokenrequesturl, tokenconfigname, domainName)
                                         .then(function (maptokenResult) { return __awaiter(_this, void 0, void 0, function () {
                                         var maptoken, response, response;
                                         return __generator(this, function (_a) {
                                             switch (_a.label) {
                                                 case 0:
-                                                    maptoken = JSON.parse(maptokenResult.data).token;
+                                                    maptoken = 'jd4tMMmw0oeKvuNOT4LS7XPhB9b5mFP_1jsHbBWZM5eEEPyHPYAUXTRQ1zbMOdvKUOZtAPQK1wWbgNJIQkYJH0U5b8WqxKZ3jSicFwOCiw0giXgmuVZcLXau3RIUEp0xJViFkNKcSjIw567hvefTjNSCnQ0b-gul1-Ixo3HYO9JX2lVqWm1YZy5oA5B7GtUI';
                                                     if (!(this.viewMode === '3D')) return [3 /*break*/, 2];
-                                                    return [4 /*yield*/, init3Dmap(container, this.mapconfig, this.maplayers, this.mapwidgets, this.mapProxys, this.mapextent, maptoken, mapoptions)];
+                                                    return [4 /*yield*/, init3Dmap(container, Mapcofig.gisService, Mapcofig.proxyConifg, maptoken, mapoptions)];
                                                 case 1:
                                                     response = _a.sent();
                                                     this.view = response.sceneView;
                                                     return [3 /*break*/, 4];
-                                                case 2: return [4 /*yield*/, init2Dmap(container, this.mapconfig, this.maplayers, this.mapwidgets, this.mapProxys, this.mapextent, maptoken, mapoptions)];
+                                                case 2: return [4 /*yield*/, init2Dmap(container, Mapcofig.gisService, Mapcofig.proxyConifg, maptoken, mapoptions)];
                                                 case 3:
                                                     response = _a.sent();
                                                     this.view = response.mapView;
@@ -3409,23 +3403,26 @@ var Map = /** @class */ (function (_super) {
                                     }); });
                                     return [3 /*break*/, 7];
                                 case 1:
-                                    if (!(this.mapconfig.tokenType === '2')) return [3 /*break*/, 6];
+                                    if (!(Mapcofig.tokenserver.tokenType === 'free')) return [3 /*break*/, 6];
                                     if (!(this.viewMode === '3D')) return [3 /*break*/, 3];
-                                    return [4 /*yield*/, init3Dmap(container, this.mapconfig, this.maplayers, this.mapwidgets, this.mapProxys, this.mapextent, '', mapoptions)];
+                                    return [4 /*yield*/, init3Dmap(container, Mapcofig.gisService, Mapcofig.proxyConifg, '', mapoptions)];
                                 case 2:
-                                    response = _a.sent();
+                                    response = _b.sent();
                                     this.view = response.sceneView;
                                     return [3 /*break*/, 5];
-                                case 3: return [4 /*yield*/, init2Dmap(container, this.mapconfig, this.maplayers, this.mapwidgets, this.mapProxys, this.mapextent, '', mapoptions)];
+                                case 3: return [4 /*yield*/, init2Dmap(container, Mapcofig.gisService, Mapcofig.proxyConifg, '', mapoptions)];
                                 case 4:
-                                    response = _a.sent();
+                                    response = _b.sent();
                                     this.view = response.mapView;
-                                    _a.label = 5;
+                                    _b.label = 5;
                                 case 5:
                                     this.initEvent();
                                     return [3 /*break*/, 7];
                                 case 6:
-                                    xhrutils.maptoken_front(this.mapconfig.fronttokenUrl, Mapcofig.tokenUser, Mapcofig.tokenPassword)
+                                    fronttokenUrl = Mapcofig.tokenserver.token_front.url;
+                                    user = Mapcofig.tokenserver.token_front.user;
+                                    password = Mapcofig.tokenserver.token_front.password;
+                                    xhrutils.maptoken_front(fronttokenUrl, user, password)
                                         .then(function (maptokenResult) { return __awaiter(_this, void 0, void 0, function () {
                                         var maptoken, response, response;
                                         return __generator(this, function (_a) {
@@ -3433,12 +3430,12 @@ var Map = /** @class */ (function (_super) {
                                                 case 0:
                                                     maptoken = maptokenResult.token;
                                                     if (!(viewMode === '3D')) return [3 /*break*/, 2];
-                                                    return [4 /*yield*/, init3Dmap(container, this.mapconfig, this.maplayers, this.mapwidgets, this.mapProxys, this.mapextent, maptoken, mapoptions)];
+                                                    return [4 /*yield*/, init3Dmap(container, Mapcofig.gisService, Mapcofig.proxyConifg, maptoken, mapoptions)];
                                                 case 1:
                                                     response = _a.sent();
                                                     this.view = response.sceneView;
                                                     return [3 /*break*/, 4];
-                                                case 2: return [4 /*yield*/, init2Dmap(container, this.mapconfig, this.maplayers, this.mapwidgets, this.mapProxys, this.mapextent, maptoken, mapoptions)];
+                                                case 2: return [4 /*yield*/, init2Dmap(container, Mapcofig.gisService, Mapcofig.proxyConifg, maptoken, mapoptions)];
                                                 case 3:
                                                     response = _a.sent();
                                                     this.view = response.mapView;
@@ -3449,14 +3446,11 @@ var Map = /** @class */ (function (_super) {
                                             }
                                         });
                                     }); });
-                                    _a.label = 7;
+                                    _b.label = 7;
                                 case 7: return [2 /*return*/];
                             }
                         });
-                    }); });
-                })
-                    .catch(function (err) {
-                    console.error(err);
+                    });
                 });
                 return [2 /*return*/];
             });
@@ -3464,106 +3458,89 @@ var Map = /** @class */ (function (_super) {
     };
     Map.prototype.init1 = function (container, viewMode, mapoptions) {
         return __awaiter(this, void 0, void 0, function () {
-            var data, requesturl;
+            var tokendata, maptokenrequesturl, response, response, expirationTime, tokenUrl;
             var _this = this;
             return __generator(this, function (_a) {
-                data = {
-                    username: mapoptions.userName === undefined ? Mapcofig.userName : mapoptions.userName,
-                    menuName: mapoptions.menuName === undefined ? Mapcofig.menuName : mapoptions.menuName
-                };
-                requesturl = Mapcofig.mapconfigbackendurl;
-                request.get(requesturl, '', data, request.RequestMode.noCors, request.RequestCache.forceCache).then(function (mapconfigresult) { return __awaiter(_this, void 0, void 0, function () {
-                    var tokendata, maptokenrequesturl, response, response, expirationTime, tokenUrl;
-                    var _this = this;
-                    return __generator(this, function (_a) {
-                        switch (_a.label) {
-                            case 0:
-                                this.mapconfig = mapconfigresult.data.mapconfig[0];
-                                this.maplayers = mapconfigresult.data.layers;
-                                this.mapwidgets = mapconfigresult.data.mapwidgets;
-                                this.mapProxys = mapconfigresult.data.mapProxys;
-                                this.mapextent = mapconfigresult.data.mapextent[0];
-                                if (!(this.mapconfig.tokenType === '1')) return [3 /*break*/, 1];
-                                tokendata = {
-                                    tokenconfigname: this.mapconfig.backtokenconfigname === undefined
-                                        ? Mapcofig.tokenconfigname : this.mapconfig.backtokenconfigname,
-                                    domainName: window.location.host
-                                };
-                                maptokenrequesturl = this.mapconfig.backtokenUrl;
-                                request.get(maptokenrequesturl, '', tokendata, request.RequestMode.noCors, request.RequestCache.forceCache).then(function (maptokenResult) { return __awaiter(_this, void 0, void 0, function () {
-                                    var maptoken, response, response;
-                                    return __generator(this, function (_a) {
-                                        switch (_a.label) {
-                                            case 0:
-                                                maptoken = JSON.parse(maptokenResult.data).token;
-                                                if (!(this.viewMode === '3D')) return [3 /*break*/, 2];
-                                                return [4 /*yield*/, init3Dmap(container, this.mapconfig, this.maplayers, this.mapwidgets, this.mapProxys, this.mapextent, maptoken, mapoptions)];
-                                            case 1:
-                                                response = _a.sent();
-                                                this.view = response.sceneView;
-                                                return [3 /*break*/, 4];
-                                            case 2: return [4 /*yield*/, init2Dmap(container, this.mapconfig, this.maplayers, this.mapwidgets, this.mapProxys, this.mapextent, maptoken, mapoptions)];
-                                            case 3:
-                                                response = _a.sent();
-                                                this.view = response.mapView;
-                                                _a.label = 4;
-                                            case 4:
-                                                this.initEvent();
-                                                return [2 /*return*/];
-                                        }
-                                    });
-                                }); });
-                                return [3 /*break*/, 7];
-                            case 1:
-                                if (!(this.mapconfig.tokenType === '2')) return [3 /*break*/, 6];
-                                if (!(this.viewMode === '3D')) return [3 /*break*/, 3];
-                                return [4 /*yield*/, init3Dmap(container, this.mapconfig, this.maplayers, this.mapwidgets, this.mapProxys, this.mapextent, '', mapoptions)];
-                            case 2:
-                                response = _a.sent();
-                                this.view = response.sceneView;
-                                return [3 /*break*/, 5];
-                            case 3: return [4 /*yield*/, init2Dmap(container, this.mapconfig, this.maplayers, this.mapwidgets, this.mapProxys, this.mapextent, '', mapoptions)];
-                            case 4:
-                                response = _a.sent();
-                                this.view = response.mapView;
-                                _a.label = 5;
-                            case 5:
-                                this.initEvent();
-                                return [3 /*break*/, 7];
-                            case 6:
-                                expirationTime = 1440;
-                                tokenUrl = this.mapconfig.fronttokenUrl + '?request=getToken&username=' + Mapcofig.tokenUser
-                                    + '&password=' + Mapcofig.tokenPassword + '&clientid=ref.' + window.location.host + '&expiration='
-                                    + expirationTime + '&f=json';
-                                request.post(tokenUrl, '', '', request.RequestMode.noCors, request.RequestCache.default).then(function (maptokenResult) { return __awaiter(_this, void 0, void 0, function () {
-                                    var maptoken, response, response;
-                                    return __generator(this, function (_a) {
-                                        switch (_a.label) {
-                                            case 0:
-                                                maptoken = maptokenResult.token;
-                                                if (!(viewMode === '3D')) return [3 /*break*/, 2];
-                                                return [4 /*yield*/, init3Dmap(container, this.mapconfig, this.maplayers, this.mapwidgets, this.mapProxys, this.mapextent, maptoken, mapoptions)];
-                                            case 1:
-                                                response = _a.sent();
-                                                this.view = response.sceneView;
-                                                return [3 /*break*/, 4];
-                                            case 2: return [4 /*yield*/, init2Dmap(container, this.mapconfig, this.maplayers, this.mapwidgets, this.mapProxys, this.mapextent, maptoken, mapoptions)];
-                                            case 3:
-                                                response = _a.sent();
-                                                this.view = response.mapView;
-                                                _a.label = 4;
-                                            case 4:
-                                                this.initEvent();
-                                                return [2 /*return*/];
-                                        }
-                                    });
-                                }); });
-                                _a.label = 7;
-                            case 7: return [2 /*return*/];
-                        }
-                    });
-                }); });
-                return [2 /*return*/];
+                switch (_a.label) {
+                    case 0:
+                        if (!(Mapcofig.tokenserver.tokenType === 'back')) return [3 /*break*/, 1];
+                        tokendata = {
+                            tokenconfigname: mapoptions.tokenconfigname === undefined ? 'smiapi_new' : mapoptions.tokenconfigname,
+                            domainName: window.location.host
+                        };
+                        maptokenrequesturl = Mapcofig.tokenserver.token_black.url;
+                        request.get(maptokenrequesturl, '', tokendata, request.RequestMode.noCors, request.RequestCache.forceCache).then(function (maptokenResult) { return __awaiter(_this, void 0, void 0, function () {
+                            var maptoken, response, response;
+                            return __generator(this, function (_a) {
+                                switch (_a.label) {
+                                    case 0:
+                                        maptoken = JSON.parse(maptokenResult.data).token;
+                                        if (!(this.viewMode === '3D')) return [3 /*break*/, 2];
+                                        return [4 /*yield*/, init3Dmap(container, Mapcofig.gisService, Mapcofig.proxyConifg, maptoken, mapoptions)];
+                                    case 1:
+                                        response = _a.sent();
+                                        this.view = response.sceneView;
+                                        return [3 /*break*/, 4];
+                                    case 2: return [4 /*yield*/, init2Dmap(container, Mapcofig.gisService, Mapcofig.proxyConifg, maptoken, mapoptions)];
+                                    case 3:
+                                        response = _a.sent();
+                                        this.view = response.mapView;
+                                        _a.label = 4;
+                                    case 4:
+                                        this.initEvent();
+                                        return [2 /*return*/];
+                                }
+                            });
+                        }); });
+                        return [3 /*break*/, 7];
+                    case 1:
+                        if (!(Mapcofig.tokenserver.tokenType === 'free')) return [3 /*break*/, 6];
+                        if (!(this.viewMode === '3D')) return [3 /*break*/, 3];
+                        return [4 /*yield*/, init3Dmap(container, Mapcofig.gisService, Mapcofig.proxyConifg, '', mapoptions)];
+                    case 2:
+                        response = _a.sent();
+                        this.view = response.sceneView;
+                        return [3 /*break*/, 5];
+                    case 3: return [4 /*yield*/, init2Dmap(container, Mapcofig.gisService, Mapcofig.proxyConifg, '', mapoptions)];
+                    case 4:
+                        response = _a.sent();
+                        this.view = response.mapView;
+                        _a.label = 5;
+                    case 5:
+                        this.initEvent();
+                        return [3 /*break*/, 7];
+                    case 6:
+                        expirationTime = 1440;
+                        tokenUrl = Mapcofig.tokenserver.token_front.url + '?request=getToken&username=' +
+                            Mapcofig.tokenserver.token_front.user + '&password=' + Mapcofig.tokenserver.token_front.password
+                            + '&clientid=ref.' + window.location.host + '&expiration=' +
+                            expirationTime + '&f=json';
+                        request.post(tokenUrl, '', '', request.RequestMode.noCors, request.RequestCache.default).then(function (maptokenResult) { return __awaiter(_this, void 0, void 0, function () {
+                            var maptoken, response, response;
+                            return __generator(this, function (_a) {
+                                switch (_a.label) {
+                                    case 0:
+                                        maptoken = maptokenResult.token;
+                                        if (!(viewMode === '3D')) return [3 /*break*/, 2];
+                                        return [4 /*yield*/, init3Dmap(container, Mapcofig.gisService, Mapcofig.proxyConifg, maptoken, mapoptions)];
+                                    case 1:
+                                        response = _a.sent();
+                                        this.view = response.sceneView;
+                                        return [3 /*break*/, 4];
+                                    case 2: return [4 /*yield*/, init2Dmap(container, Mapcofig.gisService, Mapcofig.proxyConifg, maptoken, mapoptions)];
+                                    case 3:
+                                        response = _a.sent();
+                                        this.view = response.mapView;
+                                        _a.label = 4;
+                                    case 4:
+                                        this.initEvent();
+                                        return [2 /*return*/];
+                                }
+                            });
+                        }); });
+                        _a.label = 7;
+                    case 7: return [2 /*return*/];
+                }
             });
         });
     };

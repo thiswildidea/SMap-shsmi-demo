@@ -36,11 +36,10 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 import Mapcofig from './config/Mapcofig';
 import { load } from './modules';
-import { init2DBaseMaplayers, init3DBaseMaplayers, initiallayers } from './utils/initlayers';
-export function init3Dmap(containerv, mapconfig, maplayers, mapwidgets, mapProxys, mapextent, maptoken, mapoptions) {
+import { init2DBaseMaplayers, init3DBaseMaplayers, initbuildingsLayers, initsmapbussinesslayers } from './utils/initlayers';
+export function init3Dmap(containerv, gisService, proxyConifg, maptoken, mapoptions) {
     return __awaiter(this, void 0, void 0, function () {
-        var _a, Map, Basemap, Point, urlUtils, esriConfig, watchUtils, SceneView, IdentityManager, SpatialReference, baseLayersconfig, basemaplayers, bmap, mapv, sceneView, opertalayers, cameraheading;
-        var _this = this;
+        var _a, Map, Basemap, Point, urlUtils, esriConfig, IdentityManager, SpatialReference, watchUtils, SceneView, basemaplayers, bmap, mapv, buildingsLayers, viewMode, smapbussinesslayers, sceneView, cameraheading;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0: return [4 /*yield*/, load([
@@ -49,12 +48,12 @@ export function init3Dmap(containerv, mapconfig, maplayers, mapwidgets, mapProxy
                         'esri/geometry/Point',
                         'esri/core/urlUtils',
                         'esri/config',
-                        'esri/core/watchUtils',
-                        'esri/views/SceneView',
                         'esri/identity/IdentityManager',
-                        'esri/geometry/SpatialReference'
+                        'esri/geometry/SpatialReference',
+                        'esri/core/watchUtils',
+                        'esri/views/SceneView'
                         // 'esri/Camera',
-                        // 'esri/geometry/Extent'
+                        // 'esri/geometry/Extent',
                         // 'esri/layers/SceneLayer',
                         // 'esri/layers/SHCTiledMapServiceLayer',
                         // 'esri/widgets/LayerList',
@@ -75,38 +74,28 @@ export function init3Dmap(containerv, mapconfig, maplayers, mapwidgets, mapProxy
                         // 'esri/widgets/Zoom',
                         // 'esri/widgets/Compass',
                         // 'esri/widgets/Home',
-                        // 'esri/core/watchUtils',
-                        // 'esri/views/SceneView'
                     ])];
                 case 1:
-                    _a = _b.sent(), Map = _a[0], Basemap = _a[1], Point = _a[2], urlUtils = _a[3], esriConfig = _a[4], watchUtils = _a[5], SceneView = _a[6], IdentityManager = _a[7], SpatialReference = _a[8];
-                    if (parseFloat(mapconfig.useProxy)) {
-                        mapProxys.map(function (item) {
+                    _a = _b.sent(), Map = _a[0], Basemap = _a[1], Point = _a[2], urlUtils = _a[3], esriConfig = _a[4], IdentityManager = _a[5], SpatialReference = _a[6], watchUtils = _a[7], SceneView = _a[8];
+                    if (proxyConifg.useProxy) {
+                        proxyConifg.httpsDomains.map(function (item) {
                             urlUtils.addProxyRule({
                                 proxyUrl: item.proxyUrl,
                                 urlPrefix: item.domainName
                             });
                         });
                     }
-                    esriConfig.geometryServiceUrl = mapconfig.geometryserviceUrl;
-                    baseLayersconfig = maplayers.filter(function (layergroup) {
-                        return layergroup.layerEName === 'basemap';
-                    });
-                    if (mapconfig.tokenType !== '2') {
+                    esriConfig.geometryServiceUrl = gisService.geometryServiceUrl;
+                    if (maptoken !== '') {
                         IdentityManager.registerToken({
-                            server: Mapcofig.tokenserviceurl,
+                            server: gisService.serverurl,
                             token: maptoken
                         });
-                        // IdentityManager.registerToken({
-                        //   server: baseLayersconfig[0].children[0].url.
-                        //     substring(0, baseLayersconfig[0].children[0].url.lastIndexOf('/rest/services')) + '/rest/services',
-                        //   token: maptoken
-                        // });
                     }
                     IdentityManager.on('dialog-create', function () {
                         IdentityManager.dialog.open = true;
                     });
-                    return [4 /*yield*/, init3DBaseMaplayers(baseLayersconfig[0].children, maptoken)];
+                    return [4 /*yield*/, init3DBaseMaplayers(gisService.baseMapServices.layers, maptoken)];
                 case 2:
                     basemaplayers = _b.sent();
                     bmap = new Basemap({
@@ -117,6 +106,10 @@ export function init3Dmap(containerv, mapconfig, maplayers, mapwidgets, mapProxy
                     mapv = new Map({
                         basemap: bmap
                     });
+                    return [4 /*yield*/, initbuildingsLayers(gisService.buildingsLayers, maptoken)];
+                case 3:
+                    buildingsLayers = _b.sent();
+                    mapv.add(buildingsLayers);
                     if (mapoptions.mapStyle !== undefined) {
                         switch (mapoptions.mapStyle) {
                             case "smap://styles/light":
@@ -140,7 +133,50 @@ export function init3Dmap(containerv, mapconfig, maplayers, mapwidgets, mapProxy
                                 layer.visible = false;
                             }
                         });
+                        ['model_white_zw', 'model_air_real', 'model_white_as'].forEach(function (layname) {
+                            var buildingmodel = mapv.findLayerById(layname);
+                            if (mapoptions.showBuildingBlock === false) {
+                                buildingmodel.visible = false;
+                            }
+                            else {
+                                if (buildingmodel) {
+                                    // tslint:disable-next-line:prefer-conditional-expression
+                                    if (mapv.basemap.id === 'basemap_zw') {
+                                        // tslint:disable-next-line:prefer-conditional-expression
+                                        if (layname === 'model_white_zw') {
+                                            buildingmodel.visible = true;
+                                        }
+                                        else {
+                                            buildingmodel.visible = false;
+                                        }
+                                    }
+                                    else if (mapv.basemap.id === 'basemap_as') {
+                                        // tslint:disable-next-line:prefer-conditional-expression
+                                        if (layname === 'model_white_as') {
+                                            buildingmodel.visible = true;
+                                        }
+                                        else {
+                                            buildingmodel.visible = false;
+                                        }
+                                    }
+                                    else if (mapv.basemap.id === 'basemap_air') {
+                                        // tslint:disable-next-line:prefer-conditional-expression
+                                        if (layname === 'model_air_real') {
+                                            buildingmodel.visible = true;
+                                        }
+                                        else {
+                                            buildingmodel.visible = false;
+                                        }
+                                    }
+                                }
+                            }
+                        });
                     }
+                    viewMode = mapoptions.viewMode === undefined || mapoptions.viewMode === '2D' ? '2D' : '3D';
+                    return [4 /*yield*/, initsmapbussinesslayers(gisService.smapbussinessLayers.layerGroups, maptoken, viewMode)];
+                case 4:
+                    smapbussinesslayers = _b.sent();
+                    mapv.addMany(smapbussinesslayers);
                     sceneView = new SceneView({
                         map: mapv,
                         container: containerv,
@@ -148,67 +184,6 @@ export function init3Dmap(containerv, mapconfig, maplayers, mapwidgets, mapProxy
                             wkid: 102100
                         },
                         viewingMode: 'local'
-                    });
-                    load(['esri/core/Collection'])
-                        // tslint:disable-next-line:no-shadowed-variable
-                        .then(function (_a) {
-                        var collection = _a[0];
-                        return __awaiter(_this, void 0, void 0, function () {
-                            var viewMode;
-                            return __generator(this, function (_b) {
-                                switch (_b.label) {
-                                    case 0:
-                                        opertalayers = new collection();
-                                        viewMode = mapoptions.viewMode === undefined || mapoptions.viewMode === '2D' ? '2D' : '3D';
-                                        return [4 /*yield*/, initiallayers(opertalayers, maplayers.slice(1), maptoken, viewMode)];
-                                    case 1:
-                                        _b.sent();
-                                        mapv.addMany(opertalayers);
-                                        ['model_white_zw', 'model_air_real', 'model_white_as'].forEach(function (layname) {
-                                            var buildingmodel = mapv.findLayerById(layname);
-                                            if (mapoptions.showBuildingBlock === false) {
-                                                buildingmodel.visible = false;
-                                            }
-                                            else {
-                                                if (buildingmodel) {
-                                                    // tslint:disable-next-line:prefer-conditional-expression
-                                                    if (mapv.basemap.id === 'basemap_zw') {
-                                                        // tslint:disable-next-line:prefer-conditional-expression
-                                                        if (layname === 'model_white_zw') {
-                                                            buildingmodel.visible = true;
-                                                        }
-                                                        else {
-                                                            buildingmodel.visible = false;
-                                                        }
-                                                    }
-                                                    else if (mapv.basemap.id === 'basemap_as') {
-                                                        // tslint:disable-next-line:prefer-conditional-expression
-                                                        if (layname === 'model_white_as') {
-                                                            buildingmodel.visible = true;
-                                                        }
-                                                        else {
-                                                            buildingmodel.visible = false;
-                                                        }
-                                                    }
-                                                    else if (mapv.basemap.id === 'basemap_air') {
-                                                        // tslint:disable-next-line:prefer-conditional-expression
-                                                        if (layname === 'model_air_real') {
-                                                            buildingmodel.visible = true;
-                                                        }
-                                                        else {
-                                                            buildingmodel.visible = false;
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        });
-                                        return [2 /*return*/];
-                                }
-                            });
-                        });
-                    })
-                        .catch(function (err) {
-                        console.error(err);
                     });
                     sceneView.ui.empty('top-left');
                     sceneView.ui.empty('top-right');
@@ -237,7 +212,7 @@ export function init3Dmap(containerv, mapconfig, maplayers, mapwidgets, mapProxy
                     if (mapoptions.zoom !== undefined) {
                         sceneView.zoom = mapoptions.zoom;
                     }
-                    if (!(mapoptions.pitch !== undefined)) return [3 /*break*/, 4];
+                    if (!(mapoptions.pitch !== undefined)) return [3 /*break*/, 6];
                     cameraheading = 0;
                     return [4 /*yield*/, sceneView.goTo({
                             center: sceneView.center,
@@ -245,7 +220,7 @@ export function init3Dmap(containerv, mapconfig, maplayers, mapwidgets, mapProxy
                             tilt: mapoptions.pitch,
                             heading: cameraheading
                         })];
-                case 3:
+                case 5:
                     _b.sent();
                     watchUtils.when(sceneView, "animation", function (animation) {
                         animation.when(function (anti) {
@@ -263,16 +238,15 @@ export function init3Dmap(containerv, mapconfig, maplayers, mapwidgets, mapProxy
                             console.log(anti);
                         });
                     });
-                    _b.label = 4;
-                case 4: return [2 /*return*/, { sceneView: sceneView, mapv: mapv }];
+                    _b.label = 6;
+                case 6: return [2 /*return*/, { sceneView: sceneView, mapv: mapv }];
             }
         });
     });
 }
-export function init2Dmap(containerv, mapconfig, maplayers, mapwidgets, mapProxys, mapextent, maptoken, mapoptions) {
+export function init2Dmap(containerv, gisService, proxyConifg, maptoken, mapoptions) {
     return __awaiter(this, void 0, void 0, function () {
-        var _a, Map, Basemap, urlUtils, esriConfig, IdentityManager, SpatialReference, Point, MapView, baseLayersconfig, basemaplayers, bmap, mapv, shanghaiSR, mapView, opertalayers;
-        var _this = this;
+        var _a, Map, Basemap, urlUtils, esriConfig, IdentityManager, SpatialReference, Point, MapView, basemaplayers, bmap, mapv, viewMode, smapbussinesslayers, shanghaiSR, mapView;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0: return [4 /*yield*/, load([
@@ -309,28 +283,26 @@ export function init2Dmap(containerv, mapconfig, maplayers, mapwidgets, mapProxy
                     ])];
                 case 1:
                     _a = _b.sent(), Map = _a[0], Basemap = _a[1], urlUtils = _a[2], esriConfig = _a[3], IdentityManager = _a[4], SpatialReference = _a[5], Point = _a[6], MapView = _a[7];
-                    if (parseFloat(mapconfig.useProxy)) {
-                        mapProxys.map(function (item) {
+                    if (proxyConifg.useProxy) {
+                        proxyConifg.httpsDomains.map(function (item) {
                             urlUtils.addProxyRule({
                                 proxyUrl: item.proxyUrl,
                                 urlPrefix: item.domainName
                             });
                         });
                     }
-                    esriConfig.geometryServiceUrl = mapconfig.geometryserviceUrl;
-                    baseLayersconfig = maplayers.filter(function (layergroup) {
-                        return layergroup.layerEName === 'basemap';
-                    });
-                    if (mapconfig.tokenType !== '2') {
+                    esriConfig.geometryServiceUrl = gisService.geometryserviceUrl;
+                    esriConfig.fontsUrl = Mapcofig.fonts.url;
+                    if (maptoken !== '') {
                         IdentityManager.registerToken({
-                            server: baseLayersconfig[0].children[1].url.substring(0, baseLayersconfig[0].children[1].url.lastIndexOf('/rest/services')) + '/rest/services',
+                            server: gisService.serverurl,
                             token: maptoken
                         });
                     }
                     IdentityManager.on('dialog-create', function () {
                         IdentityManager.dialog.open = true;
                     });
-                    return [4 /*yield*/, init2DBaseMaplayers(baseLayersconfig[0].children, maptoken)];
+                    return [4 /*yield*/, init2DBaseMaplayers(gisService.baseMapServices.layers, maptoken)];
                 case 2:
                     basemaplayers = _b.sent();
                     bmap = new Basemap({
@@ -365,6 +337,11 @@ export function init2Dmap(containerv, mapconfig, maplayers, mapwidgets, mapProxy
                             }
                         });
                     }
+                    viewMode = mapoptions.viewMode === undefined || mapoptions.viewMode === '2D' ? '2D' : '3D';
+                    return [4 /*yield*/, initsmapbussinesslayers(gisService.smapbussinessLayers.layerGroups, maptoken, viewMode)];
+                case 3:
+                    smapbussinesslayers = _b.sent();
+                    mapv.addMany(smapbussinesslayers);
                     shanghaiSR = new SpatialReference({
                         wkt: 'PROJCS["shanghaicity",GEOGCS["GCS_Beijing_1954",DATUM["D_Beijing_1954",SPHEROID["Krasovsky_1940",6378245.0,298.3]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Transverse_Mercator"],PARAMETER["False_Easting",-3457147.81],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",121.2751921],PARAMETER["Scale_Factor",1.0],PARAMETER["Latitude_Of_Origin",0.0],UNIT["Meter",1.0]]'
                     });
@@ -374,29 +351,6 @@ export function init2Dmap(containerv, mapconfig, maplayers, mapwidgets, mapProxy
                         spatialReference: {
                             wkid: 102100
                         }
-                    });
-                    load(['esri/core/Collection'])
-                        // tslint:disable-next-line:no-shadowed-variable
-                        .then(function (_a) {
-                        var collection = _a[0];
-                        return __awaiter(_this, void 0, void 0, function () {
-                            var viewMode;
-                            return __generator(this, function (_b) {
-                                switch (_b.label) {
-                                    case 0:
-                                        opertalayers = new collection();
-                                        viewMode = mapoptions.viewMode === undefined || mapoptions.viewMode === '2D' ? '2D' : '3D';
-                                        return [4 /*yield*/, initiallayers(opertalayers, maplayers.slice(1), maptoken, viewMode)];
-                                    case 1:
-                                        _b.sent();
-                                        mapv.addMany(opertalayers);
-                                        return [2 /*return*/];
-                                }
-                            });
-                        });
-                    })
-                        .catch(function (err) {
-                        console.error(err);
                     });
                     mapView.ui.empty('top-left');
                     mapView.ui.empty('top-right');

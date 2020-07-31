@@ -4,8 +4,6 @@
     <div class="info">
       <h4>地图控件</h4>
       <el-button type="primary" @click="addlayercontrol">添加图层控件</el-button>
-      <el-button type="primary" @click="routelpalyback">轨迹播放</el-button>
-      <el-button type="primary" @click="stoproutelpalyback">停止轨迹播放</el-button>
       <el-button type="primary" @click="addechart">添加迁移图</el-button>
       <el-button type="primary" @click="removeechart">移除迁移图</el-button>
     </div>
@@ -57,107 +55,6 @@ export default {
         collapse: true
       })
       this.map.addControl(layerListControl)
-    },
-    routelpalyback() {
-      var routedata = [
-        {
-          x: 358.5185,
-          y: -77.2235
-        },
-        {
-          x: 267.4522,
-          y: 99.1188
-        },
-        {
-          x: 234.90484,
-          y: 212.834811
-        },
-        {
-          x: 181.7233,
-          y: 381.1000
-        },
-        {
-          x: 138.1169,
-          y: 527.79151
-        },
-        {
-          x: 88.0071,
-          y: 647.4898
-        },
-        {
-          x: 63.1774,
-          y: 692.2989
-        },
-        {
-          x: 94.5310,
-          y: 706.0872
-        },
-        {
-          x: 143.59157,
-          y: 595.3354
-        },
-        {
-          x: 182.1127,
-          y: 481.7369
-        },
-        {
-          x: 223.4553,
-          y: 323.6532
-        },
-        {
-          x: 248.4933,
-          y: 203.5321
-        },
-        {
-          x: 325.065,
-          y: 31.37497
-        },
-        {
-          x: 546.1844,
-          y: -355.09700
-        }
-      ]
-      this.trajectory = new Plugins.Trajectory(this.map.view)
-      this.trajectory.play({
-        coords: routedata,
-        showtrail: true,
-        trailsymbol: {
-          type: 'simple-line',
-          color: [255, 255, 255, 0.5],
-          width: '10px',
-          style: 'solid'
-        },
-        mobilesymbol: {
-          // type: 'picture-marker',
-          // url: require('@/assets/car.png'),
-          // width: '64px',
-          // height: '64px'
-          type: 'point-3d',
-          symbolLayers: [{
-            type: 'icon',
-            size: '100px',
-            resource: {
-              href: require('@/assets/ballon.svg')
-            }
-          }],
-          verticalOffset: {
-            screenLength: 150,
-            maxWorldLength: 2000,
-            minWorldLength: 20
-          },
-          callout: {
-            type: 'line',
-            color: [0, 0, 0],
-            size: 2,
-            border: {
-              color: [255, 255, 255, 0.5]
-            }
-          }
-        }
-      })
-    },
-    stoproutelpalyback() {
-      this.trajectory.remove()
     },
     addechart() {
       this.migrationMap = new Plugins.MigrationMap(this.map.view)

@@ -12,15 +12,21 @@
       <el-button type="primary" @click="removeroanmap">清除漫游</el-button>
       <el-button type="primary" @click="setmapextentcontrans">地图范围限制</el-button>
       <el-button type="primary" @click="removemapextentcontrans">移除地图范围限制</el-button>
+      <el-button type="primary" @click="queryboundary">查询边界</el-button>
+      <el-button type="primary" @click="removeboundary">移除边界</el-button>
+      <el-button type="primary" @click="hideboundary">隐藏边界</el-button>
+      <el-button type="primary" @click="showboundary">显示边界</el-button>
+      <el-button type="primary" @click="btnquery">查询</el-button>
     </div>
   </div>
 </template>
 <script>
 // import SMap from 'smap-shsmi'
-// import Plugins from 'smap-plugins-shsmi'
 // import SMap from 'smap-shsmi-aa'
 import SMap from '../utils/4x/smap/esm/SMap'
+// import Plugins from 'smap-plugins-shsmi'
 import Plugins from '../utils/4x/plugins/esm/Plugins'
+import GeoTask from '../utils/4x/task/esm/GeoTask'
 export default {
   name: 'MapControl',
   components: { },
@@ -29,7 +35,9 @@ export default {
       map: null,
       trajectory: null,
       migrationMap: null,
-      mapRoam: null
+      mapRoam: null,
+      Boundary: null,
+      queryTask: null
     }
   },
   computed: {
@@ -41,7 +49,7 @@ export default {
   methods: {
     initMap() {
       this.map = new SMap.Map('container', {
-        viewMode: '2D',
+        viewMode: '3D',
         center: [0, 0],
         zoom: 6,
         tokenconfigname: 'smiapi_new',
@@ -511,6 +519,52 @@ export default {
     },
     removemapextentcontrans() {
       this.map.removeExtentConstrain()
+    },
+    queryboundary() {
+      const par = {
+        boundaryType: 'qx_boundary',
+        boundaryDefinition: "name like '%黄浦%'", // qxcode like '%01%
+        symbol: {
+          type: 'simple-fill',
+          color: [255, 255, 255, 0],
+          outline: {
+            color: [255, 255, 0, 1],
+            width: '5px'
+          }
+        }
+      }
+      this.Boundary = new Plugins.Boundary(this.map.view)
+      this.Boundary.add(par)
+    },
+    removeboundary() {
+      this.Boundary.remove()
+    },
+    hideboundary() {
+      this.Boundary.hide()
+    },
+    showboundary() {
+      this.Boundary.show()
+    },
+    btnquery() {
+      const par = {
+        layerUniqueId: 'qx_boundary',
+        queryDefinition: "name like '%黄浦%'", // qxcode like '%01%
+        displayed: false,
+        outFields: ['*'],
+        type: 'polygon',
+        symbol: {
+          type: 'simple-fill',
+          color: [255, 255, 255, 0],
+          outline: {
+            color: [255, 255, 0, 1],
+            width: '5px'
+          }
+        }
+      }
+      this.queryTask = new GeoTask.Query(this.map.view)
+      this.queryTask.featureLayer(par).then((result) => {
+        console.log(result)
+      })
     }
   }
 }
