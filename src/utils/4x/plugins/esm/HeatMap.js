@@ -50,92 +50,58 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 import EventEmitter from './mod';
 import { load } from './modules';
 import Guid from './utils/Guid';
-var Boundary = /** @class */ (function (_super) {
-    __extends(Boundary, _super);
-    function Boundary(view) {
+var HeatMap = /** @class */ (function (_super) {
+    __extends(HeatMap, _super);
+    function HeatMap(view) {
         var _this = _super.call(this) || this;
         _this.displayedLayerid = "";
         _this.view = null;
+        _this.heatmaplayer = null;
         _this.init(view);
         return _this;
     }
-    Boundary.prototype.add = function (boundaryOptions) {
+    HeatMap.prototype.add = function (heatmapOptions) {
         var _this = this;
-        if (boundaryOptions === void 0) { boundaryOptions = {}; }
-        load(["esri/layers/GraphicsLayer", "esri/Graphic"])
+        load(['smiapi/utils/HeatMapLayer', 'heatmap'])
             // tslint:disable-next-line:variable-name
             .then(function (_a) {
-            var GraphicsLayer = _a[0], Graphic = _a[1];
-            if (!boundaryOptions.boundaryType) {
-                return;
-            }
-            if (!_this.view) {
-                return;
-            }
-            var layer = _this.view.map.findLayerById(boundaryOptions.boundaryType);
-            if (!layer) {
-                return;
-            }
-            var boundaryqueryParams = layer.createQuery();
-            boundaryqueryParams.where = boundaryOptions.boundaryDefinition;
-            layer.queryFeatures(boundaryqueryParams).then(function (response) {
-                if (response.features.length > 0) {
-                    var boundaryResultLayer_1 = _this.view.map.findLayerById(_this.displayedLayerid);
-                    if (typeof (boundaryResultLayer_1) === 'undefined') {
-                        boundaryResultLayer_1 = new GraphicsLayer({
-                            title: _this.displayedLayerid + '边界',
-                            id: _this.displayedLayerid,
-                            listMode: 'hide'
-                        });
-                        _this.view.map.add(boundaryResultLayer_1);
-                    }
-                    var polygonSymbol_1;
-                    if (boundaryOptions.symbol !== undefined) {
-                        polygonSymbol_1 = boundaryOptions.symbol;
-                    }
-                    else {
-                        polygonSymbol_1 = {
-                            type: "simple-fill",
-                            color: [255, 255, 255, 0],
-                            outline: {
-                                color: [255, 255, 0, 1],
-                                width: "5px"
-                            }
-                        };
-                    }
-                    response.features.map(function (feature) {
-                        var animateGraphic = new Graphic({
-                            geometry: feature.geometry,
-                            symbol: polygonSymbol_1
-                        });
-                        boundaryResultLayer_1.add(animateGraphic);
-                    });
+            var HeatMapLayer = _a[0], heatmap = _a[1];
+            var config = {
+                container: document.getElementById(heatmapOptions.container),
+                radius: heatmapOptions.radius || 30,
+                maxOpacity: heatmapOptions.maxOpacity || 0.8,
+                minOpacity: heatmapOptions.minOpacity || 0,
+                blur: heatmapOptions.blur || .7,
+                gradient: heatmapOptions.gradient || {
+                    0: "rgb(0,0,0)",
+                    0.3: "rgb(0,0,255)",
+                    0.8: "rgb(0,255,0)",
+                    0.98: "rgb(255,255,0)",
+                    1: "rgb(255,0,0)"
                 }
-            });
-        })
-            .catch(function (err) {
-            console.error(err);
+            };
+            _this.heatmaplayer = new HeatMapLayer(_this.view, config, heatmapOptions.datas, heatmapOptions.h337, heatmapOptions.id);
+            _this.heatmaplayer.addData();
         });
     };
-    Boundary.prototype.remove = function () {
-        var boundaryResultLayer = this.view.map.findLayerById(this.displayedLayerid);
-        if (boundaryResultLayer) {
-            this.view.map.remove(boundaryResultLayer);
+    HeatMap.prototype.remove = function (heatmapid) {
+        var parent = document.getElementsByClassName("esri-view-surface")[0];
+        var box = document.getElementById(heatmapid);
+        if (box != null) {
+            parent.removeChild(box);
         }
     };
-    Boundary.prototype.show = function () {
-        var boundaryResultLayer = this.view.map.findLayerById(this.displayedLayerid);
-        if (boundaryResultLayer) {
-            boundaryResultLayer.visible = true;
-        }
+    HeatMap.prototype.refreshdata = function (datas) {
+        this.heatmaplayer.setVisible(true);
+        this.heatmaplayer.freshenLayerData(datas);
     };
-    Boundary.prototype.hide = function () {
-        var boundaryResultLayer = this.view.map.findLayerById(this.displayedLayerid);
-        if (boundaryResultLayer) {
-            boundaryResultLayer.visible = false;
-        }
+    HeatMap.prototype.show = function () {
+        this.heatmaplayer.setVisible(true);
     };
-    Boundary.prototype.init = function (view) {
+    HeatMap.prototype.hide = function () {
+        this.heatmaplayer.setVisible(false);
+    };
+    HeatMap.prototype.init = function (view) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 this.displayedLayerid = new Guid().uuid;
@@ -144,6 +110,6 @@ var Boundary = /** @class */ (function (_super) {
             });
         });
     };
-    return Boundary;
+    return HeatMap;
 }(EventEmitter));
-export default Boundary;
+export default HeatMap;

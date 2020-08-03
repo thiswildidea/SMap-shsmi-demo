@@ -54,9 +54,9 @@ var Trajectory = /** @class */ (function (_super) {
     __extends(Trajectory, _super);
     function Trajectory(view) {
         var _this = _super.call(this) || this;
+        _this.displayedLayerid = "";
         _this.view = null;
         _this.routepalybackinternal = null;
-        _this.routelayerid = "";
         _this.track = null;
         _this.init(view);
         return _this;
@@ -132,7 +132,7 @@ var Trajectory = /** @class */ (function (_super) {
         if (typeof (this.routepalybackinternal) !== undefined) {
             clearInterval(this.routepalybackinternal);
             this.track.destroy();
-            var animateRouteLayer = this.view.map.findLayerById(this.routelayerid);
+            var animateRouteLayer = this.view.map.findLayerById(this.displayedLayerid);
             if (animateRouteLayer) {
                 this.view.map.remove(animateRouteLayer);
             }
@@ -172,11 +172,11 @@ var Trajectory = /** @class */ (function (_super) {
                 geometry: animateLine,
                 symbol: polylineSymbol
             });
-            var animateRouteLayer = _this.view.map.findLayerById(_this.routelayerid);
+            var animateRouteLayer = _this.view.map.findLayerById(_this.displayedLayerid);
             if (typeof (animateRouteLayer) === 'undefined') {
                 animateRouteLayer = new GraphicsLayer({
                     title: '路径轨迹播放',
-                    id: _this.routelayerid,
+                    id: _this.displayedLayerid,
                     listMode: 'hide'
                 });
                 _this.view.map.add(animateRouteLayer);
@@ -187,7 +187,7 @@ var Trajectory = /** @class */ (function (_super) {
     Trajectory.prototype.init = function (view) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                this.routelayerid = new Guid().uuid;
+                this.displayedLayerid = new Guid().uuid;
                 this.view = view;
                 return [2 /*return*/];
             });

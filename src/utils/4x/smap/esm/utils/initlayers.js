@@ -37,19 +37,22 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 import { load } from '../modules';
 export function init3DBaseMaplayers(layers, maptoken) {
     return __awaiter(this, void 0, void 0, function () {
-        var _a, 
+        var 
         // tslint:disable-next-line:variable-name
-        Extent, SHCTiledMapServiceLayer, TileLayer, SpatialReference, layerscollection;
-        return __generator(this, function (_b) {
-            switch (_b.label) {
+        TileLayer, layerscollection;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
                 case 0: return [4 /*yield*/, load([
-                        'esri/geometry/Extent',
-                        'esri/layers/SHCTiledMapServiceLayer',
-                        'esri/layers/TileLayer',
-                        'esri/geometry/SpatialReference'
+                        // 'esri/geometry/Extent',
+                        // 'esri/layers/SHCTiledMapServiceLayer',
+                        // 'esri/layers/SceneLayer',
+                        'esri/layers/TileLayer'
+                        // 'esri/layers/MapImageLayer',
+                        // 'esri/layers/GroupLayer',
+                        // 'esri/geometry/SpatialReference'
                     ])];
                 case 1:
-                    _a = _b.sent(), Extent = _a[0], SHCTiledMapServiceLayer = _a[1], TileLayer = _a[2], SpatialReference = _a[3];
+                    TileLayer = (_a.sent())[0];
                     layerscollection = [];
                     layers.forEach(function (item) {
                         switch (item.mapType) {
@@ -62,7 +65,7 @@ export function init3DBaseMaplayers(layers, maptoken) {
                             //         ymax: 72000.00000000003,
                             //         spatialReference: SpatialReference.WebMercator
                             //     });
-                            //     if (item.isToken === true) {
+                            //     if (parseFloat(item.isToken) === 1) {
                             //         return new SHCTiledMapServiceLayer({
                             //             url: item.url,
                             //             token: maptoken,
@@ -70,7 +73,7 @@ export function init3DBaseMaplayers(layers, maptoken) {
                             //             opacity: item.opacity,
                             //             title: item.layerCName,
                             //             id: item.layerEName,
-                            //             visible: item.visible
+                            //             visible: parseFloat(item.isVisible)
                             //         });
                             //     } else {
                             //         return new SHCTiledMapServiceLayer({
@@ -79,15 +82,15 @@ export function init3DBaseMaplayers(layers, maptoken) {
                             //             opacity: item.opacity,
                             //             title: item.layerCName,
                             //             id: item.layerEName,
-                            //             visible: item.visible
+                            //             visible: parseFloat(item.isVisible)
                             //         });
                             //     }
                             case 'TileLayer':
                                 layerscollection.push(new TileLayer(item.url, {
                                     id: item.layerEName,
-                                    visible: item.visible,
+                                    visible: parseFloat(item.isVisible),
                                     opacity: item.opacity,
-                                    listMode: item.listMode,
+                                    // listMode: item.listMode,
                                     title: item.layerCName
                                 }));
                         }
@@ -99,31 +102,29 @@ export function init3DBaseMaplayers(layers, maptoken) {
 }
 export function init2DBaseMaplayers(layers, maptoken) {
     return __awaiter(this, void 0, void 0, function () {
-        var _a, 
+        var 
         // tslint:disable-next-line:variable-name
-        Extent, TileLayer, SceneLayer, MapImageLayer, 
-        // tslint:disable-next-line:variable-name
-        GroupLayer, SpatialReference, layerscollection;
-        return __generator(this, function (_b) {
-            switch (_b.label) {
+        TileLayer, layerscollection;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
                 case 0: return [4 /*yield*/, load([
-                        'esri/geometry/Extent',
-                        'esri/layers/TileLayer',
-                        'esri/layers/SceneLayer',
-                        'esri/layers/MapImageLayer',
-                        'esri/layers/GroupLayer',
-                        'esri/geometry/SpatialReference'
+                        // 'esri/geometry/Extent',
+                        'esri/layers/TileLayer'
+                        // 'esri/layers/SceneLayer',
+                        // 'esri/layers/MapImageLayer',
+                        // 'esri/layers/GroupLayer',
+                        // 'esri/geometry/SpatialReference'
                     ])];
                 case 1:
-                    _a = _b.sent(), Extent = _a[0], TileLayer = _a[1], SceneLayer = _a[2], MapImageLayer = _a[3], GroupLayer = _a[4], SpatialReference = _a[5];
+                    TileLayer = (_a.sent())[0];
                     layerscollection = [];
-                    layers.forEach(function (item) {
+                    layers.map(function (item) {
                         switch (item.mapType) {
                             // case 'SHCTiledMapServiceLayer':
                             case 'TileLayer':
                                 layerscollection.push(new TileLayer(item.url, {
                                     id: item.layerEName,
-                                    visible: item.visible,
+                                    visible: parseFloat(item.isVisible),
                                     opacity: item.opacity,
                                     listMode: item.listMode,
                                     title: item.layerCName
@@ -135,644 +136,359 @@ export function init2DBaseMaplayers(layers, maptoken) {
         });
     });
 }
-export function initsmapbussinesslayers(layerGroups, maptoken, viewMode) {
+export function initiallayers(addlayer, layers, maptoken, viewMode) {
     return __awaiter(this, void 0, void 0, function () {
         var _a, 
         // tslint:disable-next-line:variable-name
-        TileLayer, SceneLayer, VectorTileLayer, MapImageLayer, IntegratedMeshLayer, PointCloudLayer, 
+        Extent, SHCTiledMapServiceLayer, SceneLayer, TileLayer, GraphicsLayer, MapImageLayer, 
         // tslint:disable-next-line:variable-name
-        BuildingSceneLayer, 
-        // tslint:disable-next-line:variable-name
-        SHCTiledMapServiceLayer, SHCMapServiceLayer, GroupLayer, FeatureLayer, GeoJSONLayer, GraphicsLayer, Extent, 
-        // tslint:disable-next-line:variable-name
-        SpatialReference, smapgrouplayer;
+        GeoJSONLayer, GroupLayer, FeatureLayer, SpatialReference;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0: return [4 /*yield*/, load([
-                        "esri/layers/TileLayer",
-                        "esri/layers/SceneLayer",
-                        "esri/layers/VectorTileLayer",
-                        "esri/layers/MapImageLayer",
-                        "esri/layers/IntegratedMeshLayer",
-                        "esri/layers/PointCloudLayer",
-                        "esri/layers/BuildingSceneLayer",
-                        "esri/layers/SHCTiledMapServiceLayer",
-                        "esri/layers/SHCMapServiceLayer",
-                        "esri/layers/GroupLayer",
-                        "esri/layers/FeatureLayer",
-                        "esri/layers/GeoJSONLayer",
-                        "esri/layers/GraphicsLayer",
-                        "esri/geometry/Extent",
-                        "esri/geometry/SpatialReference"
+                        'esri/geometry/Extent',
+                        'esri/layers/SHCTiledMapServiceLayer',
+                        'esri/layers/SceneLayer',
+                        'esri/layers/TileLayer',
+                        'esri/layers/GraphicsLayer',
+                        'esri/layers/MapImageLayer',
+                        'esri/layers/GeoJSONLayer',
+                        'esri/layers/GroupLayer',
+                        'esri/layers/FeatureLayer',
+                        'esri/geometry/SpatialReference'
                     ])];
                 case 1:
-                    _a = _b.sent(), TileLayer = _a[0], SceneLayer = _a[1], VectorTileLayer = _a[2], MapImageLayer = _a[3], IntegratedMeshLayer = _a[4], PointCloudLayer = _a[5], BuildingSceneLayer = _a[6], SHCTiledMapServiceLayer = _a[7], SHCMapServiceLayer = _a[8], GroupLayer = _a[9], FeatureLayer = _a[10], GeoJSONLayer = _a[11], GraphicsLayer = _a[12], Extent = _a[13], SpatialReference = _a[14];
-                    smapgrouplayer = [];
-                    layerGroups.map(function (itemsgroup) {
-                        var grouplayer = new GroupLayer({
-                            id: itemsgroup.id,
-                            title: itemsgroup.title,
-                            visible: itemsgroup.visible,
-                            listMode: itemsgroup.listMode
-                        });
-                        if (itemsgroup.layerGroups != null) {
-                            var groupslayers = itemsgroup.layerGroups.reverse().map(function (items) {
-                                var grouplayer2 = new GroupLayer({
-                                    id: items.id,
-                                    title: items.title,
-                                    visible: items.visible,
-                                    listMode: items.listMode
+                    _a = _b.sent(), Extent = _a[0], SHCTiledMapServiceLayer = _a[1], SceneLayer = _a[2], TileLayer = _a[3], GraphicsLayer = _a[4], MapImageLayer = _a[5], GeoJSONLayer = _a[6], GroupLayer = _a[7], FeatureLayer = _a[8], SpatialReference = _a[9];
+                    layers.map(function (item) {
+                        if (item.mapType.trim() === 'GroupLayer') {
+                            if (viewMode === "3D") {
+                                var grouplayer = new GroupLayer({
+                                    id: item.layerEName,
+                                    title: item.layerCName,
+                                    visible: parseFloat(item.isVisible),
+                                    opacity: parseFloat(item.opacity)
                                 });
-                                items.layers.reverse().map(function (layer) {
-                                    switch (layer.maptype) {
-                                        case "TileLayer":
-                                            grouplayer2.add(new TileLayer(layer.url, {
-                                                id: layer.id,
-                                                title: layer.title,
-                                                visible: layer.visible,
-                                                opacity: layer.opacity,
-                                                listMode: layer.listMode
-                                            }));
-                                            break;
-                                        case "MapImageLayer":
-                                            grouplayer2.add(new MapImageLayer(layer.url, {
-                                                id: layer.id,
-                                                title: layer.title,
-                                                visible: layer.visible,
-                                                opacity: layer.opacity,
-                                                listMode: layer.listMode
-                                            }));
-                                            break;
-                                        case "GeoJSONLayer":
-                                            grouplayer2.add(new GeoJSONLayer({
-                                                url: layer.url,
-                                                id: layer.id,
-                                                title: layer.title,
-                                                visible: layer.visible,
-                                                opacity: layer.opacity,
-                                                listMode: layer.listMode
-                                            }));
-                                            break;
-                                        case "localFeatureLayer":
-                                            var localflayer = new FeatureLayer({
-                                                id: layer.id,
-                                                title: layer.title,
-                                                visible: layer.visible,
-                                                opacity: layer.opacity,
-                                                listMode: layer.listMode,
-                                                popupTemplate: layer.popupTemplate,
-                                                definitionExpression: layer.definitionExpression,
-                                                popupEnabled: layer.popupEnabled,
-                                                source: []
-                                            });
-                                            if (layer.renderer != null && layer.renderer !== undefined) {
-                                                localflayer.renderer = layer.renderer;
-                                            }
-                                            grouplayer2.add(localflayer);
-                                            break;
-                                        case "FeatureLayer":
-                                            var flayer = new FeatureLayer(layer.url, {
-                                                id: layer.id,
-                                                title: layer.title,
-                                                visible: layer.visible,
-                                                opacity: layer.opacity,
-                                                listMode: layer.listMode,
-                                                popupTemplate: layer.popupTemplate,
-                                                definitionExpression: layer.definitionExpression,
-                                                popupEnabled: layer.popupEnabled
-                                            });
-                                            if (layer.renderer != null && layer.renderer !== undefined) {
-                                                flayer.renderer = layer.renderer;
-                                            }
-                                            grouplayer2.add(flayer);
-                                            break;
-                                        case "SceneLayer":
-                                            grouplayer2.add(new SceneLayer(layer.url, {
-                                                id: layer.id,
-                                                title: layer.title,
-                                                visible: layer.visible,
-                                                opacity: layer.opacity,
-                                                renderer: layer.renderer,
-                                                popupTemplate: layer.popupTemplate,
-                                                definitionExpression: layer.definitionExpression,
-                                                popupEnabled: layer.popupEnabled
-                                            }));
-                                            break;
-                                        case "BuildingSceneLayer":
-                                            grouplayer2.add(new BuildingSceneLayer({
-                                                url: layer.url,
-                                                id: layer.id,
-                                                title: layer.title,
-                                                visible: layer.visible,
-                                                opacity: layer.opacity
-                                            }));
-                                            break;
-                                        case "PointCloudLayer":
-                                            grouplayer2.add(new PointCloudLayer(layer.url, {
-                                                id: layer.id,
-                                                title: layer.title,
-                                                visible: layer.visible,
-                                                opacity: layer.opacity,
-                                                listMode: layer.listMode
-                                            }));
-                                            break;
-                                        case "IntegratedMeshLayer":
-                                            grouplayer2.add(new IntegratedMeshLayer(layer.url, {
-                                                id: layer.id,
-                                                title: layer.title,
-                                                visible: layer.visible,
-                                                opacity: layer.opacity,
-                                                listMode: layer.listMode
-                                            }));
-                                        case "GraphicsLayer":
-                                            grouplayer2.add(new GraphicsLayer({
-                                                id: layer.id,
-                                                visible: layer.visible,
-                                                opacity: layer.opacity,
-                                                listMode: layer.listMode,
-                                                title: layer.title
-                                            }));
-                                            break;
-                                        case "SHCTiledMapServiceLayer":
-                                            // if (viewMode === '3D')   {
-                                            var fExtent = new Extent({
-                                                xmin: -65000,
-                                                ymin: -76000,
-                                                xmax: 75000.00000000003,
-                                                ymax: 72000.00000000003,
-                                                spatialReference: SpatialReference.WebMercator
-                                            });
-                                            if (layer.istoken === true) {
-                                                grouplayer2.add(SHCTiledMapServiceLayer({
-                                                    url: layer.url,
-                                                    token: maptoken,
-                                                    fullExtent: fExtent,
-                                                    opacity: layer.opacity,
-                                                    title: layer.title,
-                                                    id: layer.id,
-                                                    visible: layer.visible
-                                                }));
-                                            }
-                                            else {
-                                                grouplayer2.add(SHCTiledMapServiceLayer({
-                                                    url: layer.url,
-                                                    fullExtent: fExtent,
-                                                    opacity: layer.opacity,
-                                                    title: layer.title,
-                                                    id: layer.id,
-                                                    visible: layer.visible
-                                                }));
-                                            }
-                                            // } else {
-                                            //     grouplayer2.add(new TileLayer(layer.url, {
-                                            //         id: layer.id,
-                                            //         title: layer.title,
-                                            //         visible: layer.visible,
-                                            //         opacity: layer.opacity,
-                                            //         listMode: layer.listMode
-                                            //     }));
-                                            // }
-                                            break;
-                                        case "SHCMapServiceLayer":
-                                            if (viewMode === '3D') {
-                                                var fuExtent = new Extent({
-                                                    xmin: -65000,
-                                                    ymin: -76000,
-                                                    xmax: 75000.00000000003,
-                                                    ymax: 72000.00000000003,
-                                                    spatialReference: SpatialReference.WebMercator
-                                                });
-                                                if (layer.istoken === true) {
-                                                    grouplayer2.add(SHCMapServiceLayer({
-                                                        url: layer.url,
-                                                        token: maptoken,
-                                                        fullExtent: fuExtent,
-                                                        opacity: layer.opacity,
-                                                        title: layer.title,
-                                                        id: layer.id,
-                                                        visible: layer.visible
-                                                    }));
-                                                }
-                                                else {
-                                                    grouplayer2.add(new SHCMapServiceLayer({
-                                                        url: layer.url,
-                                                        fullExtent: fuExtent,
-                                                        opacity: layer.opacity,
-                                                        title: layer.title,
-                                                        id: layer.id,
-                                                        visible: layer.visible
-                                                    }));
-                                                }
-                                            }
-                                            else {
-                                                grouplayer2.add(new MapImageLayer(layer.url, {
-                                                    id: layer.id,
-                                                    title: layer.title,
-                                                    visible: layer.visible,
-                                                    opacity: layer.opacity,
-                                                    listMode: layer.listMode
-                                                }));
-                                            }
-                                            break;
-                                    }
-                                });
-                                return grouplayer2;
-                            });
-                            grouplayer.addMany(groupslayers);
-                        }
-                        if (itemsgroup.layers != null) {
-                            var layers = itemsgroup.layers.reverse().map(function (layer) {
-                                switch (layer.maptype) {
-                                    case "TileLayer":
-                                        return new TileLayer(layer.url, {
-                                            id: layer.id,
-                                            title: layer.title,
-                                            visible: layer.visible,
-                                            opacity: layer.opacity
-                                        });
-                                        break;
-                                    case "MapImageLayer":
-                                        return new MapImageLayer(layer.url, {
-                                            id: layer.id,
-                                            title: layer.title,
-                                            visible: layer.visible,
-                                            opacity: layer.opacity
-                                        });
-                                        break;
-                                    case "FeatureLayer":
-                                        var flayer = new FeatureLayer(layer.url, {
-                                            id: layer.id,
-                                            title: layer.title,
-                                            visible: layer.visible,
-                                            opacity: layer.opacity,
-                                            definitionExpression: layer.definitionExpression,
-                                            popupTemplate: layer.popupTemplate,
-                                            elevationInfo: layer.elevationInfo,
-                                            popupEnabled: layer.popupEnabled
-                                        });
-                                        if (layer.renderer != null && layer.renderer !== undefined) {
-                                            flayer.renderer = layer.renderer;
-                                        }
-                                        if (layer.labelingInfo != null && layer.labelingInfo !== undefined) {
-                                            flayer.labelingInfo = layer.labelingInfo;
-                                        }
-                                        return flayer;
-                                        break;
-                                    case "SceneLayer":
-                                        return new SceneLayer(layer.url, {
-                                            id: layer.id,
-                                            title: layer.title,
-                                            visible: layer.visible,
-                                            opacity: layer.opacity,
-                                            renderer: layer.renderer,
-                                            definitionExpression: layer.definitionExpression,
-                                            popupTemplate: layer.popupTemplate,
-                                            popupEnabled: layer.popupEnabled
-                                        });
-                                        break;
-                                    case "BuildingSceneLayer":
-                                        return new BuildingSceneLayer({
-                                            url: layer.url,
-                                            id: layer.id,
-                                            title: layer.title,
-                                            visible: layer.visible,
-                                            opacity: layer.opacity
-                                        });
-                                    case "PointCloudLayer":
-                                        return new PointCloudLayer(layer.url, {
-                                            id: layer.id,
-                                            title: layer.title,
-                                            visible: layer.visible,
-                                            opacity: layer.opacity,
-                                            listMode: layer.listMode
-                                        });
-                                        break;
-                                    case "IntegratedMeshLayer":
-                                        return new IntegratedMeshLayer(layer.url, {
-                                            id: layer.id,
-                                            title: layer.title,
-                                            visible: layer.visible,
-                                            opacity: layer.opacity,
-                                            listMode: layer.listMode
-                                        });
-                                    case "GraphicsLayer":
-                                        return new GraphicsLayer({
-                                            id: layer.id,
-                                            visible: layer.visible,
-                                            opacity: layer.opacity,
-                                            listMode: layer.listMode,
-                                            title: layer.title
-                                        });
-                                        break;
+                                addlayer.add(grouplayer);
+                                if (item.hasChildren) {
+                                    initiallayers(grouplayer, item.children, maptoken, viewMode);
                                 }
-                            });
-                            grouplayer.addMany(layers);
-                        }
-                        if (viewMode === '2D') {
-                            if (itemsgroup.grouptype === '2D') {
-                                smapgrouplayer.push(grouplayer);
+                            }
+                            else {
+                                if (parseFloat(item.modeType) === 1) {
+                                    var grouplayer = new GroupLayer({
+                                        id: item.layerEName,
+                                        title: item.layerCName,
+                                        visible: parseFloat(item.isVisible),
+                                        opacity: parseFloat(item.opacity)
+                                    });
+                                    addlayer.add(grouplayer);
+                                    if (item.hasChildren) {
+                                        initiallayers(grouplayer, item.children, maptoken, viewMode);
+                                    }
+                                }
                             }
                         }
                         else {
-                            smapgrouplayer.push(grouplayer);
+                            switch (item.mapType.trim()) {
+                                case 'SHCTiledMapServiceLayer':
+                                    // if (viewMode === '3D') {
+                                    // eslint-disable-next-line no-case-declarations
+                                    var fExtent = new Extent({
+                                        xmin: -65000,
+                                        ymin: -76000,
+                                        xmax: 75000.00000000003,
+                                        ymax: 72000.00000000003,
+                                        spatialReference: SpatialReference.WebMercator
+                                    });
+                                    if (!parseFloat(item.isToken) === true) {
+                                        addlayer.add(SHCTiledMapServiceLayer({
+                                            url: item.url,
+                                            fullExtent: fExtent,
+                                            opacity: parseFloat(item.opacity),
+                                            title: item.layerCName,
+                                            id: item.layerEName,
+                                            visible: parseFloat(item.isVisible)
+                                        }));
+                                    }
+                                    else {
+                                        addlayer.add(SHCTiledMapServiceLayer({
+                                            url: item.url,
+                                            token: maptoken,
+                                            fullExtent: fExtent,
+                                            opacity: parseFloat(item.opacity),
+                                            title: item.layerCName,
+                                            id: item.layerEName,
+                                            visible: parseFloat(item.isVisible)
+                                        }));
+                                    }
+                                    // } else {
+                                    //     addlayer.add(TileLayer({
+                                    //         url: item.url,
+                                    //         id: item.layerEName,
+                                    //         visible: parseFloat(item.isVisible),
+                                    //         opacity: parseFloat(item.opacity),
+                                    //         listMode: item.listMode,
+                                    //         title: item.layerCName
+                                    //     }));
+                                    // }
+                                    break;
+                                case 'MapImageLayer':
+                                    // eslint-disable-next-line no-case-declarations
+                                    addlayer.add(new MapImageLayer({
+                                        url: item.url,
+                                        opacity: parseFloat(item.opacity),
+                                        title: item.layerCName,
+                                        id: item.layerEName,
+                                        visible: parseFloat(item.isVisible)
+                                    }));
+                                    break;
+                                case 'SceneLayer':
+                                    // eslint-disable-next-line no-case-declarations
+                                    var scenelayer = new SceneLayer({
+                                        url: item.url,
+                                        opacity: parseFloat(item.opacity),
+                                        title: item.layerCName,
+                                        id: item.layerEName,
+                                        visible: parseFloat(item.isVisible)
+                                    });
+                                    if (item.renderer) {
+                                        var srender = JSON.parse(item.renderer);
+                                        scenelayer.renderer = srender;
+                                    }
+                                    if (item.popuptemplate) {
+                                        var popuptemplate = JSON.parse(item.popuptemplate);
+                                        scenelayer.popupTemplate = popuptemplate;
+                                    }
+                                    if (item.definitionExpress) {
+                                        scenelayer.definitionExpression = item.definitionExpress;
+                                    }
+                                    if (item.elevationInfo) {
+                                        var eInfo = JSON.parse(item.elevationInfo);
+                                        scenelayer.elevationInfo = eInfo;
+                                    }
+                                    if (item.maxScale) {
+                                        scenelayer.maxScale = item.maxScale;
+                                    }
+                                    if (item.minScale) {
+                                        scenelayer.minScale = item.minScale;
+                                    }
+                                    addlayer.add(scenelayer);
+                                    break;
+                                case 'GraphicsLayer':
+                                    // eslint-disable-next-line no-case-declarations
+                                    var graphicsLayer = new GraphicsLayer({
+                                        opacity: parseFloat(item.opacity),
+                                        title: item.layerCName,
+                                        id: item.layerEName,
+                                        visible: parseFloat(item.isVisible)
+                                    });
+                                    addlayer.add(graphicsLayer);
+                                    break;
+                                case 'GeoJSONLayer':
+                                    // eslint-disable-next-line no-case-declarations
+                                    var geogJSONLayer = new GeoJSONLayer({
+                                        url: item.url,
+                                        opacity: parseFloat(item.opacity),
+                                        title: item.layerCName,
+                                        id: item.layerEName,
+                                        visible: parseFloat(item.isVisible)
+                                    });
+                                    addlayer.add(geogJSONLayer);
+                                    break;
+                                case 'FeatureLayer':
+                                    // eslint-disable-next-line no-case-declarations
+                                    var featureLayer = new FeatureLayer({
+                                        url: item.url,
+                                        opacity: parseFloat(item.opacity),
+                                        title: item.layerCName,
+                                        id: item.layerEName,
+                                        visible: parseFloat(item.isVisible)
+                                    });
+                                    if (item.renderer) {
+                                        var srender = JSON.parse(item.renderer);
+                                        featureLayer.renderer = srender;
+                                    }
+                                    if (item.popuptemplate) {
+                                        var popuptemplate = JSON.parse(item.popuptemplate);
+                                        featureLayer.popupTemplate = popuptemplate;
+                                    }
+                                    if (item.definitionExpress) {
+                                        featureLayer.definitionExpression = item.definitionExpress;
+                                    }
+                                    if (item.elevationInfo) {
+                                        featureLayer.elevationInfo = JSON.parse(item.elevationInfo);
+                                    }
+                                    if (item.maxScale) {
+                                        featureLayer.maxScale = item.maxScale;
+                                    }
+                                    if (item.maxScale) {
+                                        featureLayer.minScale = item.minScale;
+                                    }
+                                    addlayer.add(featureLayer);
+                                    break;
+                            }
                         }
                     });
-                    return [2 /*return*/, smapgrouplayer];
+                    return [2 /*return*/];
             }
         });
     });
 }
-export function initbuildingsLayers(buildingsLayers, maptoken) {
+export function addLayer(layerOptions, view, maptoken) {
     return __awaiter(this, void 0, void 0, function () {
-        var _a, 
-        // tslint:disable-next-line:variable-name
-        TileLayer, SceneLayer, VectorTileLayer, MapImageLayer, IntegratedMeshLayer, PointCloudLayer, 
-        // tslint:disable-next-line:variable-name
-        BuildingSceneLayer, 
-        // tslint:disable-next-line:variable-name
-        SHCTiledMapServiceLayer, SHCMapServiceLayer, GroupLayer, FeatureLayer, GraphicsLayer, Extent, 
-        // tslint:disable-next-line:variable-name
-        SpatialReference, bLayers, grouplayers;
-        return __generator(this, function (_b) {
-            switch (_b.label) {
-                case 0: return [4 /*yield*/, load([
-                        "esri/layers/TileLayer",
-                        "esri/layers/SceneLayer",
-                        "esri/layers/VectorTileLayer",
-                        "esri/layers/MapImageLayer",
-                        "esri/layers/IntegratedMeshLayer",
-                        "esri/layers/PointCloudLayer",
-                        "esri/layers/BuildingSceneLayer",
-                        "esri/layers/SHCTiledMapServiceLayer",
-                        "esri/layers/SHCMapServiceLayer",
-                        "esri/layers/GroupLayer",
-                        "esri/layers/FeatureLayer",
-                        "esri/layers/GraphicsLayer",
-                        "esri/geometry/Extent",
-                        "esri/geometry/SpatialReference"
-                    ])];
-                case 1:
-                    _a = _b.sent(), TileLayer = _a[0], SceneLayer = _a[1], VectorTileLayer = _a[2], MapImageLayer = _a[3], IntegratedMeshLayer = _a[4], PointCloudLayer = _a[5], BuildingSceneLayer = _a[6], SHCTiledMapServiceLayer = _a[7], SHCMapServiceLayer = _a[8], GroupLayer = _a[9], FeatureLayer = _a[10], GraphicsLayer = _a[11], Extent = _a[12], SpatialReference = _a[13];
-                    bLayers = new GroupLayer({
-                        id: buildingsLayers.id,
-                        title: buildingsLayers.title,
-                        visible: buildingsLayers.visible,
-                        listMode: buildingsLayers.listMode
-                    });
-                    grouplayers = buildingsLayers.layerGroups.map(function (itemsgroup) {
-                        var grouplayer = new GroupLayer({
-                            id: itemsgroup.id,
-                            title: itemsgroup.title,
-                            visible: itemsgroup.visible,
-                            listMode: itemsgroup.listMode
+        return __generator(this, function (_a) {
+            // tslint:disable-next-line:variable-name
+            load(["esri/layers/TileLayer",
+                "esri/layers/SceneLayer",
+                "esri/layers/FeatureLayer",
+                "esri/layers/MapImageLayer",
+                "esri/layers/SHCTiledMapServiceLayer",
+                // "esri/layers/SHCMapServiceLayer",
+                // "esri/layers/VectorTileLayer",
+                // "esri/layers/IntegratedMeshLayer",
+                // "esri/layers/PointCloudLayer",
+                // "esri/layers/BuildingSceneLayer",
+                "esri/layers/GraphicsLayer",
+                "esri/geometry/Extent",
+                "esri/geometry/SpatialReference"])
+                // tslint:disable-next-line:variable-name
+                .then(function (_a) {
+                var TileLayer = _a[0], SceneLayer = _a[1], FeatureLayer = _a[2], MapImageLayer = _a[3], SHCTiledMapServiceLayer = _a[4], 
+                // SHCMapServiceLayer,
+                // tslint:disable-next-line:variable-name
+                // VectorTileLayer, IntegratedMeshLayer, PointCloudLayer, BuildingSceneLayer,
+                // tslint:disable-next-line:variable-name
+                GraphicsLayer = _a[5], Extent = _a[6], 
+                // tslint:disable-next-line:variable-name
+                SpatialReference = _a[7];
+                switch (layerOptions.layerType) {
+                    case 'TileLayer':
+                        view.map.add(new TileLayer({
+                            url: layerOptions.layerUrl,
+                            id: layerOptions.layerLayerId,
+                            visible: layerOptions.layerVisible !== undefined ? layerOptions.layerVisible : true,
+                            opacity: layerOptions.layerOpacity !== undefined ? layerOptions.layerOpacity : 1,
+                            title: layerOptions.layerTitle
+                        }));
+                        break;
+                    case 'FeatureLayer':
+                        var flayer = new SceneLayer({
+                            url: layerOptions.layerUrl,
+                            id: layerOptions.layerLayerId,
+                            visible: layerOptions.layerVisible !== undefined ? layerOptions.layerVisible : true,
+                            opacity: layerOptions.layerOpacity !== undefined ? layerOptions.layerOpacity : 1,
+                            title: layerOptions.layerTitle,
+                            popupEnabled: layerOptions.layerPopupEnabled !== undefined ?
+                                layerOptions.layerPopupEnabled : true
                         });
-                        if (itemsgroup.layerGroups != null) {
-                            var glayers = itemsgroup.layerGroups.reverse().map(function (items) {
-                                var grouplayer2 = new GroupLayer({
-                                    id: items.id,
-                                    title: items.title,
-                                    visible: items.visible,
-                                    listMode: items.listMode
-                                });
-                                items.layers.reverse().map(function (layer) {
-                                    switch (layer.maptype) {
-                                        case "TileLayer":
-                                            grouplayer2.add(new TileLayer(layer.url, {
-                                                id: layer.id,
-                                                title: layer.title,
-                                                visible: layer.visible,
-                                                opacity: layer.opacity,
-                                                listMode: layer.listMode
-                                            }));
-                                            break;
-                                        case "MapImageLayer":
-                                            grouplayer2.add(new MapImageLayer(layer.url, {
-                                                id: layer.id,
-                                                title: layer.title,
-                                                visible: layer.visible,
-                                                opacity: layer.opacity,
-                                                listMode: layer.listMode
-                                            }));
-                                            break;
-                                        case "FeatureLayer":
-                                            var flayer = new FeatureLayer(layer.url, {
-                                                id: layer.id,
-                                                title: layer.title,
-                                                visible: layer.visible,
-                                                opacity: layer.opacity,
-                                                listMode: layer.listMode,
-                                                popupTemplate: layer.popupTemplate,
-                                                definitionExpression: layer.definitionExpression,
-                                                popupEnabled: layer.popupEnabled
-                                            });
-                                            if (layer.renderer != null && layer.renderer !== undefined) {
-                                                flayer.renderer = layer.renderer;
-                                            }
-                                            return flayer;
-                                            break;
-                                        case "SceneLayer":
-                                            grouplayer2.add(new SceneLayer(layer.url, {
-                                                id: layer.id,
-                                                title: layer.title,
-                                                visible: layer.visible,
-                                                opacity: layer.opacity,
-                                                renderer: layer.renderer,
-                                                popupTemplate: layer.popupTemplate,
-                                                definitionExpression: layer.definitionExpression,
-                                                popupEnabled: layer.popupEnabled
-                                            }));
-                                            break;
-                                        case "BuildingSceneLayer":
-                                            grouplayer2.add(new BuildingSceneLayer({
-                                                url: layer.url,
-                                                id: layer.id,
-                                                title: layer.title,
-                                                visible: layer.visible,
-                                                opacity: layer.opacity
-                                            }));
-                                            break;
-                                        case "PointCloudLayer":
-                                            grouplayer2.add(new PointCloudLayer(layer.url, {
-                                                id: layer.id,
-                                                title: layer.title,
-                                                visible: layer.visible,
-                                                opacity: layer.opacity,
-                                                listMode: layer.listMode
-                                            }));
-                                            break;
-                                        case "IntegratedMeshLayer":
-                                            grouplayer2.add(new IntegratedMeshLayer(layer.url, {
-                                                id: layer.id,
-                                                title: layer.title,
-                                                visible: layer.visible,
-                                                opacity: layer.opacity,
-                                                listMode: layer.listMode
-                                            }));
-                                        case "GraphicsLayer":
-                                            grouplayer2.add(new GraphicsLayer({
-                                                id: layer.id,
-                                                visible: layer.visible,
-                                                opacity: layer.opacity,
-                                                listMode: layer.listMode,
-                                                title: layer.title
-                                            }));
-                                            break;
-                                        case "SHCTiledMapServiceLayer":
-                                            var fExtent = new Extent({
-                                                xmin: -65000,
-                                                ymin: -76000,
-                                                xmax: 75000.00000000003,
-                                                ymax: 72000.00000000003,
-                                                spatialReference: SpatialReference.WebMercator
-                                            });
-                                            if (layer.istoken === true) {
-                                                grouplayer2.add(SHCTiledMapServiceLayer({
-                                                    url: layer.url,
-                                                    token: maptoken,
-                                                    fullExtent: fExtent,
-                                                    opacity: layer.opacity,
-                                                    title: layer.title,
-                                                    id: layer.id,
-                                                    visible: layer.visible
-                                                }));
-                                            }
-                                            else {
-                                                grouplayer2.add(SHCTiledMapServiceLayer({
-                                                    url: layer.url,
-                                                    fullExtent: fExtent,
-                                                    opacity: layer.opacity,
-                                                    title: layer.title,
-                                                    id: layer.id,
-                                                    visible: layer.visible
-                                                }));
-                                            }
-                                            break;
-                                        case "SHCMapServiceLayer":
-                                            var fuExtent = new Extent({
-                                                xmin: -65000,
-                                                ymin: -76000,
-                                                xmax: 75000.00000000003,
-                                                ymax: 72000.00000000003,
-                                                spatialReference: SpatialReference.WebMercator
-                                            });
-                                            if (layer.istoken === true) {
-                                                grouplayer2.add(SHCMapServiceLayer({
-                                                    url: layer.url,
-                                                    token: maptoken,
-                                                    fullExtent: fuExtent,
-                                                    opacity: layer.opacity,
-                                                    title: layer.title,
-                                                    id: layer.id,
-                                                    visible: layer.visible
-                                                }));
-                                            }
-                                            else {
-                                                grouplayer2.add(new SHCMapServiceLayer({
-                                                    url: layer.url,
-                                                    fullExtent: fuExtent,
-                                                    opacity: layer.opacity,
-                                                    title: layer.title,
-                                                    id: layer.id,
-                                                    visible: layer.visible
-                                                }));
-                                            }
-                                            break;
-                                    }
-                                });
-                                return grouplayer2;
-                            });
-                            grouplayer.addMany(glayers);
+                        if (layerOptions.layerPopupTemplate) {
+                            flayer.popupTemplate = layerOptions.layerPopupTemplate;
                         }
-                        if (itemsgroup.layers != null) {
-                            var layers = itemsgroup.layers.reverse().map(function (layer) {
-                                switch (layer.maptype) {
-                                    case "TileLayer":
-                                        return new TileLayer(layer.url, {
-                                            id: layer.id,
-                                            title: layer.title,
-                                            visible: layer.visible,
-                                            opacity: layer.opacity
-                                        });
-                                        break;
-                                    case "MapImageLayer":
-                                        return new MapImageLayer(layer.url, {
-                                            id: layer.id,
-                                            title: layer.title,
-                                            visible: layer.visible,
-                                            opacity: layer.opacity
-                                        });
-                                        break;
-                                    case "FeatureLayer":
-                                        var flayer = new FeatureLayer(layer.url, {
-                                            id: layer.id,
-                                            title: layer.title,
-                                            visible: layer.visible,
-                                            opacity: layer.opacity,
-                                            definitionExpression: layer.definitionExpression,
-                                            popupTemplate: layer.popupTemplate,
-                                            elevationInfo: layer.elevationInfo,
-                                            popupEnabled: layer.popupEnabled
-                                        });
-                                        if (layer.renderer != null && layer.renderer !== undefined) {
-                                            flayer.renderer = layer.renderer;
-                                        }
-                                        return flayer;
-                                        break;
-                                    case "SceneLayer":
-                                        return new SceneLayer(layer.url, {
-                                            id: layer.id,
-                                            title: layer.title,
-                                            visible: layer.visible,
-                                            opacity: layer.opacity,
-                                            renderer: layer.renderer,
-                                            definitionExpression: layer.definitionExpression,
-                                            popupTemplate: layer.popupTemplate,
-                                            popupEnabled: layer.popupEnabled
-                                        });
-                                        break;
-                                    case "BuildingSceneLayer":
-                                        return new BuildingSceneLayer({
-                                            url: layer.url,
-                                            id: layer.id,
-                                            title: layer.title,
-                                            visible: layer.visible,
-                                            opacity: layer.opacity
-                                        });
-                                    case "PointCloudLayer":
-                                        return new PointCloudLayer(layer.url, {
-                                            id: layer.id,
-                                            title: layer.title,
-                                            visible: layer.visible,
-                                            opacity: layer.opacity,
-                                            listMode: layer.listMode
-                                        });
-                                        break;
-                                    case "IntegratedMeshLayer":
-                                        return new IntegratedMeshLayer(layer.url, {
-                                            id: layer.id,
-                                            title: layer.title,
-                                            visible: layer.visible,
-                                            opacity: layer.opacity,
-                                            listMode: layer.listMode
-                                        });
-                                    case "GraphicsLayer":
-                                        return new GraphicsLayer({
-                                            id: layer.id,
-                                            visible: layer.visible,
-                                            opacity: layer.opacity,
-                                            listMode: layer.listMode,
-                                            title: layer.title
-                                        });
-                                        break;
-                                }
-                            });
-                            grouplayer.addMany(layers);
+                        if (layerOptions.layerRenderer) {
+                            flayer.renderer = layerOptions.layerRenderer;
                         }
-                        return grouplayer;
-                    });
-                    bLayers.addMany(grouplayers);
-                    return [2 /*return*/, bLayers];
-            }
+                        if (layerOptions.layerMaxScale) {
+                            flayer.maxScale = layerOptions.layerMaxScale;
+                        }
+                        if (layerOptions.layerMinScale) {
+                            flayer.minScale = layerOptions.layerMinScale;
+                        }
+                        if (layerOptions.layerLabelingInfo) {
+                            flayer.labelingInfo = layerOptions.layerLabelingInfo;
+                        }
+                        if (layerOptions.layerLabelsVisible) {
+                            flayer.labelsVisible = layerOptions.layerLabelsVisible;
+                        }
+                        view.map.add(flayer);
+                        break;
+                    case 'SceneLayer':
+                        var slayer = new SceneLayer({
+                            url: layerOptions.layerUrl,
+                            id: layerOptions.layerLayerId,
+                            visible: layerOptions.layerVisible !== undefined ? layerOptions.layerVisible : true,
+                            opacity: layerOptions.layerOpacity !== undefined ? layerOptions.layerOpacity : 1,
+                            title: layerOptions.layerTitle,
+                            popupEnabled: layerOptions.layerPopupEnabled !== undefined ?
+                                layerOptions.layerPopupEnabled : true
+                        });
+                        if (layerOptions.layerPopupTemplate) {
+                            slayer.popupTemplate = layerOptions.layerPopupTemplate;
+                        }
+                        if (layerOptions.layerRenderer) {
+                            slayer.renderer = layerOptions.layerRenderer;
+                        }
+                        if (layerOptions.layerMaxScale) {
+                            slayer.maxScale = layerOptions.layerMaxScale;
+                        }
+                        if (layerOptions.layerMinScale) {
+                            slayer.minScale = layerOptions.layerMinScale;
+                        }
+                        view.map.add(slayer);
+                        break;
+                    case 'MapImageLayer':
+                        var mlayer = new MapImageLayer({
+                            url: layerOptions.layerUrl,
+                            id: layerOptions.layerLayerId,
+                            visible: layerOptions.layerVisible !== undefined ? layerOptions.layerVisible : true,
+                            opacity: layerOptions.layerOpacity !== undefined ? layerOptions.layerOpacity : 1,
+                            title: layerOptions.layerTitle
+                        });
+                        if (layerOptions.layerMaxScale) {
+                            mlayer.maxScale = layerOptions.layerMaxScale;
+                        }
+                        if (layerOptions.layerMinScale) {
+                            mlayer.minScale = layerOptions.layerMinScale;
+                        }
+                        if (layerOptions.layerSublayers) {
+                            mlayer.sublayers = layerOptions.layerSublayers;
+                        }
+                        view.map.add(mlayer);
+                        break;
+                    case 'SHCTiledMapServiceLayer':
+                        // eslint-disable-next-line no-case-declarations
+                        var fExtent = new Extent({
+                            xmin: -65000,
+                            ymin: -76000,
+                            xmax: 75000.00000000003,
+                            ymax: 72000.00000000003,
+                            spatialReference: SpatialReference.WebMercator
+                        });
+                        if (layerOptions.isToken === true) {
+                            view.map.add(new SHCTiledMapServiceLayer({
+                                url: layerOptions.layerUrl,
+                                token: maptoken,
+                                fullExtent: fExtent,
+                                title: layerOptions.layerTitle,
+                                opacity: layerOptions.layerOpacity !== undefined ? layerOptions.layerOpacity : 1,
+                                id: layerOptions.layerLayerId,
+                                visible: layerOptions.layerVisible !== undefined ? layerOptions.layerVisible : true
+                            }));
+                        }
+                        else {
+                            view.map.add(new SHCTiledMapServiceLayer({
+                                url: layerOptions.layerUrl,
+                                fullExtent: fExtent,
+                                opacity: layerOptions.layerOpacity !== undefined ? layerOptions.layerOpacity : 1,
+                                title: layerOptions.layerTitle,
+                                id: layerOptions.layerLayerId,
+                                visible: layerOptions.layerVisible !== undefined ? layerOptions.layerVisible : true
+                            }));
+                        }
+                        break;
+                    case 'GraphicsLayer':
+                        view.map.add(new GraphicsLayer({
+                            id: layerOptions.layerLayerId,
+                            visible: layerOptions.layerVisible !== undefined ? layerOptions.layerVisible : true,
+                            opacity: layerOptions.layerOpacity !== undefined ? layerOptions.layerOpacity : 1,
+                            title: layerOptions.layerTitle
+                        }));
+                        break;
+                }
+            })
+                .catch(function (err) {
+                console.error(err);
+            });
+            return [2 /*return*/];
         });
     });
 }

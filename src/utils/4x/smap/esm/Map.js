@@ -51,8 +51,8 @@ import Mapcofig from './config/Mapcofig';
 import { init2Dmap, init3Dmap } from './initMap';
 import EventEmitter from './mod';
 import { load } from './modules';
+import { addLayer } from './utils/initlayers';
 import MapEvent from './utils/MapEvent';
-import * as request from './utils/request';
 var Map = /** @class */ (function (_super) {
     __extends(Map, _super);
     function Map(container, options) {
@@ -61,27 +61,35 @@ var Map = /** @class */ (function (_super) {
         _this.viewMode = '2D' || '3D';
         _this.showBuildingBlock = false;
         _this.view = null;
+        _this.maptoken = '';
         _this.mapControl = [];
         _this.mapoverlayers = [];
         _this.mapoverlayersflayer = [];
         _this.watchHandles = [];
         _this.viewMode = options.viewMode === undefined || options.viewMode === '2D' ? '2D' : '3D';
-        _this.zooms = options.zooms === undefined ? [0, 11] : options.zooms;
+        _this.zooms = options.zooms === undefined ? [1, 12] : options.zooms;
         _this.showBuildingBlock = options.showBuildingBlock ? true : false;
         _this.init(container, _this.viewMode, options);
         return _this;
     }
-    Map.prototype.getZoom = function () {
-        if (this.view === null) {
-            return;
+    Map.prototype.setlayerRenderer = function (layerid, renderer) {
+        var rendererLayer = this.view.map.findLayerById(layerid);
+        if (rendererLayer) {
+            rendererLayer.renderer = renderer;
         }
-        return this.view.zoom;
+    };
+    Map.prototype.addLayer = function (layeroption) {
+        addLayer(layeroption, this.view, this.maptoken);
+    };
+    Map.prototype.getZoom = function () {
+        if (this.view) {
+            return this.view.zoom;
+        }
     };
     Map.prototype.setZoom = function (zoomlevel) {
-        if (this.view === null) {
-            return;
+        if (this.view) {
+            this.view.zoom = zoomlevel;
         }
-        this.view.zoom = zoomlevel;
     };
     Map.prototype.panTo = function (targetpoint) {
         var _this = this;
@@ -106,67 +114,64 @@ var Map = /** @class */ (function (_super) {
         });
     };
     Map.prototype.panBy = function (offsetx, offsety) {
-        if (this.view === null) {
-            return;
+        if (this.view) {
+            var mapcenter = this.view.center;
+            var mapcenterscreen = this.view.toScreen(mapcenter);
+            this.view.center = this.view.toMap({
+                x: mapcenterscreen.x + offsetx,
+                y: mapcenterscreen.y + offsety
+            });
         }
-        var mapcenter = this.view.center;
-        var mapcenterscreen = this.view.toScreen(mapcenter);
-        this.view.center = this.view.toMap({
-            x: mapcenterscreen.x + offsetx,
-            y: mapcenterscreen.y + offsety
-        });
     };
     Map.prototype.getBounds = function () {
-        if (this.view === null) {
-            return;
-        }
-        var bounds = {};
-        bounds.southwest = [this.view.extent.xmin.toFixed(6), this.view.extent.ymin.toFixed(6)];
-        if (this.viewMode === '3D') {
-            if (this.view.extent.zmin !== undefined) {
-                bounds.southwest.push(this.view.extent.zmin.toFixed(6));
+        if (this.view) {
+            var bounds = {};
+            bounds.southwest = [this.view.extent.xmin.toFixed(6), this.view.extent.ymin.toFixed(6)];
+            if (this.viewMode === '3D') {
+                if (this.view.extent.zmin !== undefined) {
+                    bounds.southwest.push(this.view.extent.zmin.toFixed(6));
+                }
             }
-        }
-        bounds.northeast = [this.view.extent.xmax.toFixed(6), this.view.extent.ymax.toFixed(6)];
-        if (this.viewMode === '3D') {
-            if (this.view.extent.zmax !== undefined) {
-                bounds.northeast.push(this.view.extent.zmax.toFixed(6));
+            bounds.northeast = [this.view.extent.xmax.toFixed(6), this.view.extent.ymax.toFixed(6)];
+            if (this.viewMode === '3D') {
+                if (this.view.extent.zmax !== undefined) {
+                    bounds.northeast.push(this.view.extent.zmax.toFixed(6));
+                }
             }
+            return bounds;
         }
-        return bounds;
     };
     Map.prototype.setBounds = function (bds) {
         var _this = this;
-        if (this.view === null) {
-            return;
-        }
-        var dojoConfig = {
-            async: true,
-            packages: []
-        };
-        // tslint:disable-next-line:variable-name
-        load(['esri/geometry/Extent', 'esri/geometry/SpatialReference'])
-            // tslint:disable-next-line:no-shadowed-variable
-            .then(function (_a) {
-            var extent = _a[0], spatialReference = _a[1];
-            var EXTENT = new extent({
-                xmin: bds.xmin,
-                ymin: bds.ymin,
-                xmax: bds.xmax,
-                zmax: bds.ymax,
-                spatialReference: _this.view.spatialReference
-            });
-            if (_this.viewMode === '3D') {
-                if (bds.zmin !== undefined && bds.zmax !== undefined) {
-                    EXTENT.zmin = bds.zmin;
-                    EXTENT.zmax = bds.zmax;
+        if (this.view) {
+            var dojoConfig = {
+                async: true,
+                packages: []
+            };
+            // tslint:disable-next-line:variable-name
+            load(['esri/geometry/Extent', 'esri/geometry/SpatialReference'])
+                // tslint:disable-next-line:no-shadowed-variable
+                .then(function (_a) {
+                var extent = _a[0], spatialReference = _a[1];
+                var EXTENT = new extent({
+                    xmin: bds.xmin,
+                    ymin: bds.ymin,
+                    xmax: bds.xmax,
+                    zmax: bds.ymax,
+                    spatialReference: _this.view.spatialReference
+                });
+                if (_this.viewMode === '3D') {
+                    if (bds.zmin !== undefined && bds.zmax !== undefined) {
+                        EXTENT.zmin = bds.zmin;
+                        EXTENT.zmax = bds.zmax;
+                    }
                 }
-            }
-            _this.view.extent = EXTENT;
-        })
-            .catch(function (err) {
-            console.error(err);
-        });
+                _this.view.extent = EXTENT;
+            })
+                .catch(function (err) {
+                console.error(err);
+            });
+        }
     };
     Map.prototype.setCenter = function (centerx, centery, centerz) {
         return __awaiter(this, void 0, void 0, function () {
@@ -174,9 +179,7 @@ var Map = /** @class */ (function (_super) {
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
-                        if (this.view === null) {
-                            return [2 /*return*/];
-                        }
+                        if (!this.view) return [3 /*break*/, 2];
                         return [4 /*yield*/, load([
                                 'esri/geometry/Point',
                                 'esri/geometry/SpatialReference'
@@ -200,7 +203,8 @@ var Map = /** @class */ (function (_super) {
                             });
                         }
                         this.view.center = mapcenter;
-                        return [2 /*return*/];
+                        _b.label = 2;
+                    case 2: return [2 /*return*/];
                 }
             });
         });
@@ -211,9 +215,7 @@ var Map = /** @class */ (function (_super) {
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
-                        if (this.view === null) {
-                            return [2 /*return*/];
-                        }
+                        if (!this.view) return [3 /*break*/, 2];
                         return [4 /*yield*/, load([
                                 'esri/geometry/Point',
                                 'esri/geometry/SpatialReference'
@@ -244,191 +246,183 @@ var Map = /** @class */ (function (_super) {
                                 heading: this.view.camera.heading
                             });
                         }
-                        return [2 /*return*/];
+                        _b.label = 2;
+                    case 2: return [2 /*return*/];
                 }
             });
         });
     };
     Map.prototype.getCenter = function () {
-        if (this.view === null) {
-            return;
+        if (this.view) {
+            var pointxy = [];
+            pointxy.push(this.view.center.x.toFixed(6));
+            pointxy.push(this.view.center.y.toFixed(6));
+            if (this.viewMode === '3D') {
+                pointxy.push(this.view.center.z.toFixed(6));
+            }
+            return pointxy;
         }
-        var pointxy = [];
-        pointxy.push(this.view.center.x.toFixed(6));
-        pointxy.push(this.view.center.y.toFixed(6));
-        if (this.viewMode === '3D') {
-            pointxy.push(this.view.center.z.toFixed(6));
-        }
-        return pointxy;
     };
     Map.prototype.getScale = function () {
-        if (this.view === null) {
-            return;
+        if (this.view) {
+            return this.view.scale;
         }
-        return this.view.scale;
     };
     Map.prototype.setRotation = function (rotation) {
-        if (this.view === null) {
-            return;
-        }
-        if (this.viewMode === '2D') {
-            this.view.rotation = rotation;
-        }
-        else {
-            var flyanimation = this.view.goTo({
-                center: this.view.center,
-                zoom: this.view.zoom,
-                tilt: this.view.camera.tilt,
-                heading: rotation
-            });
+        if (this.view) {
+            if (this.viewMode === '2D') {
+                this.view.rotation = rotation;
+            }
+            else {
+                var flyanimation = this.view.goTo({
+                    center: this.view.center,
+                    zoom: this.view.zoom,
+                    tilt: this.view.camera.tilt,
+                    heading: rotation
+                });
+            }
         }
     };
     Map.prototype.setPitch = function (pitch) {
-        if (this.view === null) {
-            return;
-        }
-        if (this.viewMode === '3D') {
-            this.view.goTo({
-                center: this.view.center,
-                zoom: this.view.zoom,
-                tilt: pitch,
-                heading: this.view.camera.heading
-            });
+        if (this.view) {
+            if (this.viewMode === '3D') {
+                this.view.goTo({
+                    center: this.view.center,
+                    zoom: this.view.zoom,
+                    tilt: pitch,
+                    heading: this.view.camera.heading
+                });
+            }
         }
     };
     Map.prototype.getPitch = function () {
-        if (this.view === null) {
-            return;
-        }
-        if (this.viewMode === '3D') {
-            return this.view.camera.tilt;
+        if (this.view) {
+            if (this.viewMode === '3D') {
+                return this.view.camera.tilt;
+            }
         }
     };
     Map.prototype.zoomIn = function () {
-        if (this.view === null) {
-            return;
-        }
-        if (this.viewMode === '3D') {
-            if (this.view.zoom + 1 >= this.zooms[0] && this.view.zoom + 1 <= this.zooms[1]) {
+        if (this.view) {
+            if (this.viewMode === '3D') {
+                if (this.view.zoom + 1 >= this.zooms[0] && this.view.zoom + 1 <= this.zooms[1]) {
+                    this.view.goTo({
+                        center: this.view.center,
+                        zoom: this.view.zoom + 1,
+                        tilt: this.view.camera.tilt,
+                        heading: this.view.camera.heading
+                    });
+                }
+            }
+            else {
                 this.view.goTo({
                     center: this.view.center,
-                    zoom: this.view.zoom + 1,
-                    tilt: this.view.camera.tilt,
-                    heading: this.view.camera.heading
+                    zoom: this.view.zoom + 1
                 });
             }
-        }
-        else {
-            this.view.goTo({
-                center: this.view.center,
-                zoom: this.view.zoom + 1
-            });
         }
     };
     Map.prototype.zoomOut = function () {
-        if (this.view === null) {
-            return;
-        }
-        if (this.viewMode === '3D') {
-            if (this.view.zoom - 1 >= this.zooms[0] && this.view.zoom - 1 <= this.zooms[1]) {
+        if (this.view) {
+            if (this.viewMode === '3D') {
+                if (this.view.zoom - 1 >= this.zooms[0] && this.view.zoom - 1 <= this.zooms[1]) {
+                    this.view.goTo({
+                        center: this.view.center,
+                        zoom: this.view.zoom - 1,
+                        tilt: this.view.camera.tilt,
+                        heading: this.view.camera.heading
+                    });
+                }
+            }
+            else {
                 this.view.goTo({
                     center: this.view.center,
-                    zoom: this.view.zoom - 1,
-                    tilt: this.view.camera.tilt,
-                    heading: this.view.camera.heading
+                    zoom: this.view.zoom - 1
                 });
             }
-        }
-        else {
-            this.view.goTo({
-                center: this.view.center,
-                zoom: this.view.zoom - 1
-            });
         }
     };
     Map.prototype.setMapStyle = function (style) {
         var _this = this;
-        if (this.view === null) {
-            return;
-        }
-        switch (style) {
-            case "smap://styles/light":
-                this.view.map.basemap.id = 'basemap_zw';
-                break;
-            case "smap://styles/dark":
-                this.view.map.basemap.id = 'basemap_as';
-                break;
-            case "smap://styles/image":
-                this.view.map.basemap.id = 'basemap_air';
-                break;
-            default:
+        if (this.view) {
+            switch (style) {
+                case "smap://styles/light":
+                    this.view.map.basemap.id = 'basemap_zw';
+                    break;
+                case "smap://styles/dark":
+                    this.view.map.basemap.id = 'basemap_as';
+                    break;
+                case "smap://styles/image":
+                    this.view.map.basemap.id = 'basemap_air';
+                    break;
+                default:
+                    return;
+            }
+            this.view.map.basemap.baseLayers.items.forEach(function (layer) {
+                // tslint:disable-next-line:prefer-conditional-expression
+                if (layer.id === _this.view.map.basemap.id) {
+                    layer.visible = true;
+                }
+                else {
+                    layer.visible = false;
+                }
+            });
+            if (this.viewMode === '2D') {
                 return;
-        }
-        this.view.map.basemap.baseLayers.items.forEach(function (layer) {
-            // tslint:disable-next-line:prefer-conditional-expression
-            if (layer.id === _this.view.map.basemap.id) {
-                layer.visible = true;
             }
-            else {
-                layer.visible = false;
-            }
-        });
-        if (this.viewMode === '2D') {
-            return;
-        }
-        ['model_white_zw', 'model_air_real', 'model_white_as'].forEach(function (layname) {
-            var buildingmodel = _this.view.map.findLayerById(layname);
-            if (_this.showBuildingBlock === false) {
-                buildingmodel.visible = false;
-            }
-            else {
-                if (buildingmodel) {
-                    // tslint:disable-next-line:prefer-conditional-expression
-                    if (_this.view.map.basemap.id === 'basemap_zw') {
+            ['model_white_zw', 'model_air_real', 'model_white_as'].forEach(function (layname) {
+                var buildingmodel = _this.view.map.findLayerById(layname);
+                if (_this.showBuildingBlock === false) {
+                    buildingmodel.visible = false;
+                }
+                else {
+                    if (buildingmodel) {
                         // tslint:disable-next-line:prefer-conditional-expression
-                        if (layname === 'model_white_zw') {
-                            buildingmodel.visible = true;
+                        if (_this.view.map.basemap.id === 'basemap_zw') {
+                            // tslint:disable-next-line:prefer-conditional-expression
+                            if (layname === 'model_white_zw') {
+                                buildingmodel.visible = true;
+                            }
+                            else {
+                                buildingmodel.visible = false;
+                            }
                         }
-                        else {
-                            buildingmodel.visible = false;
+                        else if (_this.view.map.basemap.id === 'basemap_as') {
+                            // tslint:disable-next-line:prefer-conditional-expression
+                            if (layname === 'model_white_as') {
+                                buildingmodel.visible = true;
+                            }
+                            else {
+                                buildingmodel.visible = false;
+                            }
                         }
-                    }
-                    else if (_this.view.map.basemap.id === 'basemap_as') {
-                        // tslint:disable-next-line:prefer-conditional-expression
-                        if (layname === 'model_white_as') {
-                            buildingmodel.visible = true;
-                        }
-                        else {
-                            buildingmodel.visible = false;
-                        }
-                    }
-                    else if (_this.view.map.basemap.id === 'basemap_air') {
-                        // tslint:disable-next-line:prefer-conditional-expression
-                        if (layname === 'model_air_real') {
-                            buildingmodel.visible = true;
-                        }
-                        else {
-                            buildingmodel.visible = false;
+                        else if (_this.view.map.basemap.id === 'basemap_air') {
+                            // tslint:disable-next-line:prefer-conditional-expression
+                            if (layname === 'model_air_real') {
+                                buildingmodel.visible = true;
+                            }
+                            else {
+                                buildingmodel.visible = false;
+                            }
                         }
                     }
                 }
-            }
-        });
+            });
+        }
     };
     Map.prototype.getMapStyle = function () {
-        if (this.view === null) {
-            return;
-        }
-        switch (this.view.map.basemap.id) {
-            case "basemap_zw":
-                return 'smap://styles/light';
-                break;
-            case "basemap_as":
-                return 'smap://styles/dark';
-                break;
-            case "basemap_air":
-                return 'smap://styles/image';
-                break;
+        if (this.view) {
+            switch (this.view.map.basemap.id) {
+                case "basemap_zw":
+                    return 'smap://styles/light';
+                    break;
+                case "basemap_as":
+                    return 'smap://styles/dark';
+                    break;
+                case "basemap_air":
+                    return 'smap://styles/image';
+                    break;
+            }
         }
     };
     Map.prototype.showBuilding = function (isbuidingBlockshow) {
@@ -773,6 +767,40 @@ var Map = /** @class */ (function (_super) {
                 type: "stay-above"
             };
         }
+    };
+    Map.prototype.setExtentConstrain = function (leftbottom, righttop) {
+        var _this = this;
+        load(['esri/geometry/Extent', 'esri/geometry/geometryEngine', 'esri/core/watchUtils'])
+            // tslint:disable-next-line:variable-name
+            .then(function (_a) {
+            var Extent = _a[0], geometryEngine = _a[1], watchUtils = _a[2];
+            var cextent = new Extent({
+                xmin: leftbottom[0],
+                ymin: leftbottom[1],
+                xmax: righttop[0],
+                ymax: righttop[1],
+                spatialReference: _this.view.spatialReference
+            });
+            _this.view.extent = cextent;
+            var extentconstraintshander = watchUtils.whenTrue(_this.view, "stationary", function () {
+                var iscontainer = geometryEngine.contains(cextent, _this.view.extent);
+                if (!iscontainer) {
+                    _this.view.extent = cextent;
+                }
+            });
+            _this.watchHandles.push(['extentcontrain', extentconstraintshander]);
+        });
+    };
+    Map.prototype.removeExtentConstrain = function () {
+        var watchextentHandles = this.watchHandles.filter(function (item) {
+            return item[0] === 'extentcontrain';
+        });
+        watchextentHandles.forEach(function (handle) {
+            handle[1].remove();
+        });
+        this.watchHandles = this.watchHandles.filter(function (item) {
+            return item[0] !== 'extentcontrain';
+        });
     };
     Map.prototype.add = function (overlayers) {
         var _this = this;
@@ -1906,7 +1934,7 @@ var Map = /** @class */ (function (_super) {
                             };
                         }
                         var rs_5 = [];
-                        overlayers.paths.forEach(function (item) {
+                        overelement.paths.forEach(function (item) {
                             rs_5.push([item.X, item.Y, item.Z]);
                         });
                         var polygonattributes = overelement.attributes;
@@ -2515,7 +2543,8 @@ var Map = /** @class */ (function (_super) {
                             type: 'string'
                         }];
                     Object.keys(overlayers.attributes).forEach(function (element) {
-                        datafiled_3.push({ name: element,
+                        datafiled_3.push({
+                            name: element,
                             alias: element,
                             type: "string"
                         });
@@ -3031,40 +3060,6 @@ var Map = /** @class */ (function (_super) {
         this.view.graphics.removeAll();
         this.mapoverlayers = [];
     };
-    Map.prototype.setExtentConstrain = function (leftbottom, righttop) {
-        var _this = this;
-        load(['esri/geometry/Extent', 'esri/geometry/geometryEngine', 'esri/core/watchUtils'])
-            // tslint:disable-next-line:variable-name
-            .then(function (_a) {
-            var Extent = _a[0], geometryEngine = _a[1], watchUtils = _a[2];
-            var cextent = new Extent({
-                xmin: leftbottom[0],
-                ymin: leftbottom[1],
-                xmax: righttop[0],
-                ymax: righttop[1],
-                spatialReference: _this.view.spatialReference
-            });
-            _this.view.extent = cextent;
-            var extentconstraintshander = watchUtils.whenTrue(_this.view, "stationary", function () {
-                var iscontainer = geometryEngine.contains(cextent, _this.view.extent);
-                if (!iscontainer) {
-                    _this.view.extent = cextent;
-                }
-            });
-            _this.watchHandles.push(['extentcontrain', extentconstraintshander]);
-        });
-    };
-    Map.prototype.removeExtentConstrain = function () {
-        var watchextentHandles = this.watchHandles.filter(function (item) {
-            return item[0] === 'extentcontrain';
-        });
-        watchextentHandles.forEach(function (handle) {
-            handle[1].remove();
-        });
-        this.watchHandles = this.watchHandles.filter(function (item) {
-            return item[0] !== 'extentcontrain';
-        });
-    };
     Map.prototype.setmaskboundary = function (maskOptions) {
         var _this = this;
         load(['esri/Graphic', 'esri/layers/GraphicsLayer', 'esri/geometry/Polygon', 'esri/geometry/geometryEngineAsync',
@@ -3073,13 +3068,13 @@ var Map = /** @class */ (function (_super) {
             .then(function (_a) {
             var Graphic = _a[0], GraphicsLayer = _a[1], ArcPolygon = _a[2], geometryEngineAsync = _a[3], SpatialReference = _a[4], Color = _a[5];
             var boundaryLayer = null;
-            if (maskOptions.boundaryType === "qx") {
+            if (maskOptions.boundaryType === "qx_boundary") {
                 boundaryLayer = _this.view.map.findLayerById('qx_boundary');
             }
-            else if (maskOptions.boundaryType === "jd") {
+            else if (maskOptions.boundaryType === "jd_boundary") {
                 boundaryLayer = _this.view.map.findLayerById('jd_boundary');
             }
-            else if (maskOptions.boundaryType === "jwh") {
+            else if (maskOptions.boundaryType === "jwh_boundary") {
                 boundaryLayer = _this.view.map.findLayerById('jwh_boundary');
             }
             var maskgraphiclayer = _this.view.map.findLayerById('mask_boundary_graphiclayer');
@@ -3284,8 +3279,7 @@ var Map = /** @class */ (function (_super) {
                                 symbol: masksymbol
                             });
                             maskgraphiclayer.add(outermaskGraphic);
-                            var length = maskOptions.bounarycount === undefined ? 30
-                                : maskOptions.bounarycount;
+                            var length = maskOptions.bounarycount === undefined ? 30 : maskOptions.bounarycount;
                             var maskgcount = Math.ceil(maskOptions.boundarydistance / length);
                             //  let calgeometry = geomtry;
                             var setingcolor = new Color(maskOptions.boundaryColor).toRgba();
@@ -3354,43 +3348,49 @@ var Map = /** @class */ (function (_super) {
                     });
                 });
             }
-        }).catch(function (err) {
-            console.error(err);
         });
     };
     Map.prototype.init = function (container, viewMode, mapoptions) {
         return __awaiter(this, void 0, void 0, function () {
+            var username, menuName;
             var _this = this;
             return __generator(this, function (_a) {
+                username = mapoptions.userName === undefined ? Mapcofig.userName : mapoptions.userName;
+                menuName = mapoptions.menuName === undefined ? Mapcofig.menuName : mapoptions.menuName;
                 load(['smiapi/utils/xhrutils'])
                     // tslint:disable-next-line:no-shadowed-variable
                     .then(function (_a) {
                     var xhrutils = _a[0];
-                    return __awaiter(_this, void 0, void 0, function () {
-                        var tokenconfigname, domainName, maptokenrequesturl, response, response, fronttokenUrl, user, password;
+                    xhrutils.mapconfig(username, menuName, Mapcofig.proxyURL, Mapcofig.mapconfigbackendurl)
+                        .then(function (mapconfigresult) { return __awaiter(_this, void 0, void 0, function () {
+                        var tokenconfigname, domainName, response, response;
                         var _this = this;
-                        return __generator(this, function (_b) {
-                            switch (_b.label) {
+                        return __generator(this, function (_a) {
+                            switch (_a.label) {
                                 case 0:
-                                    if (!(Mapcofig.tokenserver.tokenType === 'back')) return [3 /*break*/, 1];
-                                    tokenconfigname = mapoptions.tokenconfigname === undefined ?
-                                        Mapcofig.tokenserver.token_black.tokenconfigname : mapoptions.tokenconfigname;
+                                    this.mapconfig = mapconfigresult.data.mapconfig[0];
+                                    this.maplayers = mapconfigresult.data.layers;
+                                    this.mapwidgets = mapconfigresult.data.mapwidgets;
+                                    this.mapProxys = mapconfigresult.data.mapProxys;
+                                    this.mapextent = mapconfigresult.data.mapextent[0];
+                                    if (!(this.mapconfig.tokenType === '1')) return [3 /*break*/, 1];
+                                    tokenconfigname = this.mapconfig.backtokenconfigname === undefined ?
+                                        Mapcofig.tokenconfigname : this.mapconfig.backtokenconfigname;
                                     domainName = window.location.host;
-                                    maptokenrequesturl = Mapcofig.tokenserver.token_black.url;
-                                    xhrutils.maptoken_backend(Mapcofig.proxyConifg.url, maptokenrequesturl, tokenconfigname, domainName)
+                                    xhrutils.maptoken_backend(Mapcofig.proxyURL, this.mapconfig.backtokenUrl, tokenconfigname, domainName)
                                         .then(function (maptokenResult) { return __awaiter(_this, void 0, void 0, function () {
-                                        var maptoken, response, response;
+                                        var response, response;
                                         return __generator(this, function (_a) {
                                             switch (_a.label) {
                                                 case 0:
-                                                    maptoken = 'jd4tMMmw0oeKvuNOT4LS7XPhB9b5mFP_1jsHbBWZM5eEEPyHPYAUXTRQ1zbMOdvKUOZtAPQK1wWbgNJIQkYJH0U5b8WqxKZ3jSicFwOCiw0giXgmuVZcLXau3RIUEp0xJViFkNKcSjIw567hvefTjNSCnQ0b-gul1-Ixo3HYO9JX2lVqWm1YZy5oA5B7GtUI';
+                                                    this.maptoken = JSON.parse(maptokenResult.data).token;
                                                     if (!(this.viewMode === '3D')) return [3 /*break*/, 2];
-                                                    return [4 /*yield*/, init3Dmap(container, Mapcofig.gisService, Mapcofig.proxyConifg, maptoken, mapoptions)];
+                                                    return [4 /*yield*/, init3Dmap(container, this.mapconfig, this.maplayers, this.mapwidgets, this.mapProxys, this.mapextent, this.maptoken, mapoptions)];
                                                 case 1:
                                                     response = _a.sent();
                                                     this.view = response.sceneView;
                                                     return [3 /*break*/, 4];
-                                                case 2: return [4 /*yield*/, init2Dmap(container, Mapcofig.gisService, Mapcofig.proxyConifg, maptoken, mapoptions)];
+                                                case 2: return [4 /*yield*/, init2Dmap(container, this.mapconfig, this.maplayers, this.mapwidgets, this.mapProxys, this.mapextent, this.maptoken, mapoptions)];
                                                 case 3:
                                                     response = _a.sent();
                                                     this.view = response.mapView;
@@ -3403,39 +3403,36 @@ var Map = /** @class */ (function (_super) {
                                     }); });
                                     return [3 /*break*/, 7];
                                 case 1:
-                                    if (!(Mapcofig.tokenserver.tokenType === 'free')) return [3 /*break*/, 6];
+                                    if (!(this.mapconfig.tokenType === '2')) return [3 /*break*/, 6];
                                     if (!(this.viewMode === '3D')) return [3 /*break*/, 3];
-                                    return [4 /*yield*/, init3Dmap(container, Mapcofig.gisService, Mapcofig.proxyConifg, '', mapoptions)];
+                                    return [4 /*yield*/, init3Dmap(container, this.mapconfig, this.maplayers, this.mapwidgets, this.mapProxys, this.mapextent, '', mapoptions)];
                                 case 2:
-                                    response = _b.sent();
+                                    response = _a.sent();
                                     this.view = response.sceneView;
                                     return [3 /*break*/, 5];
-                                case 3: return [4 /*yield*/, init2Dmap(container, Mapcofig.gisService, Mapcofig.proxyConifg, '', mapoptions)];
+                                case 3: return [4 /*yield*/, init2Dmap(container, this.mapconfig, this.maplayers, this.mapwidgets, this.mapProxys, this.mapextent, '', mapoptions)];
                                 case 4:
-                                    response = _b.sent();
+                                    response = _a.sent();
                                     this.view = response.mapView;
-                                    _b.label = 5;
+                                    _a.label = 5;
                                 case 5:
                                     this.initEvent();
                                     return [3 /*break*/, 7];
                                 case 6:
-                                    fronttokenUrl = Mapcofig.tokenserver.token_front.url;
-                                    user = Mapcofig.tokenserver.token_front.user;
-                                    password = Mapcofig.tokenserver.token_front.password;
-                                    xhrutils.maptoken_front(fronttokenUrl, user, password)
+                                    xhrutils.maptoken_front(this.mapconfig.fronttokenUrl, Mapcofig.tokenUser, Mapcofig.tokenPassword)
                                         .then(function (maptokenResult) { return __awaiter(_this, void 0, void 0, function () {
-                                        var maptoken, response, response;
+                                        var response, response;
                                         return __generator(this, function (_a) {
                                             switch (_a.label) {
                                                 case 0:
-                                                    maptoken = maptokenResult.token;
+                                                    this.maptoken = maptokenResult.token;
                                                     if (!(viewMode === '3D')) return [3 /*break*/, 2];
-                                                    return [4 /*yield*/, init3Dmap(container, Mapcofig.gisService, Mapcofig.proxyConifg, maptoken, mapoptions)];
+                                                    return [4 /*yield*/, init3Dmap(container, this.mapconfig, this.maplayers, this.mapwidgets, this.mapProxys, this.mapextent, this.maptoken, mapoptions)];
                                                 case 1:
                                                     response = _a.sent();
                                                     this.view = response.sceneView;
                                                     return [3 /*break*/, 4];
-                                                case 2: return [4 /*yield*/, init2Dmap(container, Mapcofig.gisService, Mapcofig.proxyConifg, maptoken, mapoptions)];
+                                                case 2: return [4 /*yield*/, init2Dmap(container, this.mapconfig, this.maplayers, this.mapwidgets, this.mapProxys, this.mapextent, this.maptoken, mapoptions)];
                                                 case 3:
                                                     response = _a.sent();
                                                     this.view = response.mapView;
@@ -3446,101 +3443,16 @@ var Map = /** @class */ (function (_super) {
                                             }
                                         });
                                     }); });
-                                    _b.label = 7;
+                                    _a.label = 7;
                                 case 7: return [2 /*return*/];
                             }
                         });
-                    });
+                    }); });
+                })
+                    .catch(function (err) {
+                    console.error(err);
                 });
                 return [2 /*return*/];
-            });
-        });
-    };
-    Map.prototype.init1 = function (container, viewMode, mapoptions) {
-        return __awaiter(this, void 0, void 0, function () {
-            var tokendata, maptokenrequesturl, response, response, expirationTime, tokenUrl;
-            var _this = this;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        if (!(Mapcofig.tokenserver.tokenType === 'back')) return [3 /*break*/, 1];
-                        tokendata = {
-                            tokenconfigname: mapoptions.tokenconfigname === undefined ? 'smiapi_new' : mapoptions.tokenconfigname,
-                            domainName: window.location.host
-                        };
-                        maptokenrequesturl = Mapcofig.tokenserver.token_black.url;
-                        request.get(maptokenrequesturl, '', tokendata, request.RequestMode.noCors, request.RequestCache.forceCache).then(function (maptokenResult) { return __awaiter(_this, void 0, void 0, function () {
-                            var maptoken, response, response;
-                            return __generator(this, function (_a) {
-                                switch (_a.label) {
-                                    case 0:
-                                        maptoken = JSON.parse(maptokenResult.data).token;
-                                        if (!(this.viewMode === '3D')) return [3 /*break*/, 2];
-                                        return [4 /*yield*/, init3Dmap(container, Mapcofig.gisService, Mapcofig.proxyConifg, maptoken, mapoptions)];
-                                    case 1:
-                                        response = _a.sent();
-                                        this.view = response.sceneView;
-                                        return [3 /*break*/, 4];
-                                    case 2: return [4 /*yield*/, init2Dmap(container, Mapcofig.gisService, Mapcofig.proxyConifg, maptoken, mapoptions)];
-                                    case 3:
-                                        response = _a.sent();
-                                        this.view = response.mapView;
-                                        _a.label = 4;
-                                    case 4:
-                                        this.initEvent();
-                                        return [2 /*return*/];
-                                }
-                            });
-                        }); });
-                        return [3 /*break*/, 7];
-                    case 1:
-                        if (!(Mapcofig.tokenserver.tokenType === 'free')) return [3 /*break*/, 6];
-                        if (!(this.viewMode === '3D')) return [3 /*break*/, 3];
-                        return [4 /*yield*/, init3Dmap(container, Mapcofig.gisService, Mapcofig.proxyConifg, '', mapoptions)];
-                    case 2:
-                        response = _a.sent();
-                        this.view = response.sceneView;
-                        return [3 /*break*/, 5];
-                    case 3: return [4 /*yield*/, init2Dmap(container, Mapcofig.gisService, Mapcofig.proxyConifg, '', mapoptions)];
-                    case 4:
-                        response = _a.sent();
-                        this.view = response.mapView;
-                        _a.label = 5;
-                    case 5:
-                        this.initEvent();
-                        return [3 /*break*/, 7];
-                    case 6:
-                        expirationTime = 1440;
-                        tokenUrl = Mapcofig.tokenserver.token_front.url + '?request=getToken&username=' +
-                            Mapcofig.tokenserver.token_front.user + '&password=' + Mapcofig.tokenserver.token_front.password
-                            + '&clientid=ref.' + window.location.host + '&expiration=' +
-                            expirationTime + '&f=json';
-                        request.post(tokenUrl, '', '', request.RequestMode.noCors, request.RequestCache.default).then(function (maptokenResult) { return __awaiter(_this, void 0, void 0, function () {
-                            var maptoken, response, response;
-                            return __generator(this, function (_a) {
-                                switch (_a.label) {
-                                    case 0:
-                                        maptoken = maptokenResult.token;
-                                        if (!(viewMode === '3D')) return [3 /*break*/, 2];
-                                        return [4 /*yield*/, init3Dmap(container, Mapcofig.gisService, Mapcofig.proxyConifg, maptoken, mapoptions)];
-                                    case 1:
-                                        response = _a.sent();
-                                        this.view = response.sceneView;
-                                        return [3 /*break*/, 4];
-                                    case 2: return [4 /*yield*/, init2Dmap(container, Mapcofig.gisService, Mapcofig.proxyConifg, maptoken, mapoptions)];
-                                    case 3:
-                                        response = _a.sent();
-                                        this.view = response.mapView;
-                                        _a.label = 4;
-                                    case 4:
-                                        this.initEvent();
-                                        return [2 /*return*/];
-                                }
-                            });
-                        }); });
-                        _a.label = 7;
-                    case 7: return [2 /*return*/];
-                }
             });
         });
     };

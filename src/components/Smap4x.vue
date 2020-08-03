@@ -17,10 +17,17 @@
       <el-button type="primary" @click="hideboundary">隐藏边界</el-button>
       <el-button type="primary" @click="showboundary">显示边界</el-button>
       <el-button type="primary" @click="btnquery">查询</el-button>
+      <el-button type="primary" @click="btnaddqxmaskboundary">添加区县遮盖</el-button>
+      <el-button type="primary" @click="btnaddheatmap">热力图</el-button>
+      <el-button type="primary" @click="btnupdateheatmap">更新热力图</el-button>
+      <el-button type="primary" @click="btnhideheatmap">隐藏热力图</el-button>
+      <el-button type="primary" @click="btnshowheatmap">显示热力图</el-button>
+      <el-button type="primary" @click="btnremoveheatmap">删除热力图</el-button>
     </div>
   </div>
 </template>
 <script>
+import h337 from 'heatmapjs'
 // import SMap from 'smap-shsmi'
 // import SMap from 'smap-shsmi-aa'
 import SMap from '../utils/4x/smap/esm/SMap'
@@ -37,7 +44,9 @@ export default {
       migrationMap: null,
       mapRoam: null,
       Boundary: null,
-      queryTask: null
+      queryTask: null,
+      maskBoundary: null,
+      HeatMap: null
     }
   },
   computed: {
@@ -568,6 +577,70 @@ export default {
       this.queryTask.featureLayer(par).then((result) => {
         console.log(result)
       })
+    },
+    btnaddqxmaskboundary() {
+      const par = {
+        boundaryType: 'qx_boundary',
+        boundaryDefinition: "name like '%黄浦%'", // qxcode like '%01%
+        boundarydistance: 150,
+        bounarycount: 5,
+        boundaryColor: 'blue',
+        maskColor: [0, 17, 33, 0.9],
+        symbol: {
+          size: 20
+        }
+      }
+      this.maskBoundary = new Plugins.MaskBoundary(this.map.view)
+      this.maskBoundary.add(par)
+    },
+    btnaddheatmap() {
+      const param = {
+        id: 'heatmap',
+        h337: h337,
+        container: 'container',
+        radius: 30,
+        maxOpacity: 0.8,
+        minOpacity: 0,
+        blur: 0.7,
+        gradient: {
+          0: 'rgb(0,0,0)',
+          0.3: 'rgb(0,0,255)',
+          0.8: 'rgb(0,255,0)',
+          0.98: 'rgb(255,255,0)',
+          1: 'rgb(255,0,0)'
+        },
+        datas: [
+          [-3020, -5200],
+          [-3020, -5200],
+          [-3120, -5200],
+          [-3120, -5100],
+          [-3220, -5200],
+          [-3220, -5200],
+          [-3220, -5200],
+          [-3120, -5200],
+          [-3220, -5200]
+        ]
+      }
+      this.HeatMap = new Plugins.HeatMap(this.map.view)
+      this.HeatMap.add(param)
+    },
+    btnupdateheatmap() {
+      const heatmapDataArray2 = [
+        [-3020, -6200, 500],
+        [-3120, -6200, 500],
+        [-3120, -6100, 500],
+        [-3220, -6200, 1000]
+      ]
+      this.HeatMap.refreshdata(heatmapDataArray2)
+    },
+    btnhideheatmap() {
+      this.HeatMap.hide()
+    },
+    btnshowheatmap() {
+      this.HeatMap.show()
+    },
+    btnremoveheatmap() {
+      this.HeatMap.remove('heatmap')
     }
   }
 }

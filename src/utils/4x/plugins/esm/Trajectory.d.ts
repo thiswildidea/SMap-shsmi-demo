@@ -1,9 +1,9 @@
 import ITrajectoryOptions from './interface/ITrajectoryOptions';
 import EventEmitter from './mod';
 export default class Trajectory extends EventEmitter {
+    displayedLayerid: any;
     private view;
     private routepalybackinternal;
-    private routelayerid;
     private track;
     constructor(view: any);
     play(playbackoption?: ITrajectoryOptions): void;

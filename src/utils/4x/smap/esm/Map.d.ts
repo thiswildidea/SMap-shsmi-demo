@@ -1,5 +1,6 @@
 import Bounds from './Bounds';
 import IBounds from './interface/IBounds';
+import ILayerOptions from './interface/ILayerOptions';
 import IMapOptions from './interface/IMapOptions';
 import IMaskOptions from './interface/IMaskOptions';
 import IOverlayers from './interface/IOverlayers';
@@ -11,12 +12,20 @@ export default class Map extends EventEmitter implements IOverlayers {
     private viewMode;
     private zooms;
     private showBuildingBlock;
+    private mapconfig;
+    private maplayers;
+    private mapwidgets;
+    private mapProxys;
+    private mapextent;
     private view;
+    private maptoken;
     private mapControl;
     private mapoverlayers;
     private mapoverlayersflayer;
     private watchHandles;
     constructor(container: string, options?: IMapOptions);
+    setlayerRenderer(layerid: string, renderer: any): void;
+    addLayer(layeroption: ILayerOptions): void;
     getZoom(): number;
     setZoom(zoomlevel: number): void;
     panTo(targetpoint: number[]): void;
@@ -38,6 +47,8 @@ export default class Map extends EventEmitter implements IOverlayers {
     addControl(control: MapControlBase): void;
     removeControl(control: MapControlBase): void;
     enableThroughGround(isunderground: boolean): void;
+    setExtentConstrain(leftbottom: [number, number], righttop: [number, number]): void;
+    removeExtentConstrain(): void;
     add(overlayers: Overlayerbase | Overlayerbase[] | OverlayGroup): void;
     remove(overlayers: Overlayerbase | Overlayerbase[] | OverlayGroup): void;
     update(overlayers: Overlayerbase | Overlayerbase[] | OverlayGroup): void;
@@ -45,10 +56,7 @@ export default class Map extends EventEmitter implements IOverlayers {
     updatefeature(overlayers: Overlayerbase | Overlayerbase[] | OverlayGroup): void;
     removefeature(overlayers: Overlayerbase | Overlayerbase[] | OverlayGroup): void;
     clearMap(): void;
-    setExtentConstrain(leftbottom: [number, number], righttop: [number, number]): void;
-    removeExtentConstrain(): void;
     setmaskboundary(maskOptions: IMaskOptions): void;
     private init;
-    private init1;
     private initEvent;
 }

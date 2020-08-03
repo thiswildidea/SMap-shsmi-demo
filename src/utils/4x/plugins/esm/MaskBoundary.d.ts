@@ -1,10 +1,10 @@
-import IBoundaryOptions from './interface/IBoundaryOptions';
+import IMaskOptions from './interface/IMaskOptions';
 import EventEmitter from './mod';
-export default class Boundary extends EventEmitter {
+export default class MaskBoundary extends EventEmitter {
     displayedLayerid: any;
     private view;
     constructor(view: any);
-    add(boundaryOptions?: IBoundaryOptions): void;
+    add(maskOptions: IMaskOptions): void;
     remove(): void;
     show(): void;
     hide(): void;

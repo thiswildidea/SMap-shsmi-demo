@@ -54,9 +54,9 @@ var TrajectoryPlus = /** @class */ (function (_super) {
     __extends(TrajectoryPlus, _super);
     function TrajectoryPlus(view) {
         var _this = _super.call(this) || this;
+        _this.displayedLayerid = "";
         _this.view = null;
         _this.mapRoamplayinternal = null;
-        _this.routelayerid = "";
         _this.mobilelayerid = "";
         _this.init(view);
         return _this;
@@ -144,7 +144,7 @@ var TrajectoryPlus = /** @class */ (function (_super) {
     TrajectoryPlus.prototype.remove = function () {
         if (typeof (this.mapRoamplayinternal) !== undefined) {
             clearInterval(this.mapRoamplayinternal);
-            var animateRouteLayer = this.view.map.findLayerById(this.routelayerid);
+            var animateRouteLayer = this.view.map.findLayerById(this.displayedLayerid);
             if (animateRouteLayer) {
                 this.view.map.remove(animateRouteLayer);
             }
@@ -189,11 +189,11 @@ var TrajectoryPlus = /** @class */ (function (_super) {
                 geometry: animateLine,
                 symbol: polylineSymbol
             });
-            var animateRouteLayer = _this.view.map.findLayerById(_this.routelayerid);
+            var animateRouteLayer = _this.view.map.findLayerById(_this.displayedLayerid);
             if (typeof (animateRouteLayer) === 'undefined') {
                 animateRouteLayer = new GraphicsLayer({
-                    title: '漫游路径' + _this.routelayerid,
-                    id: _this.routelayerid,
+                    title: '漫游路径' + _this.displayedLayerid,
+                    id: _this.displayedLayerid,
                     listMode: 'hide'
                 });
                 _this.view.map.add(animateRouteLayer);
@@ -204,7 +204,7 @@ var TrajectoryPlus = /** @class */ (function (_super) {
     TrajectoryPlus.prototype.init = function (view) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                this.routelayerid = new Guid().uuid;
+                this.displayedLayerid = new Guid().uuid;
                 this.mobilelayerid = new Guid().uuid;
                 this.view = view;
                 return [2 /*return*/];

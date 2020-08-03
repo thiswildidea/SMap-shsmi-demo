@@ -1,9 +1,9 @@
 import ITrajectoryPlusOptions from './interface/ITrajectoryPlusOptions';
 import EventEmitter from './mod';
 export default class TrajectoryPlus extends EventEmitter {
+    displayedLayerid: any;
     private view;
     private mapRoamplayinternal;
-    private routelayerid;
     private mobilelayerid;
     constructor(view: any);
     play(playbackoption?: ITrajectoryPlusOptions): void;
