@@ -49,67 +49,60 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 import EventEmitter from './mod';
 import { load } from './modules';
-import Guid from './utils/Guid';
-var HeatMap = /** @class */ (function (_super) {
-    __extends(HeatMap, _super);
-    function HeatMap(view) {
+var FlashPoint3DLayer = /** @class */ (function (_super) {
+    __extends(FlashPoint3DLayer, _super);
+    function FlashPoint3DLayer(view) {
         var _this = _super.call(this) || this;
-        _this.displayedLayerid = "";
         _this.view = null;
-        _this.heatmaplayer = null;
+        _this.falshpoint3DRenderer = null;
         _this.init(view);
         return _this;
     }
-    HeatMap.prototype.add = function (heatmapOptions) {
+    FlashPoint3DLayer.prototype.add = function (flashPointOptions) {
         var _this = this;
-        load(['smiapi/utils/HeatMapLayer'])
+        load(['smiapi/utils/FlashPoint3DLayer', "esri/geometry/Point", "esri/views/3d/externalRenderers"])
             // tslint:disable-next-line:variable-name
             .then(function (_a) {
-            var HeatMapLayer = _a[0];
-            var config = {
-                container: document.getElementById(heatmapOptions.container),
-                radius: heatmapOptions.radius || 30,
-                maxOpacity: heatmapOptions.maxOpacity || 0.8,
-                minOpacity: heatmapOptions.minOpacity || 0,
-                blur: heatmapOptions.blur || .7,
-                gradient: heatmapOptions.gradient || {
-                    0: "rgb(0,0,0)",
-                    0.3: "rgb(0,0,255)",
-                    0.8: "rgb(0,255,0)",
-                    0.98: "rgb(255,255,0)",
-                    1: "rgb(255,0,0)"
+            var flashPoint3DLayer = _a[0], Point = _a[1], externalRenderers = _a[2];
+            _this.falshpoint3DRenderer = new flashPoint3DLayer({
+                nring: flashPointOptions.nring,
+                spead: flashPointOptions.spead,
+                color: flashPointOptions.color,
+                view: flashPointOptions.view,
+                points: flashPointOptions.points
+            }, function (result) {
+                var geometryPoint = null;
+                if (result != null) {
+                    geometryPoint = new Point({
+                        x: result.x,
+                        y: result.y,
+                        spatialReference: {
+                            wkid: 102100
+                        }
+                    });
                 }
-            };
-            _this.heatmaplayer = new HeatMapLayer(_this.view, config, heatmapOptions.datas, heatmapOptions.h337, heatmapOptions.id);
-            _this.heatmaplayer.addData();
+                _this.emit('click', result, geometryPoint);
+            });
+            externalRenderers.add(_this.view, _this.falshpoint3DRenderer);
         });
     };
-    HeatMap.prototype.remove = function (heatmapid) {
-        var parent = document.getElementsByClassName("esri-view-surface")[0];
-        var box = document.getElementById(heatmapid);
-        if (box != null) {
-            parent.removeChild(box);
-        }
+    FlashPoint3DLayer.prototype.remove = function () {
+        var _this = this;
+        load(["esri/views/3d/externalRenderers"])
+            // tslint:disable-next-line:variable-name
+            .then(function (_a) {
+            var externalRenderers = _a[0];
+            externalRenderers.remove(_this.view, _this.falshpoint3DRenderer);
+        });
     };
-    HeatMap.prototype.refreshdata = function (datas) {
-        this.heatmaplayer.setVisible(true);
-        this.heatmaplayer.freshenLayerData(datas);
-    };
-    HeatMap.prototype.show = function () {
-        this.heatmaplayer.setVisible(true);
-    };
-    HeatMap.prototype.hide = function () {
-        this.heatmaplayer.setVisible(false);
-    };
-    HeatMap.prototype.init = function (view) {
+    FlashPoint3DLayer.prototype.init = function (view) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                this.displayedLayerid = new Guid().uuid;
                 this.view = view;
                 return [2 /*return*/];
             });
         });
     };
-    return HeatMap;
+    return FlashPoint3DLayer;
 }(EventEmitter));
-export default HeatMap;
+export default FlashPoint3DLayer;

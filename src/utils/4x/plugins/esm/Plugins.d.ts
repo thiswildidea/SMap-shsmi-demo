@@ -1,4 +1,5 @@
 import Boundary from './Boundary';
+import FlashPoint3DLayer from './FlashPoint3DLayer';
 import HeatMap from './HeatMap';
 import Layers from './interface/Layers';
 import MaskBoundary from './MaskBoundary';
@@ -10,6 +11,7 @@ declare const _default: {
     load: typeof load;
     Layers: typeof Layers;
     Boundary: typeof Boundary;
+    FlashPoint3DLayer: typeof FlashPoint3DLayer;
     HeatMap: typeof HeatMap;
     MaskBoundary: typeof MaskBoundary;
     TrajectoryPlus: typeof TrajectoryPlus;

@@ -97,10 +97,6 @@ export function loadAPIScript(options) {
                                 location: Mapcofig.jsapi + '/extensions/geolocation',
                                 name: 'geolocate',
                                 main: "geolocate"
-                            }, {
-                                location: Mapcofig.jsapi + '/extensions/heatmaputils',
-                                name: 'heatmap',
-                                main: "heatmap"
                             }],
                         deps: ['@dojo/framework/shim/main'],
                         has: {

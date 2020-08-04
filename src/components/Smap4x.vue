@@ -1,6 +1,6 @@
 <template>
   <div class="mapExtent">
-    <div id="container" style="height:100%" class="calcite-map calcite-map-absolute calcite-widgets-dark" />
+    <div id="container" style="height:100%" />
     <div class="info">
       <h4>地图控件</h4>
       <el-button type="primary" @click="addlayercontrol">添加图层控件</el-button>
@@ -23,6 +23,8 @@
       <el-button type="primary" @click="btnhideheatmap">隐藏热力图</el-button>
       <el-button type="primary" @click="btnshowheatmap">显示热力图</el-button>
       <el-button type="primary" @click="btnremoveheatmap">删除热力图</el-button>
+      <el-button type="primary" @click="btnaddflashpoint3d">添加了flashpoint3d</el-button>
+      <el-button type="primary" @click="btnremoveflashpoint3d">移除flashpoint3d</el-button>
     </div>
   </div>
 </template>
@@ -34,6 +36,7 @@ import SMap from '../utils/4x/smap/esm/SMap'
 // import Plugins from 'smap-plugins-shsmi'
 import Plugins from '../utils/4x/plugins/esm/Plugins'
 import GeoTask from '../utils/4x/task/esm/GeoTask'
+import mapsenceViewPopup from '../utils/mapsenceViewPopup'
 export default {
   name: 'MapControl',
   components: { },
@@ -46,7 +49,8 @@ export default {
       Boundary: null,
       queryTask: null,
       maskBoundary: null,
-      HeatMap: null
+      HeatMap: null,
+      fashPoint3DLayer: null
     }
   },
   computed: {
@@ -68,11 +72,11 @@ export default {
         showBuildingBlock: false
       })
       this.map.on(SMap.MapEvent.click, function(view, eventParamter) {
-        console.log(eventParamter.mapPoint)
-        console.log(view.camera)
-        view.hitTest(eventParamter).then(async function(response) {
-          console.log(response)
-        })
+        // console.log(eventParamter.mapPoint)
+        // console.log(view.camera)
+        // view.hitTest(eventParamter).then(async function(response) {
+        //   console.log(response)
+        // })
       })
     },
     addlayercontrol() {
@@ -641,6 +645,57 @@ export default {
     },
     btnremoveheatmap() {
       this.HeatMap.remove('heatmap')
+    },
+    btnaddflashpoint3d() {
+      var _self = this
+      const samples = [{
+        x: 0,
+        y: 0,
+        attributes: {
+          name: '报警点1',
+          address: '国际饭店'
+        }
+      },
+      {
+        x: 100,
+        y: 100,
+        attributes: {
+          name: '报警点2',
+          address: '人民广场附近1'
+        }
+      },
+      {
+        x: 150,
+        y: 100,
+        attributes: {
+          name: '报警点3',
+          address: '人民广场附近2'
+        }
+      }
+      ]
+      const param = {
+        color: [255, 0, 0, 1],
+        nring: 0.1,
+        spead: 1.0,
+        view: this.map.view,
+        points: samples
+      }
+      _self.fashPoint3DLayer = new Plugins.FlashPoint3DLayer(this.map.view)
+      _self.fashPoint3DLayer.add(param)
+      _self.fashPoint3DLayer.on('click', function(result, geometry) {
+        if (geometry) {
+          _self.map.view.popup.defaultPopupTemplateEnabled = true
+          _self.map.view.popup.autoOpenEnabled = false
+          _self.map.view.popup.open({
+            location: geometry,
+            title: result.attributes.name,
+            content: mapsenceViewPopup.createContentpopup(result.attributes)
+          })
+        }
+      })
+    },
+    btnremoveflashpoint3d() {
+      this.fashPoint3DLayer.remove('test')
     }
   }
 }
